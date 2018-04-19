@@ -63,7 +63,7 @@ def _configEval(syn, challenge_config, evalId, storeEvalConfig=False):
     try:
         evaluation = syn.getEvaluation(evalId)
         quota = {key:challenge_config[evalId].get(key) for key in quotaKeys if challenge_config[evalId].get(key) != "None"}
-        evaluation['quota'] = quota
+        evaluation.quota = quota
         if storeEvalConfig:    
             syn.store(evaluation)
     except Exception as exception:

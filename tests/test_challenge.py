@@ -27,10 +27,12 @@ def test_readYaml():
     assert_raises(ValueError, challenge.readYaml, incorrect)
 
 def test_checkAndConfigEval():
+    def my_side_effect(*args, **kwargs):
+        if args[0] == 34342:
+            return(synapseclient.Evaluation(name="temp",contentSource="syn123"))
 
     syn = mock.create_autospec(synapseclient.Synapse) 
-    evaluation = {}
-    syn.getEvaluation.return_value=evaluation
+    syn.getEvaluation.side_effect=my_side_effect
 
     challenge_config = {34342:{'submissionLimit':'None',
                                'firstRoundStart':'None',
@@ -38,8 +40,7 @@ def test_checkAndConfigEval():
                                'numberOfRounds':'None'}}
 
     newEvaluation = challenge._configEval(syn, challenge_config, 34342)
-    expectedEval = {'quota': {}}
+    expectedEval = synapseclient.Evaluation(name="temp",contentSource="syn123",quota={})
+
     assert newEvaluation == expectedEval
 
-
-test_checkAndConfigEval()
