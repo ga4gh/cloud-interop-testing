@@ -42,5 +42,18 @@ def test_checkAndConfigEval():
     newEvaluation = challenge._configEval(syn, challenge_config, 34342)
     expectedEval = synapseclient.Evaluation(name="temp",contentSource="syn123",quota={})
 
+    challenge_config = {34342:{'submissionLimit':2,
+                               'firstRoundStart':"2017-11-02T07:00:00.000Z",
+                               'roundDurationMillis':1645199000,
+                               'numberOfRounds':2}}
+
+    newEvaluation = challenge._configEval(syn, challenge_config, 34342)
+    expectedEval = synapseclient.Evaluation(name="temp",contentSource="syn123",quota={'submissionLimit':2,
+                               'firstRoundStart':"2017-11-02T07:00:00.000Z",
+                               'roundDurationMillis':1645199000,
+                               'numberOfRounds':2})
+
     assert newEvaluation == expectedEval
+
+    assert_raises(ValueError, challenge._configEval, syn, challenge_config, 33)
 

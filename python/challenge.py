@@ -68,7 +68,7 @@ def _configEval(syn, challenge_config, evalId, storeEvalConfig=False):
             syn.store(evaluation)
     except Exception as exception:
         logger.error("The evaluation queue id provided: %s, make sure your firstRoundStart configuration is in quotes or it will be read in as a datetime object" % evalId)
-        raise exception
+        raise ValueError
     return(evaluation)
 
 def checkAndConfigEval(syn, challenge_config, storeEvalConfig=False):
