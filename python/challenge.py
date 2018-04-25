@@ -55,6 +55,7 @@ def validate(syn, evaluation, canCancel, dry_run=False):
 
     for submission, status in syn.getSubmissionBundles(evaluation, status='RECEIVED'):
         submission = syn.getSubmission(submission)
+        #Check if submission has actually been gotten (Get rid of lock at some time point)
         logger.info("Validating %s %s" % (submission.id, submission.name))
         runWorkflow(syn, submission)
 
