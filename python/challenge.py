@@ -20,7 +20,11 @@ import synapseclient
 import synapseclient.utils as utils
 from synapseclient.exceptions import *
 from datetime import datetime, timedelta
-from StringIO import StringIO
+#Python3 compatibility
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import lock
 import argparse
 import os
