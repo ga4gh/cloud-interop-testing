@@ -291,10 +291,10 @@ def send_message(userIds, subject_template, message_template, kwargs):
     subject = formatter.format(subject_template, **kwargs)
     message = formatter.format(message_template, **kwargs)
     if dry_run:
-        print "\nDry Run: would have sent:"
-        print subject
-        print "-" * 60
-        print message
+        print("\nDry Run: would have sent:")
+        print(subject)
+        print("-" * 60)
+        print(message)
         return None
     elif syn:
         response = syn.sendMessage(
@@ -302,7 +302,7 @@ def send_message(userIds, subject_template, message_template, kwargs):
             messageSubject=subject,
             messageBody=message,
             contentType="text/html")
-        print "sent: ", unicode(response).encode('utf-8')
+        print("sent: %s" % response)
         return response
     else:
         sys.stderr.write("Can't send message. No Synapse object configured\n")
