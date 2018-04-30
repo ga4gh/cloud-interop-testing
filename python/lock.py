@@ -71,12 +71,12 @@ class Lock(object):
 
 
 def _sleep(seconds=0):
-    print "sleeping", seconds, "seconds"
+    print("sleeping %s seconds" % seconds)
     for i in range(seconds):
         time.sleep(1)
         sys.stdout.write('.')
         sys.stdout.flush()
-    print "\ndone sleeping"
+    print("\ndone sleeping")
 
 
 if __name__ == "__main__":

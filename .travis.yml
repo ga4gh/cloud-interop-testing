@@ -1,0 +1,17 @@
+sudo: required
+language: python
+script:
+  - nosetests -vs tests
+
+before_install:
+  - pip install pandas synapseclient pyyaml
+
+
+matrix:
+  include:
+    - os: linux
+      python: 2.7.14
+    - os: linux
+      python: 3.5.3
+    - os: linux
+      python: 3.6.2
