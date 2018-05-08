@@ -15,7 +15,7 @@ dependencies:
   - backports_abc=0.5
   - bleach=2.1.3
   - configparser=3.5.0
-  - dbus=1.13.2
+  - dbus
   - decorator=4.3.0
   - entrypoints=0.2.3
   - enum34=1.1.6
@@ -23,7 +23,7 @@ dependencies:
   - functools32=3.2.3.2
   - futures=3.2.0
   - gettext=0.19.8.1
-  - glib=2.56.1
+  - glib
   - html5lib=1.0.1
   - icu=58.2
   - ipykernel=4.8.2
@@ -37,8 +37,8 @@ dependencies:
   - jupyter_client=5.2.3
   - jupyter_console=5.2.0
   - jupyter_core=4.4.0
-  - libcxx=4.0.1
-  - libcxxabi=4.0.1
+  - libcxx
+  - libcxxabi
   - libedit=3.1
   - libffi=3.2.1
   - libiconv=1.15
