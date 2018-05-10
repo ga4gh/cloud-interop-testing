@@ -5,7 +5,7 @@ from nose.tools import assert_raises
 import os
 import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(SCRIPT_DIR,"../python"))
+sys.path.append(os.path.join(SCRIPT_DIR,"../scripts"))
 import challenge
 
 
@@ -22,7 +22,7 @@ def test_readYaml():
 {34342:
     submissionLimit:   foo
     wrong:    foo}
-""" 
+"""
     #CHECK: incorrectly formatted yaml files will throw an error
     assert_raises(ValueError, challenge.readYaml, incorrect)
 
@@ -31,7 +31,7 @@ def test_checkAndConfigEval():
         if args[0] == 34342:
             return(synapseclient.Evaluation(name="temp",contentSource="syn123"))
 
-    syn = mock.create_autospec(synapseclient.Synapse) 
+    syn = mock.create_autospec(synapseclient.Synapse)
     syn.getEvaluation.side_effect=my_side_effect
 
     challenge_config = {34342:{'submissionLimit':'None',
@@ -56,4 +56,3 @@ def test_checkAndConfigEval():
     assert newEvaluation == expectedEval
 
     assert_raises(ValueError, challenge._configEval, syn, challenge_config, 33)
-
