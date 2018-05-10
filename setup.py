@@ -30,7 +30,7 @@ setup(
         'synapseclient',
     ],
     test_suite='nose.collector',
-    tests_require=['nose', 'mock']
+    tests_require=['nose', 'mock'],
     entry_points={
     'console_scripts': 'orchestrate=synorchestrator.__main__:main'
     },
