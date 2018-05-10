@@ -44,7 +44,7 @@ Some rough ideas for modules:
 
 #### Install develop branch
 
-This software is still in pre-alpha phase, with frequent changes being made to the ["development" branch](https://github.com/Sage-Bionetworks/synevalharness/tree/develop). To work with or contribute to the latest version, clone this repo, check out the `develop` branch, and install from source. If you plan to make changes to the code, use the `-e` mode to make the installation follow the head without having to reinstall (using `conda` or `virtualenv` to create an isolated test environment is recommended).
+This software is still in pre-alpha phase, with frequent changes being made to the ["development" branch](https://github.com/Sage-Bionetworks/synapse-orchestrator/tree/develop). To work with or contribute to the latest version, clone this repo, check out the `develop` branch, and install from source. If you plan to make changes to the code, use the `-e` mode to make the installation follow the head without having to reinstall (using `conda` or `virtualenv` to create an isolated test environment is recommended).
 
 ```
 git clone git://github.com/Sage-Bionetworks/synapse-orchestrator.git
