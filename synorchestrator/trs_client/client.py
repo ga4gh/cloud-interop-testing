@@ -1,5 +1,10 @@
+import logging
 import requests
 import urllib
+import re
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 def _get_endpoint(client, endpoint):
@@ -18,7 +23,10 @@ def _format_workflow_id(id):
     """
     Add workflow prefix to and quote a tool ID.
     """
-    return urllib.quote_plus('#workflow/{}'.format(id))
+    if not re.search('^#workflow', id):
+        return urllib.quote_plus('#workflow/{}'.format(id))
+    else:
+        return urllib.quote_plus(id)
 
 
 class TRSClient(object):
@@ -38,7 +46,18 @@ class TRSClient(object):
         """
         id = _format_workflow_id(id)
         endpoint = 'tools/{}'.format(id)
+        logging.debug("retrieving workflow entry from {}".format(endpoint))
         return _get_endpoint(self, endpoint)
+
+
+    def get_workflow_checker(self, id):
+        """
+        Return URL for the specified workflow's "checker workflow."
+        """
+        checker_url = urllib.unquote(self.get_workflow(id)['checker_url'])
+        checker_id = re.sub('^.*#workflow/', '', checker_url)
+        logger.debug("found checker workflow: {}".format(checker_id))
+        return self.get_workflow(checker_id)
 
 
     def get_workflow_versions(self, id):
@@ -46,7 +65,7 @@ class TRSClient(object):
         Return all versions of the specified workflow.
         """
         id = _format_workflow_id(id)
-        endpoint = 'tools/{}'.format(id)
+        endpoint = 'tools/{}/versions'.format(id)
         return _get_endpoint(self, endpoint)
 
 
