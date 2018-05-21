@@ -31,8 +31,8 @@ def _format_workflow_id(id):
 
 class TRSClient(object):
     """
-    Build a :class:`SwaggerClient` from a url to the Swagger
-    specification for the GA4GH Tool Registry Service RESTful API.
+    Build a :class:`TRSClient` for interacting with a server via
+    the GA4GH Tool Registry Service RESTful API.
     """
     def __init__(self, host, auth=None, proto='http'):
         self.base_url = '{}://{}/api/ga4gh/v2'.format(proto, host)
