@@ -25,7 +25,7 @@ def _post_to_endpoint(client, endpoint, request):
     """
     res = requests.post(
         '{}/{}'.format(client.base_url, endpoint),
-        headers=wes.headers,
+        headers=client.headers,
         json=request
     )
     # TODO: add some exception handling for different responses
