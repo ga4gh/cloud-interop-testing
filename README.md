@@ -29,11 +29,10 @@ Some rough ideas for modules:
   + retrieves and manages information (e.g. status) about individual submissions to an evaluation queue 
 + **`trs_client`**:
   + retrieves (and possibly updates) information about a workflow from a tool registry service (e.g. Dockstore)
-  + works as a `bravado` client based on the Swagger spec provided for a TRS implementation (as opposed to any CLI that might exist for that implemenation)
+  + works as a `requests` client based on a subset of the Swagger spec for the GA4GH  Tool Registry Service schema (as opposed to any CLI that might exist for a TRS implemenation)
 + **`wes_client`**:
   + manages interactions with a workflow execution service endpoint, including submitting new workflow jobs, monitoring workflow run progress, and collecting results 
-  + works as a `bravado` client based on the Swagger spec provided for a WES implementation
-  + currently imported from a git submodule pointing to a fork of [@david4046's `updates-wes-0.2` branch](https://github.com/david4096/workflow-service/tree/updates-wes-0.2) of the `workflow-service` repo
+  + works as a `requests` client based on a subset of the Swagger spec for the GA4GH Workflow Execution Service schema
 + **`orchestrator`**:
   + functions (or class with methods) to glue together the various services above
   + at minimum, should be able to (1) take a given ID/URL for a workflow registered in a given TRS implementation; (2) prepare the workflow run request, including retrieval (and formatting?) of parameters, if not provided; (3) post the workflow run request to a given WES implementation; (4) monitor and report results of the workflow run
@@ -42,30 +41,12 @@ Some rough ideas for modules:
 
 ### Development
 
-#### Install develop branch
-
 This software is still in pre-alpha phase, with frequent changes being made to the ["development" branch](https://github.com/Sage-Bionetworks/synapse-orchestrator/tree/develop). To work with or contribute to the latest version, clone this repo, check out the `develop` branch, and install from source. If you plan to make changes to the code, use the `-e` mode to make the installation follow the head without having to reinstall (using `conda` or `virtualenv` to create an isolated test environment is recommended).
 
 ```
 git clone git://github.com/Sage-Bionetworks/synapse-orchestrator.git
 cd synapse-orchestrator
 git checkout develop
-pip install -e .
-```
-
-#### Update `workflow-service` git submodule
-
-When you first clone this repo or checkout the latest `develop` branch, the `workflow-service` folder may be empty. To download the submodule’s content, you can use
-
-```
-git submodule update --init --recursive
-```
-
-You should also ensure that the submodule is on the recommended branch (and install the package to make it available to `synorchestrator`):
-
-```
-cd workflow-service
-git checkout updates-wes-0.2
 pip install -e .
 ```
 
