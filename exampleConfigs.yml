@@ -1,0 +1,30 @@
+evals:
+  file: './evals.config'
+  123:
+    workflow_id: "github.com/dockstore-testing/md5sum-checker/_cwl_checker:develop"
+    trs_id: "dockstore"
+    workflow_type: "cwl"
+    workflow_params_source: "checker"
+
+toolregistries:
+  file: './toolregistries.config'
+  dockstore:
+    host: "dockstore.org:8443"
+    auth:
+    proto: "https"
+
+workflowservices:
+  file: './workflowservices.config'
+  local:
+    host: "localhost:8080"
+    auth:
+    proto: "http"
+
+orchestrator:
+  file: '~/.orchestratorConfig'
+  evals:
+    123
+  toolregistries:
+    "dockstore"
+  workflowservices:
+    "local"
