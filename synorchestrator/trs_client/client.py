@@ -1,4 +1,5 @@
 import logging
+import os
 import requests
 import urllib
 import re
@@ -23,6 +24,7 @@ def _format_workflow_id(id):
     """
     Add workflow prefix to and quote a tool ID.
     """
+    id = urllib.unquote(id)
     if not re.search('^#workflow', id):
         return urllib.quote_plus('#workflow/{}'.format(id))
     else:
@@ -52,7 +54,7 @@ class TRSClient(object):
 
     def get_workflow_checker(self, id):
         """
-        Return URL for the specified workflow's "checker workflow."
+        Return entry for the specified workflow's "checker workflow."
         """
         checker_url = urllib.unquote(self.get_workflow(id)['checker_url'])
         checker_id = re.sub('^.*#workflow/', '', checker_url)
@@ -78,10 +80,11 @@ class TRSClient(object):
         endpoint = 'tools/{}/versions/{}/{}/descriptor'.format(
             id, version_id, type
         )
+        logger.debug("getting descriptor from {}".format(endpoint))
         return _get_endpoint(self, endpoint)
 
 
-    def get_workflow_tests(self, id, version_id, type):
+    def get_workflow_tests(self, id, version_id, type, fix_url=True):
         """
         Return a list of test JSONs (these allow you to execute the
         workflow successfully) suitable for use with this descriptor
@@ -91,4 +94,13 @@ class TRSClient(object):
         endpoint = 'tools/{}/versions/{}/{}/tests'.format(
             id, version_id, type
         )
-        return _get_endpoint(self, endpoint)
+        tests =  _get_endpoint(self, endpoint)
+        if fix_url:
+            descriptor = self.get_workflow_descriptor(id, version_id, type)
+            for test in tests:
+                if test['url'].startswith('/'):
+                    test['url'] = os.path.join(
+                        os.path.dirname(descriptor['url']),
+                        os.path.basename(tests[0]['url'])
+                    )
+        return tests

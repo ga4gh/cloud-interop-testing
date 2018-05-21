@@ -54,8 +54,17 @@ def build_trs_request():
     """
     pass
 
-def build_wes_request():
+def build_wes_request(workflow_descriptor, workflow_params,
+                      workflow_type='CWL', workflow_version='v1.0'):
     """
     Prepare Workflow Execution Service request for a given submission.
     """
-    pass
+    if isinstance(workflow_params, basestring):
+        workflow_params = params_url2object(workflow_params)
+    request = {
+        "workflow_url": workflow_descriptor,
+        "workflow_params": workflow_params,
+        "workflow_type": "CWL",
+        "workflow_type_version": "v1.0"
+    }
+    return request
