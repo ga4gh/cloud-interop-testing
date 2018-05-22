@@ -104,3 +104,15 @@ class TRSClient(object):
                         os.path.basename(tests[0]['url'])
                     )
         return tests
+
+
+    def get_workflow_files(self, id, version_id, type, fix_url=True):
+        """
+        Return a list of files associated with the workflow based
+        on file type.
+        """
+        id = _format_workflow_id(id)
+        endpoint = 'tools/{}/versions/{}/{}/files'.format(
+            id, version_id, type
+        )
+        return _get_endpoint(self, endpoint)
