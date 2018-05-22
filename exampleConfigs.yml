@@ -25,6 +25,7 @@ workflowservices:
   local:
     host: "0.0.0.0:8080"
     auth:
+    auth_type: ""
     proto: "http"
 
 orchestrator:
