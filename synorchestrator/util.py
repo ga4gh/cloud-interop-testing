@@ -1,5 +1,6 @@
 import os
 import schema_salad.ref_resolver
+import urllib
 from wes_service.util import visit
 
 def _fixpaths(basedir):
@@ -54,17 +55,21 @@ def build_trs_request():
     """
     pass
 
-def build_wes_request(workflow_descriptor, workflow_params,
-                      workflow_type='CWL', workflow_version='v1.0'):
+def build_wes_request(
+    workflow_params, workflow_descriptor=None, workflow_url=None,
+    workflow_type='CWL', workflow_version='v1.0'
+):
     """
     Prepare Workflow Execution Service request for a given submission.
     """
     if isinstance(workflow_params, basestring):
         workflow_params = params_url2object(workflow_params)
     request = {
-        "workflow_url": workflow_descriptor,
+        "workflow_descriptor": workflow_descriptor,
+        "workflow_url": workflow_url,
         "workflow_params": workflow_params,
-        "workflow_type": "CWL",
-        "workflow_type_version": "v1.0"
+        "workflow_type": workflow_type,
+        "workflow_type_version": workflow_version
     }
-    return request
+    return {k: v for k, v in request.items()
+            if v is not None}
