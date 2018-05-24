@@ -1,6 +1,8 @@
 import os
-import schema_salad.ref_resolver
 import urllib
+import json
+import schema_salad.ref_resolver
+from toil.wdl import wdl_parser
 from wes_service.util import visit
 
 def _fixpaths(basedir):
@@ -28,7 +30,7 @@ def _fixpaths(basedir):
     return _pathfixer
 
 
-def params_url2object(params_url):
+def params_url2object(params_url, file_params=None):
     """
     Resolve references and return object corresponding to the
     JSON params file at the specified URL.
@@ -37,10 +39,17 @@ def params_url2object(params_url):
     https://github.com/common-workflow-language/workflow-service/
     blob/master/wes_client/__init__.py
     """
-    loader = schema_salad.ref_resolver.Loader({
-        "location": {"@type": "@id"},
-        "path": {"@type": "@id"}
-    })
+    resolve_keys = {
+        "path": {"@type": "@id"},
+        'location': {"@type": "@id"}
+    }
+    if file_params is not None:
+        res = urllib.urlopen(params_url)
+        params_json = json.loads(res.read())
+        for k, v in params_json.items():
+            if k in file_params and not ':' in v[0] and not ':' in v:
+                resolve_keys[k] = {"@type": "@id"}
+    loader = schema_salad.ref_resolver.Loader(resolve_keys)
     params_object, _ = loader.resolve_ref(params_url)
     basedir = os.path.dirname(params_url)
     params_fixpaths = _fixpaths(basedir)
@@ -49,11 +58,55 @@ def params_url2object(params_url):
     return params_object
 
 
+def find_asts(ast_root, name):
+        """
+        Finds an AST node with the given name and the entire subtree under it.
+        A function borrowed from scottfrazer.  Thank you Scott Frazer!
+
+        :param ast_root: The WDL AST.  The whole thing generally, but really
+                         any portion that you wish to search.
+        :param name: The name of the subtree you're looking for, like "Task".
+        :return: nodes representing the AST subtrees matching the "name" given.
+        """
+        nodes = []
+        if isinstance(ast_root, wdl_parser.AstList):
+            for node in ast_root:
+                nodes.extend(find_asts(node, name))
+        elif isinstance(ast_root, wdl_parser.Ast):
+            if ast_root.name == name:
+                nodes.append(ast_root)
+            for attr_name, attr in ast_root.attributes.items():
+                nodes.extend(find_asts(attr, name))
+        return nodes
+
+
+def get_wdl_inputs(wdl):
+    wdl_ast = wdl_parser.parse(wdl).ast()
+    workflow = find_asts(wdl_ast, 'Workflow')[0]
+    workflow_name = workflow.attr('name').source_string
+    decs = find_asts(workflow, 'Declaration')
+    wdl_inputs = {}
+    for dec in decs:
+        if isinstance(dec.attr('type'), wdl_parser.Ast):
+            dec_type = dec.attr('type').attr('name').source_string
+            dec_subtype = dec.attr('type').attr('subtype')[0].source_string
+            dec_name = '{}.{}'.format(workflow_name,
+                                      dec.attr('name').source_string)
+            wdl_inputs.setdefault(dec_subtype, []).append(dec_name)
+        else:
+            dec_type = dec.attr('type').source_string
+            dec_name = '{}.{}'.format(workflow_name,
+                                      dec.attr('name').source_string)
+            wdl_inputs.setdefault(dec_type, []).append(dec_name)
+    return wdl_inputs
+
+
 def build_trs_request():
     """
     Prepare Tool Registry Service request for a given submission.
     """
     pass
+
 
 def build_wes_request(
     workflow_params, workflow_descriptor=None, workflow_url=None,
@@ -62,8 +115,20 @@ def build_wes_request(
     """
     Prepare Workflow Execution Service request for a given submission.
     """
+    if workflow_type == 'WDL':
+        tmp_descriptor = workflow_descriptor
+        if workflow_descriptor is None:
+            res = urllib.urlopen(workflow_url)
+            workflow_descriptor = res.read()
+        file_params = get_wdl_inputs(workflow_descriptor)['File']
+        workflow_descriptor = tmp_descriptor
+    else:
+        file_params = None
+
     if isinstance(workflow_params, basestring):
-        workflow_params = params_url2object(workflow_params)
+        workflow_params = params_url2object(
+            workflow_params, file_params
+        )
     request = {
         "workflow_descriptor": workflow_descriptor,
         "workflow_url": workflow_url,
