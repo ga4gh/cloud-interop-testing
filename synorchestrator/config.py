@@ -77,9 +77,9 @@ def show():
     return _get_orchestrator_config()
 
 
-with open('../evals.config', 'rb') as f:
+with open('evals.config', 'rb') as f:
     eval_config = yaml.load(f)
-with open('../toolregistries.config', 'rb') as f:
+with open('toolregistries.config', 'rb') as f:
     trs_config = yaml.load(f)
-with open('../workflowservices.config', 'rb') as f:
+with open('workflowservices.config', 'rb') as f:
     wes_config = yaml.load(f)
