@@ -30,6 +30,17 @@ def _fixpaths(basedir):
     return _pathfixer
 
 
+def _squash_url_dups(path):
+    """
+    Remove duplicate 'words' from a URL path.
+    """
+    path_split = path.split('/')
+    path_parts = []
+    [path_parts.append(part) for part in path_split
+     if part not in path_parts]
+    return '/'.join(path_parts)
+
+
 def params_url2object(params_url, file_params=None):
     """
     Resolve references and return object corresponding to the
@@ -44,13 +55,13 @@ def params_url2object(params_url, file_params=None):
         'location': {"@type": "@id"}
     }
     if file_params is not None:
-        res = urllib.urlopen(params_url)
+        res = urllib.urlopen(_squash_url_dups(params_url))
         params_json = json.loads(res.read())
         for k, v in params_json.items():
             if k in file_params and not ':' in v[0] and not ':' in v:
                 resolve_keys[k] = {"@type": "@id"}
     loader = schema_salad.ref_resolver.Loader(resolve_keys)
-    params_object, _ = loader.resolve_ref(params_url)
+    params_object, _ = loader.resolve_ref(_squash_url_dups(params_url))
     basedir = os.path.dirname(params_url)
     params_fixpaths = _fixpaths(basedir)
     visit(params_object, params_fixpaths)
@@ -81,19 +92,20 @@ def find_asts(ast_root, name):
 
 
 def get_wdl_inputs(wdl):
-    wdl_ast = wdl_parser.parse(wdl).ast()
+    wdl_ast = wdl_parser.parse(wdl.encode('utf-8')).ast()
     workflow = find_asts(wdl_ast, 'Workflow')[0]
     workflow_name = workflow.attr('name').source_string
     decs = find_asts(workflow, 'Declaration')
     wdl_inputs = {}
     for dec in decs:
-        if isinstance(dec.attr('type'), wdl_parser.Ast):
+        if (isinstance(dec.attr('type'), wdl_parser.Ast)
+            and 'name' in dec.attr('type').attributes):
             dec_type = dec.attr('type').attr('name').source_string
             dec_subtype = dec.attr('type').attr('subtype')[0].source_string
             dec_name = '{}.{}'.format(workflow_name,
                                       dec.attr('name').source_string)
             wdl_inputs.setdefault(dec_subtype, []).append(dec_name)
-        else:
+        elif hasattr(dec.attr('type'), 'source_string'):
             dec_type = dec.attr('type').source_string
             dec_name = '{}.{}'.format(workflow_name,
                                       dec.attr('name').source_string)
@@ -118,7 +130,7 @@ def build_wes_request(
     if workflow_type == 'WDL':
         tmp_descriptor = workflow_descriptor
         if workflow_descriptor is None:
-            res = urllib.urlopen(workflow_url)
+            res = urllib.urlopen(_squash_url_dups(workflow_url))
             workflow_descriptor = res.read()
         file_params = get_wdl_inputs(workflow_descriptor)['File']
         workflow_descriptor = tmp_descriptor
