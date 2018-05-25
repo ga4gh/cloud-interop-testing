@@ -33,13 +33,13 @@ def mock_orchestratorconfig(tmpdir):
     mock_config_file.write(textwrap.dedent(mock_config_text))
 
     # point global variable to mock config
-    user_config_file = config.CONFIG_FILE
-    config.CONFIG_FILE = str(mock_config_file)
+    user_config_file = config.CONFIG_PATH
+    config.CONFIG_PATH = str(mock_config_file)
 
     yield mock_config_file
 
     # reset global variable
-    config.CONFIG_FILE = user_config_file
+    config.CONFIG_PATH = user_config_file
     logger.info("[teardown] mock orchestrator config file, remove file")
 
 
@@ -67,8 +67,8 @@ def test__get_orchestrator_config_no_config_file(tmpdir):
     )
 
     # point global variable to mock config
-    user_config_file = config.CONFIG_FILE
-    config.CONFIG_FILE = mock_config_file
+    user_config_file = config.CONFIG_PATH
+    config.CONFIG_PATH = mock_config_file
 
     # WHEN the configuration data in the noexsistent file is loaded
     test_config = config._get_orchestrator_config()
@@ -76,7 +76,7 @@ def test__get_orchestrator_config_no_config_file(tmpdir):
     # THEN an empty object is returned
     assert(test_config == {})
 
-    config.CONFIG_FILE = user_config_file
+    config.CONFIG_PATH = user_config_file
 
 
 def test__save_orchestrator_config(tmpdir):
