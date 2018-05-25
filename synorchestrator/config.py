@@ -4,16 +4,18 @@ Configure orchestrator application.
 import logging
 import os
 import yaml
+import pkg_resources
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-CONFIG_FILE = os.path.join(os.path.expanduser('~'), '.orchestratorConfig')
-with open('evals.config', 'rb') as f:
+CONFIG_PATH = os.path.join(os.path.expanduser('~'), '.orchestratorConfig')
+
+with pkg_resources.resource_stream(__name__, 'configs/evals.config') as f:
     eval_config = yaml.load(f)
-with open('toolregistries.config', 'rb') as f:
+with pkg_resources.resource_stream(__name__, 'configs/toolregistries.config') as f:
     trs_config = yaml.load(f)
-with open('workflowservices.config', 'rb') as f:
+with pkg_resources.resource_stream(__name__, 'configs/workflowservices.config') as f:
     wes_config = yaml.load(f)
 
 
@@ -24,8 +26,7 @@ def _get_orchestrator_config():
     :return: object with current orchestrator app configuration
     """
     try:
-        logger.debug("loading orchestrator config from {}".format(CONFIG_FILE))
-        with open(CONFIG_FILE, 'r') as f:
+        with open(CONFIG_PATH, 'r') as f:
             return yaml.load(f)
     except IOError as e:
         logger.warn("no orchestrator config file found")
@@ -36,7 +37,7 @@ def _save_orchestrator_config(app_config):
     """
     Update orchestrator config file.
     """
-    with open(CONFIG_FILE, 'w') as f:
+    with open(CONFIG_PATH, 'w') as f:
         yaml.dump(app_config, f, default_flow_style=False)
 
 
@@ -98,4 +99,3 @@ def show():
     print("-" * 75)
     print('\n'.join('{}: {}'.format(k, wes_config[k]['host'])
           for k in app_config['workflowservices']))
-    # print("{}".format(trs_id) for trs_id in app_config['toolregistries'])
