@@ -5,10 +5,16 @@ import logging
 import os
 import yaml
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 CONFIG_FILE = os.path.join(os.path.expanduser('~'), '.orchestratorConfig')
+with open('evals.config', 'rb') as f:
+    eval_config = yaml.load(f)
+with open('toolregistries.config', 'rb') as f:
+    trs_config = yaml.load(f)
+with open('workflowservices.config', 'rb') as f:
+    wes_config = yaml.load(f)
 
 
 def _get_orchestrator_config():
@@ -26,12 +32,12 @@ def _get_orchestrator_config():
         return {}
 
 
-def _save_orchestrator_config(config):
+def _save_orchestrator_config(app_config):
     """
     Update orchestrator config file.
     """
     with open(CONFIG_FILE, 'w') as f:
-        yaml.dump(config, f, default_flow_style=False)
+        yaml.dump(app_config, f, default_flow_style=False)
 
 
 def add_eval(eval_id):
@@ -41,9 +47,9 @@ def add_eval(eval_id):
 
     :param eval_id: integer ID of a Synapse evaluation queue
     """
-    config = _get_orchestrator_config()
-    config.setdefault('evals', []).append(eval_id)
-    _save_orchestrator_config(config)
+    app_config = _get_orchestrator_config()
+    app_config.setdefault('evals', []).append(eval_id)
+    _save_orchestrator_config(app_config)
 
 
 def add_toolregistry(trs_id):
@@ -53,9 +59,9 @@ def add_toolregistry(trs_id):
 
     :param trs_id: string ID of TRS endpoint (e.g., 'Dockstore')
     """
-    config = _get_orchestrator_config()
-    config.setdefault('toolregistries', []).append(trs_id)
-    _save_orchestrator_config(config)
+    app_config = _get_orchestrator_config()
+    app_config.setdefault('toolregistries', []).append(trs_id)
+    _save_orchestrator_config(app_config)
 
 
 def add_workflowservice(wes_id):
@@ -65,21 +71,31 @@ def add_workflowservice(wes_id):
 
     :param wes_id: string ID of WES endpoint (e.g., 'workflow-service')
     """
-    config = _get_orchestrator_config()
-    config.setdefault('workflowservices', []).append(wes_id)
-    _save_orchestrator_config(config)
+    app_config = _get_orchestrator_config()
+    app_config.setdefault('workflowservices', []).append(wes_id)
+    _save_orchestrator_config(app_config)
 
 
 def show():
     """
     Show current application configuration.
     """
-    return _get_orchestrator_config()
-
-
-with open('evals.config', 'rb') as f:
-    eval_config = yaml.load(f)
-with open('toolregistries.config', 'rb') as f:
-    trs_config = yaml.load(f)
-with open('workflowservices.config', 'rb') as f:
-    wes_config = yaml.load(f)
+    app_config = _get_orchestrator_config()
+    print("\nOrchestrator options:")
+    print("\nEvaluation Queues")
+    print("-" * 75)
+    print(
+        '\n'.join('{}: {} [{}]'.format(
+            k, eval_config[k]['workflow_id'], eval_config[k]['workflow_type']
+        )
+        for k in app_config['evals'])
+    )
+    print("\nTool Registries")
+    print("-" * 75)
+    print('\n'.join('{}: {}'.format(k, trs_config[k]['host'])
+          for k in app_config['toolregistries']))
+    print("\nWorkflow Services")
+    print("-" * 75)
+    print('\n'.join('{}: {}'.format(k, wes_config[k]['host'])
+          for k in app_config['workflowservices']))
+    # print("{}".format(trs_id) for trs_id in app_config['toolregistries'])
