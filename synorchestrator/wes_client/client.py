@@ -37,9 +37,13 @@ class WESClient(object):
     Build a :class:`WESClient` for interacting with a server via
     the GA4GH Worflow Execution Service RESTful API.
     """
-    def __init__(self, host, auth=None, proto='http'):
-        self.base_url = '{}://{}/ga4gh/wes/v1'.format(proto, host)
-        self.headers = {'Authorization': auth}
+    def __init__(self, host, auth=None, auth_type=None, proto='http',
+                 base_path='ga4gh/wes/v1'):
+        self.base_url = '{}://{}/{}'.format(proto, host, base_path)
+        auth_headers = {'token': 'Authorization',
+                        'api_key': 'X-API-KEY',
+                        None: None}
+        self.headers = {auth_headers[auth_type]: auth}
 
 
     def get_service_info(self):
