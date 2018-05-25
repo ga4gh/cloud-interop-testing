@@ -31,9 +31,9 @@ workflowservices:
 orchestrator:
   file: '~/.orchestratorConfig'
   evals:
-    0
-    1
+    - 0
+    - 1
   toolregistries:
-    "dockstore"
+    - "dockstore"
   workflowservices:
-    "local"
+    - "local"
