@@ -36,18 +36,31 @@ def run_submission(eval_id, submission_id, wes_id='local'):
     logger.info("Submitting job '{}' for eval '{}' to WES endpoint '{}'"
                 .format(submission_id, eval_id, wes_id))
     client = WESClient(**config.wes_config[wes_id])
-    # run_data = {'workflow_id': 'cebafa4f-53d8-41a3-9925-700cb2c407c5'}
     run_data = client.run_workflow(submission['data'])
+    run_data['start_time'] = dt.datetime.now().ctime()
     eval.update_submission_run(eval_id, submission_id, run_data)
     eval.update_submission_status(eval_id, submission_id, 'SUBMITTED')
+    return eval.get_submission_bundle(eval_id, submission_id)
 
 
 def run_eval(eval_id, wes_id=None):
     """
     Run all submissions in a queue in a single environment.
     """
+    eval_name = os.path.basename(config.eval_config[eval_id]['workflow_id'])
+    submission_dict = {}
     for submission_id in eval.get_submissions(eval_id):
-        run_submission(eval_id, submission_id, wes_id)
+        bundle = run_submission(eval_id, submission_id, wes_id)
+        submission_dict.setdefault(eval_name, {})[submission_id] = {
+            'queue_id': eval_id,
+            'job': bundle['type'],
+            'submission_status': bundle['status'],
+            'wes_id': bundle['wes_id'],
+            'run_id': bundle['run']['workflow_id'],
+            'run_status': 'SUBMITTED',
+            'start_time': bundle['run']['start_time']
+        }
+    return submission_dict
 
 
 def run_checker(eval_id, wes_id, queue_only=True):
@@ -71,76 +84,73 @@ def run_checker(eval_id, wes_id, queue_only=True):
         version_id=workflow_config['version_id'],
         type=workflow_config['workflow_type']
     )
-    # wes_request = util.build_wes_request(
-    #     workflow_url=checker_descriptor['url'],
-    #     workflow_params=checker_tests[0]['url'],
-    #     workflow_type=checker_descriptor['type']
-    # )
     wes_request = util.build_wes_request(
         workflow_descriptor=checker_descriptor['descriptor'],
+    #     workflow_url=checker_descriptor['url'],
         workflow_params=checker_tests[0]['url'],
         workflow_type=checker_descriptor['type']
     )
-    eval.create_submission(eval_id, wes_request, wes_id)
+    submission_id = eval.create_submission(
+        eval_id, wes_request, wes_id, type='checker'
+    )
     if not queue_only:
-        run_eval(eval_id, wes_id)
+        return run_eval(eval_id, wes_id)
     else:
-        return 0
+        return submission_id
 
 
-def monitor(eval_ids, submission_ids=None, start=None):
+def monitor(submissions, eval_ids=None, submission_ids=None):
     """
     Monitor progress of workflow jobs.
     """
-    if start is None:
-        start = dt.datetime.now()
+    current = dt.datetime.now()
 
-    eval_submission_runs = {}
-    submission_type = 'checker'
-    for eval_id in eval_ids:
-        eval_name = os.path.basename(config.eval_config[eval_id]['workflow_id'])
-        submission_ids = eval.get_submissions(eval_id, status='SUBMITTED')
-        for submission_id in submission_ids:
-            bundle = eval.get_submission_bundle(eval_id, submission_id)
-            try:
-                workflow_id = bundle['run']['workflow_id']
-            except KeyError:
-                workflow_id = 'pending'
-            client = WESClient(**config.wes_config[bundle['wes_id']])
-            run = client.get_workflow_run_status(workflow_id)
-            eval_submission_runs.setdefault(eval_name, {})[submission_id] = {
-                'job': submission_type,
-                'wes': bundle['wes_id'],
-                'run_id': run['workflow_id'],
-                'run_status': run['state']
-            }
+    status_dict = {}
+    for submission_dict in submissions:
+        for eval_id in submission_dict:
+            for submission_id, bundle in submission_dict[eval_id].items():
+                client = WESClient(**config.wes_config[bundle['wes_id']])
+                run = client.get_workflow_run_status(bundle['run_id'])
+                status_dict.setdefault(eval_id, {})[submission_id] = {
+                    'queue_id': eval_id,
+                    'job': bundle['job'],
+                    'submission_status': bundle['submission_status'],
+                    'wes_id': bundle['wes_id'],
+                    'run_id': run['workflow_id'],
+                    'run_status': run['state'],
+                    'start_time': bundle['start_time'],
+                    'elapsed_time': util.convert_timedelta(
+                        current - util.ctime2datetime(bundle['start_time'])
+                    )
+                }
+
     status_df = pd.DataFrame.from_dict(
-        {(i, j): eval_submission_runs[i][j]
-         for i in eval_submission_runs.keys()
-         for j in eval_submission_runs[i].keys()},
+        {(i, j): status_dict[i][j]
+         for i in status_dict.keys()
+         for j in status_dict[i].keys()},
         orient='index'
     )
 
     clear_output(wait=True)
-    t = dt.datetime.now()
-    print('Time elapsed: {}\n'.format(util.convert_timedelta(t - start)))
     display(status_df)
     sys.stdout.flush()
     if any(status_df['run_status'].isin(['QUEUED', 'INITIALIZING', 'RUNNING'])):
         time.sleep(1)
-        monitor(eval_ids, start=start)
+        monitor(status_dict)
     else:
-        return status_df
+        print("Done")
 
 
-def run_all(eval_wes_map, checker=True, monitor_jobs=True):
+def run_all(eval_wes_map, checker=True, monitor_jobs=False):
     """
     Run all submissions for multiple queues in multiple environments
     (cross product of queues, workflow service endpoints).
     """
     for eval_id in eval_wes_map:
-        [run_checker(eval_id, wes_id) for wes_id in eval_wes_map[eval_id]]
+        submission_ids = [run_checker(eval_id, wes_id)
+                          for wes_id in eval_wes_map[eval_id]]
     t0 = dt.datetime.now()
-    [run_eval(eval_id) for eval_id in eval_wes_map]
+    submissions = [run_eval(eval_id) for eval_id in eval_wes_map]
     if monitor_jobs:
-        monitor(eval_wes_map.keys(), start=t0)
+        submissions = monitor(eval_wes_map.keys())
+    return submissions

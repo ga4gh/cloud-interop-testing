@@ -2,8 +2,13 @@ import os
 import urllib
 import json
 import schema_salad.ref_resolver
+import datetime as dt
 from toil.wdl import wdl_parser
 from wes_service.util import visit
+
+
+def ctime2datetime(time_str):
+    return dt.datetime.strptime(time_str, '%a %b %d %H:%M:%S %Y')
 
 
 def convert_timedelta(duration):

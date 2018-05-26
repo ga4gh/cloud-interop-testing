@@ -31,7 +31,7 @@ def _save_evals(evals):
         json.dump(evals, f)
 
 
-def create_submission(eval_id, submission_data, wes_id):
+def create_submission(eval_id, submission_data, wes_id, type=None):
     """
     Submit a new job request to an evaluation queue.
     """
@@ -41,7 +41,8 @@ def create_submission(eval_id, submission_data, wes_id):
     evals.setdefault(eval_id, {})[submission_id] = {
         'status': 'RECEIVED',
         'data': submission_data,
-        'wes_id': wes_id
+        'wes_id': wes_id,
+        'type': type
     }
     _save_evals(evals)
     logger.info("Created new job submission:\n - evaluation queue: {} ({})\n"
