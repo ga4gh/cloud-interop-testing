@@ -142,6 +142,7 @@ def build_wes_request(
     Prepare Workflow Execution Service request for a given submission.
     """
     if workflow_type == 'WDL':
+        workflow_version = workflow_version.lstrip('v')
         tmp_descriptor = workflow_descriptor
         if workflow_descriptor is None:
             res = urllib.urlopen(_squash_url_dups(workflow_url))
