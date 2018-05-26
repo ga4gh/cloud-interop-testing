@@ -5,6 +5,15 @@ import schema_salad.ref_resolver
 from toil.wdl import wdl_parser
 from wes_service.util import visit
 
+
+def convert_timedelta(duration):
+    days, seconds = duration.days, duration.seconds
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = (seconds % 60)
+    return '{}h:{}m:{}s'.format(hours, minutes, seconds)
+
+
 def _fixpaths(basedir):
     """
     Adapted from @teton's function in
