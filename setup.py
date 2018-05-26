@@ -26,7 +26,10 @@ setup(
     license='Apache 2.0',
     packages=['synorchestrator'],
     install_requires=[
-        'bravado',
+        'pandas',
+        'schema_salad',
+        'ruamel.yaml',
+        'wes-service',
         'synapseclient',
     ],
     test_suite='nose.collector',
