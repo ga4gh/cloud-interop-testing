@@ -2,8 +2,22 @@ import os
 import urllib
 import json
 import schema_salad.ref_resolver
+import datetime as dt
 from toil.wdl import wdl_parser
 from wes_service.util import visit
+
+
+def ctime2datetime(time_str):
+    return dt.datetime.strptime(time_str, '%a %b %d %H:%M:%S %Y')
+
+
+def convert_timedelta(duration):
+    days, seconds = duration.days, duration.seconds
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = (seconds % 60)
+    return '{}h:{}m:{}s'.format(hours, minutes, seconds)
+
 
 def _fixpaths(basedir):
     """
