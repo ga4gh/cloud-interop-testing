@@ -42,7 +42,7 @@ class WESClient(object):
         self.base_url = '{}://{}/{}'.format(proto, host, base_path)
         auth_headers = {'token': 'Authorization',
                         'api_key': 'X-API-KEY',
-                        None: None}
+                        None: ''}
         self.headers = {auth_headers[auth_type]: auth}
 
 

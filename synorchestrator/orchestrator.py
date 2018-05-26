@@ -104,13 +104,21 @@ def monitor(submissions, eval_ids=None, submission_ids=None):
     Monitor progress of workflow jobs.
     """
     current = dt.datetime.now()
-
-    status_dict = {}
+    statuses = []
     for submission_dict in submissions:
+        status_dict = {}
         for eval_id in submission_dict:
             for submission_id, bundle in submission_dict[eval_id].items():
                 client = WESClient(**config.wes_config[bundle['wes_id']])
                 run = client.get_workflow_run_status(bundle['run_id'])
+                if run['state'] in ['QUEUED', 'INITIALIZING', 'RUNNING']:
+                    etime = util.convert_timedelta(
+                        current - util.ctime2datetime(bundle['start_time'])
+                    )
+                elif 'elapsed_time' not in bundle:
+                    etime = 0
+                else: 
+                    etime = bundle['elapsed_time']
                 status_dict.setdefault(eval_id, {})[submission_id] = {
                     'queue_id': eval_id,
                     'job': bundle['job'],
@@ -119,15 +127,15 @@ def monitor(submissions, eval_ids=None, submission_ids=None):
                     'run_id': run['workflow_id'],
                     'run_status': run['state'],
                     'start_time': bundle['start_time'],
-                    'elapsed_time': util.convert_timedelta(
-                        current - util.ctime2datetime(bundle['start_time'])
-                    )
+                    'elapsed_time': etime
                 }
+        statuses.append(status_dict)
 
     status_df = pd.DataFrame.from_dict(
-        {(i, j): status_dict[i][j]
-         for i in status_dict.keys()
-         for j in status_dict[i].keys()},
+        {(i, j): status[i][j]
+         for status in statuses
+         for i in status.keys()
+         for j in status[i].keys()},
         orient='index'
     )
 
@@ -136,7 +144,7 @@ def monitor(submissions, eval_ids=None, submission_ids=None):
     sys.stdout.flush()
     if any(status_df['run_status'].isin(['QUEUED', 'INITIALIZING', 'RUNNING'])):
         time.sleep(1)
-        monitor(status_dict)
+        monitor(statuses)
     else:
         print("Done")
 
