@@ -11,9 +11,6 @@ SETUP_DIR = os.path.dirname(__file__)
 
 long_description = ""
 
-# with open("README.pypi.rst") as readmeFile:
-#     long_description = readmeFile.read()
-
 setup(
     name='synapse-orchestrator',
     version='0.1',
@@ -29,6 +26,8 @@ setup(
         'pandas',
         'schema_salad',
         'ruamel.yaml',
+        'cwltool',
+        'subprocess32',
         'wes-service',
         'synapseclient',
     ],
