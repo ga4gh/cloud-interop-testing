@@ -1,6 +1,7 @@
 import os
 import urllib
 import json
+import yaml
 import schema_salad.ref_resolver
 import datetime as dt
 from toil.wdl import wdl_parser
@@ -106,6 +107,9 @@ def find_asts(ast_root, name):
 
 
 def get_wdl_inputs(wdl):
+    """
+    Return inputs specified in WDL descriptor, grouped by type.
+    """
     wdl_ast = wdl_parser.parse(wdl.encode('utf-8')).ast()
     workflow = find_asts(wdl_ast, 'Workflow')[0]
     workflow_name = workflow.attr('name').source_string
@@ -132,6 +136,26 @@ def build_trs_request():
     Prepare Tool Registry Service request for a given submission.
     """
     pass
+
+
+def sniff_workflow_type_version(workflow_descriptor, workflow_type):
+    """
+    Inspect workflow descriptor contents to check CWL/WDL version.
+    """
+    def _cwl_sniffer(descriptor):
+        return yaml.load(descriptor)['cwlVersion']
+    def _wdl_sniffer(descriptor):
+        try:
+            return [l.lstrip('version ') for l in descriptor.splitlines()
+                    if 'version' in l.split(' ')][0]
+        except IndexError:
+            return 'draft-2'
+
+    sniffer = {
+        'CWL': _cwl_sniffer,
+        'WDL': _wdl_sniffer
+    }
+    return sniffer[workflow_type](workflow_descriptor)
 
 
 def build_wes_request(
