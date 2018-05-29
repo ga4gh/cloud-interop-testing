@@ -160,13 +160,12 @@ def sniff_workflow_type_version(workflow_descriptor, workflow_type):
 
 def build_wes_request(
     workflow_params, workflow_descriptor=None, workflow_url=None,
-    workflow_type='CWL', workflow_version='v1.0'
+    workflow_type='CWL', workflow_version=None
 ):
     """
     Prepare Workflow Execution Service request for a given submission.
     """
     if workflow_type == 'WDL':
-        workflow_version = workflow_version.lstrip('v')
         tmp_descriptor = workflow_descriptor
         if workflow_descriptor is None:
             res = urllib.urlopen(_squash_url_dups(workflow_url))
@@ -180,6 +179,12 @@ def build_wes_request(
         workflow_params = params_url2object(
             workflow_params, file_params
         )
+
+    if workflow_version is None:
+        workflow_version = sniff_workflow_type_version(
+            workflow_descriptor, workflow_type
+        )
+
     request = {
         "workflow_descriptor": workflow_descriptor,
         "workflow_url": workflow_url,
