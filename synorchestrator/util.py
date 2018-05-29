@@ -2,6 +2,7 @@ import os
 import urllib
 import json
 import yaml
+import subprocess32
 import schema_salad.ref_resolver
 import datetime as dt
 from toil.wdl import wdl_parser
@@ -131,11 +132,11 @@ def get_wdl_inputs(wdl):
     return wdl_inputs
 
 
-def build_trs_request():
+def get_packed_cwl(workflow_url):
     """
-    Prepare Tool Registry Service request for a given submission.
+    Create 'packed' version of CWL workflow descriptor.
     """
-    pass
+    return subprocess32.check_output(['cwltool', '--pack', workflow_url])
 
 
 def sniff_workflow_type_version(workflow_descriptor, workflow_type):
@@ -156,6 +157,13 @@ def sniff_workflow_type_version(workflow_descriptor, workflow_type):
         'WDL': _wdl_sniffer
     }
     return sniffer[workflow_type](workflow_descriptor)
+
+
+def build_trs_request():
+    """
+    Prepare Tool Registry Service request for a given submission.
+    """
+    pass
 
 
 def build_wes_request(

@@ -11,6 +11,7 @@ import os
 import sys
 import yaml
 import time
+import re
 import pandas as pd
 import datetime as dt
 from IPython.display import display, clear_output
@@ -79,6 +80,11 @@ def run_checker(eval_id, wes_id, queue_only=True):
         version_id=workflow_config['version_id'],
         type=workflow_config['workflow_type']
     )
+    if (checker_descriptor['type'] == 'CWL' and
+        re.search('run:', checker_descriptor['descriptor'])):
+        checker_descriptor['descriptor'] = util.get_packed_cwl(
+            checker_descriptor['url']
+        )
     checker_tests = client.get_workflow_tests(
         id=checker_workflow['id'],
         version_id=workflow_config['version_id'],
@@ -86,7 +92,6 @@ def run_checker(eval_id, wes_id, queue_only=True):
     )
     wes_request = util.build_wes_request(
         workflow_descriptor=checker_descriptor['descriptor'],
-    #     workflow_url=checker_descriptor['url'],
         workflow_params=checker_tests[0]['url'],
         workflow_type=checker_descriptor['type']
     )
@@ -117,7 +122,7 @@ def monitor(submissions, eval_ids=None, submission_ids=None):
                     )
                 elif 'elapsed_time' not in bundle:
                     etime = 0
-                else: 
+                else:
                     etime = bundle['elapsed_time']
                 status_dict.setdefault(eval_id, {})[submission_id] = {
                     'queue_id': eval_id,
