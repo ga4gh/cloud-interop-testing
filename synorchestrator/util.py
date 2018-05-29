@@ -1,6 +1,7 @@
 import os
 import urllib
 import json
+import yaml
 import schema_salad.ref_resolver
 import datetime as dt
 from toil.wdl import wdl_parser
@@ -106,6 +107,9 @@ def find_asts(ast_root, name):
 
 
 def get_wdl_inputs(wdl):
+    """
+    Return inputs specified in WDL descriptor, grouped by type.
+    """
     wdl_ast = wdl_parser.parse(wdl.encode('utf-8')).ast()
     workflow = find_asts(wdl_ast, 'Workflow')[0]
     workflow_name = workflow.attr('name').source_string
@@ -134,15 +138,34 @@ def build_trs_request():
     pass
 
 
+def sniff_workflow_type_version(workflow_descriptor, workflow_type):
+    """
+    Inspect workflow descriptor contents to check CWL/WDL version.
+    """
+    def _cwl_sniffer(descriptor):
+        return yaml.load(descriptor)['cwlVersion']
+    def _wdl_sniffer(descriptor):
+        try:
+            return [l.lstrip('version ') for l in descriptor.splitlines()
+                    if 'version' in l.split(' ')][0]
+        except IndexError:
+            return 'draft-2'
+
+    sniffer = {
+        'CWL': _cwl_sniffer,
+        'WDL': _wdl_sniffer
+    }
+    return sniffer[workflow_type](workflow_descriptor)
+
+
 def build_wes_request(
     workflow_params, workflow_descriptor=None, workflow_url=None,
-    workflow_type='CWL', workflow_version='v1.0'
+    workflow_type='CWL', workflow_version=None
 ):
     """
     Prepare Workflow Execution Service request for a given submission.
     """
     if workflow_type == 'WDL':
-        workflow_version = workflow_version.lstrip('v')
         tmp_descriptor = workflow_descriptor
         if workflow_descriptor is None:
             res = urllib.urlopen(_squash_url_dups(workflow_url))
@@ -156,6 +179,12 @@ def build_wes_request(
         workflow_params = params_url2object(
             workflow_params, file_params
         )
+
+    if workflow_version is None:
+        workflow_version = sniff_workflow_type_version(
+            workflow_descriptor, workflow_type
+        )
+
     request = {
         "workflow_descriptor": workflow_descriptor,
         "workflow_url": workflow_url,
