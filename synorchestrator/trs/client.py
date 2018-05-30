@@ -4,7 +4,6 @@ import requests
 import urllib
 import re
 
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -48,7 +47,7 @@ class TRSClient(object):
         """
         id = _format_workflow_id(id)
         endpoint = 'tools/{}'.format(id)
-        logging.debug("retrieving workflow entry from {}".format(endpoint))
+        logging.info("retrieving workflow entry from {}".format(endpoint))
         return _get_endpoint(self, endpoint)
 
 
@@ -58,7 +57,7 @@ class TRSClient(object):
         """
         checker_url = urllib.unquote(self.get_workflow(id)['checker_url'])
         checker_id = re.sub('^.*#workflow/', '', checker_url)
-        logger.debug("found checker workflow: {}".format(checker_id))
+        logger.info("found checker workflow: {}".format(checker_id))
         return self.get_workflow(checker_id)
 
 
@@ -80,7 +79,7 @@ class TRSClient(object):
         endpoint = 'tools/{}/versions/{}/{}/descriptor'.format(
             id, version_id, type
         )
-        logger.debug("getting descriptor from {}".format(endpoint))
+        logger.info("getting descriptor from {}".format(endpoint))
         return _get_endpoint(self, endpoint)
 
 

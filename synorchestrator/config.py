@@ -83,7 +83,8 @@ def show():
     """
     app_config = _get_orchestrator_config()
     print("\nOrchestrator options:")
-    print("\nEvaluation Queues")
+    print("\nWorkflow Evaluation Queues")
+    print("(queue ID: workflow ID [workflow type])")
     print("-" * 75)
     print(
         '\n'.join('{}: {} [{}]'.format(
@@ -92,10 +93,12 @@ def show():
         for k in app_config['evals'])
     )
     print("\nTool Registries")
+    print("(TRS ID: host address)")
     print("-" * 75)
     print('\n'.join('{}: {}'.format(k, trs_config[k]['host'])
           for k in app_config['toolregistries']))
     print("\nWorkflow Services")
+    print("(WES ID: host address)")
     print("-" * 75)
     print('\n'.join('{}: {}'.format(k, wes_config[k]['host'])
           for k in app_config['workflowservices']))

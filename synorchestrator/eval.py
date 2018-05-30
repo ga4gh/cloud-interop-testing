@@ -6,7 +6,6 @@ import datetime as dt
 
 from synorchestrator import config
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 EVALS_PATH = os.path.join(os.path.dirname(__file__), '.evals')
@@ -45,10 +44,12 @@ def create_submission(eval_id, submission_data, wes_id, type=None):
         'type': type
     }
     _save_evals(evals)
-    logger.info("Created new job submission:\n - evaluation queue: {} ({})\n"
-                " - submission ID: '{}'\n - data:\n{}"
+    logger.info("Created new job submission:\n - submission ID: {}"
+                .format(submission_id))
+    logger.debug("\n - evaluation queue: {} ({})"
+                 "\n - data:\n{}"
                 .format(eval_id, config.eval_config[eval_id]['workflow_id'],
-                        submission_id, json.dumps(submission_data, indent=2)))
+                        json.dumps(submission_data, indent=2)))
     return submission_id
 
 
