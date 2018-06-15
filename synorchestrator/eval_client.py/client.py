@@ -1,15 +1,15 @@
 import synapseclient
 import os
 import logging
-
+import yml
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-CONFIG_FILE = os.path.join(os.path.expanduser('~'), '.evaluationConfig')
+CONFIG_FILE = os.path.join(os.path.expanduser('~'), './evals.yml')
 
 syn = synapseclient.login()
 
-def _configure_queue():
+def _configure_queue(evalId, configuration = None):
     """
     Configure external properties of a Synapse evaluation queue,
     either based on a config file (YAML) or set of key-value pairs;
@@ -18,10 +18,15 @@ def _configure_queue():
     quotaKeys = ['roundDurationMillis','submissionLimit','firstRoundStart','numberOfRounds']
     try:
         evaluation = syn.getEvaluation(evalId)
-        quota = {key:challenge_config[evalId].get(key) for key in quotaKeys if challenge_config[evalId].get(key) != "None"}
-        evaluation.quota = quota
-        if storeEvalConfig:    
+        if configuration is not None:
+            quota = {key:challenge_config[evalId].get(key) for key in configuration if challenge_config[evalId].get(key) != "None"}
+            evaluation.quota = quota  
             syn.store(evaluation)
+            with open(CONFIG_FILE,"r") as stream:
+                evalConfig = yaml.load(stream)
+            evalConfig
+            data_loaded[]
+
     except Exception as exception:
         logger.error("The evaluation queue id provided: %s, make sure your firstRoundStart configuration is in quotes or it will be read in as a datetime object" % evalId)
         raise ValueError
