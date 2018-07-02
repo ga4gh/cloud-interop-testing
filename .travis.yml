@@ -30,7 +30,7 @@ install:
 # commands to run tests
 script:
   - python setup.py test
-  - flake8 --select=E121,E123,E126,E226,E24,E704,W503,W504 --ignore=E501
+  - flake8 --select=E121,E123,E126,E226,E24,E704,W503,W504 --ignore=E501 synorchestrator/
 
 after_success:
   - coveralls
