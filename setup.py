@@ -1,40 +1,44 @@
-#!/usr/bin/env python
-
 import os
 import sys
-import setuptools.command.egg_info as egg_info_cmd
 import shutil
 
-from setuptools import setup, find_packages
+# First, we try to use setuptools. If it's not available locally,
+# we fall back on ez_setup.
+try:
+    from setuptools import setup
+except ImportError:
+    from ez_setup import use_setuptools
+    use_setuptools()
+    from setuptools import setup
 
-SETUP_DIR = os.path.dirname(__file__)
+long_description = ''
 
-long_description = ""
+install_requires = []
+with open('requirements.txt') as requirements_file:
+    for line in requirements_file:
+        line = line.strip()
+        if len(line) == 0:
+            continue
+        if line[0] == '#':
+            continue
+        pinned_version = line.split()[0]
+        install_requires.append(pinned_version)
 
 setup(
     name='synapse-orchestrator',
-    version='0.1',
     description='Synapse-based orchestrator for GA4GH workflows',
+    packages=['synorchestrator'],
+    url='https://github.com/Sage-Bionetworks/synapse-orchestrator',
+    download_url='https://github.com/Sage-Bionetworks/synapse-orchestrator',
+    entry_points={
+        'console_scripts': 'orchestrate=synorchestrator.__main__:main'
+    },
     long_description=long_description,
+    install_requires=install_requires,
+    tests_require=['pytest', 'mock'],
+    license='Apache 2.0',
+    zip_safe=False,
     author='Sage Bionetworks CompOnc Team',
     author_email='james.a.eddy@gmail.com',
-    url='https://github.com/Sage-Bionetworks/synevalharness',
-    download_url='https://github.com/Sage-Bionetworks/synevalharness',
-    license='Apache 2.0',
-    packages=['synorchestrator'],
-    install_requires=[
-        'pandas',
-        'schema_salad',
-        'ruamel.yaml',
-        'cwltool',
-        'subprocess32',
-        'wes-service',
-        'synapseclient',
-    ],
-    test_suite='nose.collector',
-    tests_require=['nose', 'mock'],
-    entry_points={
-    'console_scripts': 'orchestrate=synorchestrator.__main__:main'
-    },
-    zip_safe=True
+    version='0.1.1'
 )
