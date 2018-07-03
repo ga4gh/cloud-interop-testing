@@ -117,8 +117,8 @@ def get_wdl_inputs(wdl):
     decs = find_asts(workflow, 'Declaration')
     wdl_inputs = {}
     for dec in decs:
-        if (isinstance(dec.attr('type'), wdl_parser.Ast)
-            and 'name' in dec.attr('type').attributes):
+        if (isinstance(dec.attr('type'), wdl_parser.Ast) and 
+            'name' in dec.attr('type').attributes):
             dec_type = dec.attr('type').attr('name').source_string
             dec_subtype = dec.attr('type').attr('subtype')[0].source_string
             dec_name = '{}.{}'.format(workflow_name,
