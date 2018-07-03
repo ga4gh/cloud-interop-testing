@@ -35,7 +35,8 @@ setup(
     },
     long_description=long_description,
     install_requires=install_requires,
-    tests_require=['pytest', 'mock'],
+    setup_requires=['pytest-runner']
+    tests_require=['pytest', 'pytest-cov', 'mock'],
     license='Apache 2.0',
     zip_safe=False,
     author='Sage Bionetworks CompOnc Team',
