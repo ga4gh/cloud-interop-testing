@@ -1,117 +1,48 @@
 import logging
-import os
-import requests
-import urllib
-import re
+import urlparse
+
+from bravado.requests_client import RequestsClient
+from bravado.client import SwaggerClient
 
 logger = logging.getLogger(__name__)
 
 
-def _get_endpoint(client, endpoint):
+def _get_trs_opts(service_id, trs_config=None):
     """
-    Execute a generic API 'GET' request.
+    Look up stored parameters for tool registry services.
     """
-    res = requests.get(
-        '{}/{}'.format(client.base_url, endpoint),
-        headers=client.headers
+    return trs_config[service_id]
+
+
+def _init_http_client(service_id=None, opts=None):
+    """
+    Initialize and configure HTTP requests client for selected service.
+    """
+    auth_header = {'token': 'Authorization',
+                   'api_key': 'X-API-KEY',
+                   None: ''} 
+    if service_id:
+        opts = _get_trs_opts(service_id)
+
+    http_client = RequestsClient()
+    split = urlparse.urlsplit('%s://%s/'.format(opts['proto'], opts['host']))
+
+    http_client.set_api_key(
+        host=opts['host'],
+        api_key=opts['auth'],
+        param_name=auth_header[opts['auth_type']],
+        param_in='header'
     )
-    # TODO: add some exception handling for different responses
-    return res.json()
+    return http_client
 
 
-def _format_workflow_id(id):
+def load_trs_client(service_id=None, http_client=None):
     """
-    Add workflow prefix to and quote a tool ID.
+    Return an API client for the selected workflow execution service.
     """
-    id = urllib.unquote(id)
-    if not re.search('^#workflow', id):
-        return urllib.quote_plus('#workflow/{}'.format(id))
-    else:
-        return urllib.quote_plus(id)
-
-
-class TRSClient(object):
-    """
-    Build a :class:`TRSClient` for interacting with a server via
-    the GA4GH Tool Registry Service RESTful API.
-    """
-    def __init__(self, host, auth=None, proto='http'):
-        self.base_url = '{}://{}/api/ga4gh/v2'.format(proto, host)
-        self.headers = {'Authorization': auth}
-
-
-    def get_workflow(self, id):
-        """
-        Return one specific tool of class "workflow" (which has
-        ToolVersions nested inside it).
-        """
-        id = _format_workflow_id(id)
-        endpoint = 'tools/{}'.format(id)
-        logging.info("retrieving workflow entry from {}".format(endpoint))
-        return _get_endpoint(self, endpoint)
-
-
-    def get_workflow_checker(self, id):
-        """
-        Return entry for the specified workflow's "checker workflow."
-        """
-        checker_url = urllib.unquote(self.get_workflow(id)['checker_url'])
-        checker_id = re.sub('^.*#workflow/', '', checker_url)
-        logger.info("found checker workflow: {}".format(checker_id))
-        return self.get_workflow(checker_id)
-
-
-    def get_workflow_versions(self, id):
-        """
-        Return all versions of the specified workflow.
-        """
-        id = _format_workflow_id(id)
-        endpoint = 'tools/{}/versions'.format(id)
-        return _get_endpoint(self, endpoint)
-
-
-    def get_workflow_descriptor(self, id, version_id, type):
-        """
-        Return the descriptor for the specified workflow (examples
-        include CWL, WDL, or Nextflow documents).
-        """
-        id = _format_workflow_id(id)
-        endpoint = 'tools/{}/versions/{}/{}/descriptor'.format(
-            id, version_id, type
-        )
-        logger.info("getting descriptor from {}".format(endpoint))
-        return _get_endpoint(self, endpoint)
-
-
-    def get_workflow_tests(self, id, version_id, type, fix_url=True):
-        """
-        Return a list of test JSONs (these allow you to execute the
-        workflow successfully) suitable for use with this descriptor
-        type.
-        """
-        id = _format_workflow_id(id)
-        endpoint = 'tools/{}/versions/{}/{}/tests'.format(
-            id, version_id, type
-        )
-        tests =  _get_endpoint(self, endpoint)
-        if fix_url:
-            descriptor = self.get_workflow_descriptor(id, version_id, type)
-            for test in tests:
-                if test['url'].startswith('/'):
-                    test['url'] = os.path.join(
-                        os.path.dirname(descriptor['url']),
-                        os.path.basename(tests[0]['url'])
-                    )
-        return tests
-
-
-    def get_workflow_files(self, id, version_id, type, fix_url=True):
-        """
-        Return a list of files associated with the workflow based
-        on file type.
-        """
-        id = _format_workflow_id(id)
-        endpoint = 'tools/{}/versions/{}/{}/files'.format(
-            id, version_id, type
-        )
-        return _get_endpoint(self, endpoint)
+    if http_client is None:
+        http_client = _init_http_client(service_id=service_id)
+    return SwaggerClient.from_url(
+        'https://raw.githubusercontent.com/ga4gh/tool-registry-service-schemas/develop/src/main/resources/swagger/ga4gh-tool-discovery.yaml',
+        http_client=http_client
+    ).GA4GH
