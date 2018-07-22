@@ -1,86 +1,50 @@
 import logging
-import requests
-import urllib
-import re
+import urlparse
+
+from bravado.requests_client import RequestsClient
+from bravado.client import SwaggerClient
+
+from ..config import wes_config
 
 logger = logging.getLogger(__name__)
 
 
-def _get_endpoint(client, endpoint):
+def _get_wes_opts(service_id, wes_config=None):
     """
-    Execute a generic API 'GET' request.
+    Look up stored parameters for workflow execution services.
     """
-    res = requests.get(
-        '{}/{}'.format(client.base_url, endpoint),
-        headers=client.headers
+    return wes_config[service_id]
+
+
+def _init_http_client(service_id=None, opts=None):
+    """
+    Initialize and configure HTTP requests client for selected service.
+    """
+    auth_header = {'token': 'Authorization',
+                   'api_key': 'X-API-KEY',
+                   None: ''} 
+    if service_id:
+        opts = _get_wes_opts(service_id)
+
+    http_client = RequestsClient()
+    split = urlparse.urlsplit('%s://%s/'.format(opts['proto'], opts['host']))
+
+    http_client.set_api_key(
+        host=opts['host'],
+        api_key=opts['auth'],
+        param_name=auth_header[opts['auth_type']],
+        param_in='header'
     )
-    # TODO: add some exception handling for different responses
-    return res.json()
+    return http_client
+    
 
-
-def _post_to_endpoint(client, endpoint, request):
+def load_wes_client(service_id=None, http_client=None):
     """
-    Execute a generic API 'POST' request.
+    Return an API client for the selected workflow execution service.
     """
-    res = requests.post(
-        '{}/{}'.format(client.base_url, endpoint),
-        headers=client.headers,
-        json=request
-    )
-    # TODO: add some exception handling for different responses
-    return res.json()
-
-
-class WESClient(object):
-    """
-    Build a :class:`WESClient` for interacting with a server via
-    the GA4GH Worflow Execution Service RESTful API.
-    """
-    def __init__(self, host, auth=None, auth_type=None, proto='http',
-                 base_path='ga4gh/wes/v1'):
-        self.base_url = '{}://{}/{}'.format(proto, host, base_path)
-        auth_headers = {'token': 'Authorization',
-                        'api_key': 'X-API-KEY',
-                        None: ''}
-        self.headers = {auth_headers[auth_type]: auth}
-
-
-    def get_service_info(self):
-        """
-        Get information about Workflow Execution Service.
-        """
-        endpoint = 'service-info'
-        return _get_endpoint(self, endpoint)
-
-
-    def list_workflow_runs(self):
-        """
-        List all the workflow runs in order of oldest to newest.
-        """
-        endpoint = 'workflows'
-        return _get_endpoint(self, endpoint)
-
-
-    def run_workflow(self, request):
-        """
-        Create a new workflow run and retrieve its tracking ID
-        to monitor its progress.
-        """
-        endpoint = 'workflows'
-        return _post_to_endpoint(self, endpoint, request)
-
-
-    def get_workflow_run(self, id):
-        """
-        Get detailed info about a workflow run.
-        """
-        endpoint = 'workflows/{}'.format(id)
-        return _get_endpoint(self, endpoint)
-
-
-    def get_workflow_run_status(self, id):
-        """
-        Get quick status info about a workflow run.
-        """
-        endpoint = 'workflows/{}/status'.format(id)
-        return _get_endpoint(self, endpoint)
+    if http_client is None:
+        http_client = _init_http_client(service_id=service_id)
+    return SwaggerClient.from_url(
+        'https://raw.githubusercontent.com/ga4gh/workflow-execution-service-schemas/develop/openapi/workflow_execution_service.swagger.yaml',
+        http_client=http_client
+    ).WorkflowExecutionService
