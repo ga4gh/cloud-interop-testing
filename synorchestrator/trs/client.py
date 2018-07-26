@@ -18,6 +18,18 @@ def _get_endpoint(client, endpoint):
     # TODO: add some exception handling for different responses
     return res.json()
 
+def _post_to_endpoint(client, endpoint, request):
+    """
+    Execute a generic API 'POST' request.
+    """
+    res = requests.post(
+        '{}/{}'.format(client.base_url, endpoint),
+        headers=client.headers,
+        json=request
+    )
+    # TODO: add some exception handling for different responses
+    return res.json()
+
 
 def _format_workflow_id(id):
     """
@@ -115,3 +127,13 @@ class TRSClient(object):
             id, version_id, type
         )
         return _get_endpoint(self, endpoint)
+
+    def post_verification(self, id, version_id, type, relative_path, requests):
+        """
+        Annotate test JSON with information on whether it ran successfully on particular platforms plus metadata
+        """
+        id = _format_workflow_id(id)
+        endpoint ='extended/{}/versions/{}/{}/tests/{}'.format(
+            id, version_id, type, relative_path
+        )
+        return _post_to_endpoint(self, endpoint, requests)
