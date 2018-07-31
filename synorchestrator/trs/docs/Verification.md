@@ -17,7 +17,7 @@ https://dockstore.org/containers/quay.io/briandoconnor/dockstore-tool-md5sum:1.0
 
 Below is a screenshot of someone verifying the "test.json" test parameter file of the "master" version of the "dockstore-tool-md5sum" tool.  
 
-![thing](Swagger.png)
+![Swagger-UI](Swagger.png)
 
 The curl command results in something like:
 
@@ -40,7 +40,7 @@ There are 3 new indicators in Dockstore.org that indicates whether or not the to
 
 To see if the verified tool/workflow is correctly displaying to others on Dockstore.org, first go to the page of the tool/workflow such as https://dockstore.org/containers/quay.io/briandoconnor/dockstore-tool-md5sum:1.0.4?tab=info.  Since this tool/workflow is correctly verified, the 3 indicators can be seen:
 
-![thing](VerifiedTool.png)
+![Tool Page](VerifiedTool.png)
 
 1. At the top left, the checkmark indicates that at least one of the tool/workflow's version has been verified.  In general, this tool/workflow is considered verified.  
 
@@ -50,16 +50,16 @@ To see if the verified tool/workflow is correctly displaying to others on Dockst
 
 Addition information for all verified versions can be viewed at a glance in the versions tab:
 
-![thing](VerifiedVersionsTab.png)
+![Versions Tab](VerifiedVersionsTab.png)
 
 Once again, the checkmarks indicate the version is verified.  Platforms which the version was verified on is displayed to the right of it.  In this case, it's "Dockstore CLI"
 
 To see more verification information about a specific version, click the view button on the same row of the version of interest:
 
-![thing](SelectingVersionsTab.png)
+![Selecting in Versions Tab](SelectingVersionsTab.png)
 
 In this example, the "master" version is selected and a modal pops up.  The bottom of it displays detailed verification information:
 
-![thing](VerifiedTable.png)
+![Verification Table](VerifiedTable.png)
 
 It lists the platform it was verified on, the verified source (verifier) and the test parameter file that was used.
