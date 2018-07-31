@@ -9,7 +9,6 @@ monitor and report results of the workflow run.
 import logging
 import os
 import sys
-import yaml
 import time
 import re
 import pandas as pd
@@ -162,7 +161,6 @@ def run_all(eval_wes_map, checker=True, monitor_jobs=False):
     for eval_id in eval_wes_map:
         submission_ids = [run_checker(eval_id, wes_id)
                           for wes_id in eval_wes_map[eval_id]]
-    t0 = dt.datetime.now()
     submissions = [run_eval(eval_id) for eval_id in eval_wes_map]
     if monitor_jobs:
         submissions = monitor(eval_wes_map.keys())
