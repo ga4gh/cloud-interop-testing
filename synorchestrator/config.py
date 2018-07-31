@@ -65,9 +65,7 @@ def show():
     print("(queue ID: workflow ID [workflow type])")
     print("-" * 75)
     print(
-        '\n'.join('{}: {} [{}]'.format(
-            k, eval_config[k]['workflow_id'], eval_config[k]['workflow_type']
-        )
+        '\n'.join('{}: {} [{}]'.format(k, eval_config[k]['workflow_id'], eval_config[k]['workflow_type'])
         for k in orchestrator_config['evals'])
     )
     print("\nTool Registries")

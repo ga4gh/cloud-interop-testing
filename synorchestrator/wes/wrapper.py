@@ -1,5 +1,5 @@
 import logging
-from . import load_wes_client
+from synorchestrator.wes.client import load_wes_client
 
 logger = logging.getLogger(__name__)
 
