@@ -21,7 +21,7 @@ Below is a screenshot of someone verifying the "test.json" test parameter file o
 
 The curl command results in something like:
 
-`curl -X POST "https://staging.dockstore.org/api/api/ga4gh/v2/extended/quay.io%2Fbriandoconnor%2Fdockstore-tool-md5sum/versions/master/CWL/tests/test.json?platform=Dockstore%20CLI&verified=true&metadata=Phase%201%20GA4GH%20Tool%20Execution%20Challenge" -H  "accept: application/json" -H  "Authorization: Bearer a0b1c1d8e9f9g9h8i8j1k9l9m9n1o1p9q7r2s5tuvwxyz3"`
+`curl -X POST "https://staging.dockstore.org/api/api/ga4gh/v2/extended/quay.io%2Fbriandoconnor%2Fdockstore-tool-md5sum/versions/master/CWL/tests/test.json?platform=Dockstore%20CLI&verified=true&metadata=Phase%201%20GA4GH%20Tool%20Execution%20Challenge" -H  "accept: application/json" -H  "Authorization: Bearer iamafakebearertoken"`
 
 A successful response will result in something like:
 
