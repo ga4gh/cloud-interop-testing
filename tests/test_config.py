@@ -84,7 +84,7 @@
 #     mock_config_file = mock_orchestratorconfig(tmpdir).next()
 
 #     # WHEN updated configuration data is written to the file
-#     config.save_config({'foo': 'bar'})
+#     config.save_yaml({'foo': 'bar'})
 
 #     # THEN the file should contain the correct YAML configuration
 #     mock_config_text = """foo: bar\n"""
