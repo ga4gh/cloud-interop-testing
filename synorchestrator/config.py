@@ -7,20 +7,20 @@ import logging
 import os
 import yaml
 import pkg_resources
-from util import get_config, save_config
+from synorchestrator.util import get_yaml, save_yaml
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 orchestrator_filepath = os.path.abspath('config/orchestrator.config.yaml')
-orchestrator_config = get_config(orchestrator_filepath)
+orchestrator_config = get_yaml(orchestrator_filepath)
 eval_filepath = os.path.abspath('configs/evals.config.yaml')
-eval_config = get_config(eval_filepath)
+eval_config = get_yaml(eval_filepath)
 trs_filepath = os.path.abspath('configs/toolregistries.config.yaml')
-trs_config = get_config(trs_filepath)
+trs_config = get_yaml(trs_filepath)
 wes_filepath = os.path.abspath('configs/workflowservices.config.yaml')
-wes_config = get_config(wes_filepath)
+wes_config = get_yaml(wes_filepath)
 
 
 def add_eval(eval_id):
@@ -31,7 +31,7 @@ def add_eval(eval_id):
     :param eval_id: integer ID of a Synapse evaluation queue
     """
     orchestrator_config.setdefault('evals', []).append(eval_id)
-    save_config(orchestrator_filepath, orchestrator_config)
+    save_yaml(orchestrator_filepath, orchestrator_config)
 
 
 def add_toolregistry(trs_id):
@@ -42,7 +42,7 @@ def add_toolregistry(trs_id):
     :param trs_id: string ID of TRS endpoint (e.g., 'Dockstore')
     """
     orchestrator_config.setdefault('toolregistries', []).append(trs_id)
-    save_config(orchestrator_filepath, orchestrator_config)
+    save_yaml(orchestrator_filepath, orchestrator_config)
 
 
 def add_workflowservice(wes_id):
@@ -53,7 +53,7 @@ def add_workflowservice(wes_id):
     :param wes_id: string ID of WES endpoint (e.g., 'workflow-service')
     """
     orchestrator_config.setdefault('workflowservices', []).append(wes_id)
-    save_config(orchestrator_filepath, orchestrator_config)
+    save_yaml(orchestrator_filepath, orchestrator_config)
 
 
 def show():

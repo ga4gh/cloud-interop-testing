@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def get_config(filepath):
+def get_yaml(filepath):
     try:
         with open(filepath, 'r') as f:
             return yaml.load(f)
@@ -21,9 +21,22 @@ def get_config(filepath):
         logger.exception("No file found.  Please create: %s." % filepath)
 
 
-def save_config(filepath, app_config):
+def save_yaml(filepath, app_config):
     with open(filepath, 'w') as f:
         yaml.dump(app_config, f, default_flow_style=False)
+
+
+def get_json(filepath):
+    try:
+        with open(filepath, 'r') as f:
+            return json.load(f)
+    except IOError:
+        logger.exception("No file found.  Please create: %s." % filepath)
+
+
+def save_json(filepath, app_config):
+    with open(filepath, 'w') as f:
+        json.dump(app_config, f, default_flow_style=False)
 
 
 def ctime2datetime(time_str):
