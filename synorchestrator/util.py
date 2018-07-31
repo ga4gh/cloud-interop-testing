@@ -3,10 +3,27 @@ import urllib
 import json
 import yaml
 import subprocess32
+import logging
 import schema_salad.ref_resolver
 import datetime as dt
 from toil.wdl import wdl_parser
 from wes_service.util import visit
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+def get_config(filepath):
+    try:
+        with open(filepath, 'r') as f:
+            return yaml.load(f)
+    except IOError:
+        logger.exception("No file found.  Please create: %s." % filepath)
+
+
+def save_config(filepath, app_config):
+    with open(filepath, 'w') as f:
+        yaml.dump(app_config, f, default_flow_style=False)
 
 
 def ctime2datetime(time_str):
@@ -23,7 +40,7 @@ def convert_timedelta(duration):
 
 def _fixpaths(basedir):
     """
-    Adapted from @teton's function in
+    Adapted from @tetron's function in
     https://github.com/common-workflow-language/workflow-service/
     blob/master/wes_client/__init__.py
     """

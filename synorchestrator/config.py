@@ -1,44 +1,26 @@
 """
-Configure orchestrator application.
+The orchestrator config file has three sections: eval, trs, and wes.
+
+This provides functions to save and get values into these three sections in the file.
 """
 import logging
 import os
 import yaml
 import pkg_resources
+from util import get_config, save_config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-CONFIG_PATH = os.path.join(os.path.expanduser('~'), '.orchestratorConfig')
 
-with pkg_resources.resource_stream(__name__, 'configs/evals.config') as f:
-    eval_config = yaml.load(f)
-with pkg_resources.resource_stream(__name__, 'configs/toolregistries.config') as f:
-    trs_config = yaml.load(f)
-with pkg_resources.resource_stream(__name__, 'configs/workflowservices.config') as f:
-    wes_config = yaml.load(f)
-
-
-def _get_orchestrator_config():
-    """
-    Read orchestrator configuration from file.
-
-    :return: object with current orchestrator app configuration
-    """
-    try:
-        with open(CONFIG_PATH, 'r') as f:
-            return yaml.load(f)
-    except IOError as e:
-        logger.warn("no orchestrator config file found")
-        return {}
-
-
-def _save_orchestrator_config(app_config):
-    """
-    Update orchestrator config file.
-    """
-    with open(CONFIG_PATH, 'w') as f:
-        yaml.dump(app_config, f, default_flow_style=False)
+orchestrator_filepath = os.path.abspath('config/orchestrator.config.yaml')
+orchestrator_config = get_config(orchestrator_filepath)
+eval_filepath = os.path.abspath('configs/evals.config.yaml')
+eval_config = get_config(eval_filepath)
+trs_filepath = os.path.abspath('configs/toolregistries.config.yaml')
+trs_config = get_config(trs_filepath)
+wes_filepath = os.path.abspath('configs/workflowservices.config.yaml')
+wes_config = get_config(wes_filepath)
 
 
 def add_eval(eval_id):
@@ -48,9 +30,8 @@ def add_eval(eval_id):
 
     :param eval_id: integer ID of a Synapse evaluation queue
     """
-    app_config = _get_orchestrator_config()
-    app_config.setdefault('evals', []).append(eval_id)
-    _save_orchestrator_config(app_config)
+    orchestrator_config.setdefault('evals', []).append(eval_id)
+    save_config(orchestrator_filepath, orchestrator_config)
 
 
 def add_toolregistry(trs_id):
@@ -60,9 +41,8 @@ def add_toolregistry(trs_id):
 
     :param trs_id: string ID of TRS endpoint (e.g., 'Dockstore')
     """
-    app_config = _get_orchestrator_config()
-    app_config.setdefault('toolregistries', []).append(trs_id)
-    _save_orchestrator_config(app_config)
+    orchestrator_config.setdefault('toolregistries', []).append(trs_id)
+    save_config(orchestrator_filepath, orchestrator_config)
 
 
 def add_workflowservice(wes_id):
@@ -72,16 +52,14 @@ def add_workflowservice(wes_id):
 
     :param wes_id: string ID of WES endpoint (e.g., 'workflow-service')
     """
-    app_config = _get_orchestrator_config()
-    app_config.setdefault('workflowservices', []).append(wes_id)
-    _save_orchestrator_config(app_config)
+    orchestrator_config.setdefault('workflowservices', []).append(wes_id)
+    save_config(orchestrator_filepath, orchestrator_config)
 
 
 def show():
     """
     Show current application configuration.
     """
-    app_config = _get_orchestrator_config()
     print("\nOrchestrator options:")
     print("\nWorkflow Evaluation Queues")
     print("(queue ID: workflow ID [workflow type])")
@@ -90,15 +68,15 @@ def show():
         '\n'.join('{}: {} [{}]'.format(
             k, eval_config[k]['workflow_id'], eval_config[k]['workflow_type']
         )
-        for k in app_config['evals'])
+        for k in orchestrator_config['evals'])
     )
     print("\nTool Registries")
     print("(TRS ID: host address)")
     print("-" * 75)
     print('\n'.join('{}: {}'.format(k, trs_config[k]['host'])
-          for k in app_config['toolregistries']))
+          for k in orchestrator_config['toolregistries']))
     print("\nWorkflow Services")
     print("(WES ID: host address)")
     print("-" * 75)
     print('\n'.join('{}: {}'.format(k, wes_config[k]['host'])
-          for k in app_config['workflowservices']))
+          for k in orchestrator_config['workflowservices']))

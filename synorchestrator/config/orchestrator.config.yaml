@@ -1,0 +1,9 @@
+orchestrator:
+  file: '~/.orchestratorConfig'
+  evals:
+    - 0
+    - 1
+  toolregistries:
+    - "dockstore"
+  workflowservices:
+    - "local"

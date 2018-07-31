@@ -1,7 +1,3 @@
-import os
-import sys
-import shutil
-
 # First, we try to use setuptools. If it's not available locally,
 # we fall back on ez_setup.
 try:
