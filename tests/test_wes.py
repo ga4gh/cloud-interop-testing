@@ -32,14 +32,14 @@ def mock_api_client():
 
 def test__get_wes_opts(mock_wes_config):
 
-    test_wes_opts = wes_client._get_wes_opts('mock_wes', mock_wes_config)
+    test_wes_opts = wes_client.get_wes_opts('mock_wes', mock_wes_config)
 
     assert test_wes_opts == mock_wes_config['mock_wes']
 
 
 def test__init_http_client(mock_wes_config):
     mock_opts = mock_wes_config['mock_wes']
-    test_http_client = wes_client._init_http_client(opts=mock_opts)
+    test_http_client = wes_client.init_http_client(opts=mock_opts)
 
     assert isinstance(test_http_client, RequestsClient)
     assert test_http_client.authenticator.host == mock_opts['host']

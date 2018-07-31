@@ -1,7 +1,9 @@
+toil[all]==3.16.0
 schema_salad
 ruamel.yaml
 cwltool
 subprocess32
 wes-service
 synapseclient
-
+pandas
+IPython
