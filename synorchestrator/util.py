@@ -6,11 +6,22 @@ import subprocess32
 import logging
 import schema_salad.ref_resolver
 import datetime as dt
-from toil.wdl import wdl_parser
-from wes_service.util import visit
+from synorchestrator import wdl_parser
+from six import itervalues
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def visit(d, op):
+    """Recursively call op(d) for all list subelements and dictionary 'values' that d may have."""
+    op(d)
+    if isinstance(d, list):
+        for i in d:
+            visit(i, op)
+    elif isinstance(d, dict):
+        for i in itervalues(d):
+            visit(i, op)
 
 
 def get_yaml(filepath):
