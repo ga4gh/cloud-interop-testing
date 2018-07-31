@@ -3,8 +3,7 @@ import urlparse
 
 from bravado.requests_client import RequestsClient
 from bravado.client import SwaggerClient
-
-from config import wes_config
+from synorchestrator.config import wes_config
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +23,7 @@ def init_http_client(service_id=None, opts=None):
                    'api_key': 'X-API-KEY',
                    None: ''} 
     if service_id:
-        opts = get_wes_opts(service_id)
+        opts = get_wes_opts(service_id, wes_config=wes_config)
 
     http_client = RequestsClient()
     split = urlparse.urlsplit('%s://%s/'.format(opts['proto'], opts['host']))
