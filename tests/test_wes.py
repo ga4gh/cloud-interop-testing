@@ -25,19 +25,18 @@ def mock_wes_config():
 @pytest.fixture
 def mock_api_client():
     mock_api_client = mock.Mock(name='mock SwaggerClient')
-    with mock.patch.object(SwaggerClient, 'from_url', 
-                           return_value=mock_api_client):
+    with mock.patch.object(SwaggerClient, 'from_url', return_value=mock_api_client):
         yield mock_api_client
 
 
-def test__get_wes_opts(mock_wes_config):
+def test_get_wes_opts(mock_wes_config):
 
     test_wes_opts = wes_client.get_wes_opts('mock_wes', mock_wes_config)
 
     assert test_wes_opts == mock_wes_config['mock_wes']
 
 
-def test__init_http_client(mock_wes_config):
+def test_init_http_client(mock_wes_config):
     mock_opts = mock_wes_config['mock_wes']
     test_http_client = wes_client.init_http_client(opts=mock_opts)
 

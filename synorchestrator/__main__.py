@@ -4,7 +4,6 @@ import sys
 import argparse
 import pkg_resources  # part of setuptools
 import logging
-import synorchestrator
 
 logging.basicConfig(level=logging.INFO)
 

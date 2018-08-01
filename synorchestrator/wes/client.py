@@ -1,5 +1,4 @@
 import logging
-import urlparse
 
 from bravado.requests_client import RequestsClient
 from bravado.client import SwaggerClient
@@ -21,12 +20,12 @@ def init_http_client(service_id=None, opts=None):
     """
     auth_header = {'token': 'Authorization',
                    'api_key': 'X-API-KEY',
-                   None: ''} 
+                   None: ''}
     if service_id:
         opts = get_wes_opts(service_id, wes_config=wes_config)
 
     http_client = RequestsClient()
-    split = urlparse.urlsplit('%s://%s/'.format(opts['proto'], opts['host']))
+    # split = urlparse.urlsplit('%s://%s/'.format(opts['proto'], opts['host']))
 
     http_client.set_api_key(
         host=opts['host'],
@@ -35,7 +34,7 @@ def init_http_client(service_id=None, opts=None):
         param_in='header'
     )
     return http_client
-    
+
 
 def load_wes_client(service_id=None, http_client=None):
     """
@@ -43,7 +42,5 @@ def load_wes_client(service_id=None, http_client=None):
     """
     if http_client is None:
         http_client = init_http_client(service_id=service_id)
-    return SwaggerClient.from_url(
-        'https://raw.githubusercontent.com/ga4gh/workflow-execution-service-schemas/develop/openapi/workflow_execution_service.swagger.yaml',
-        http_client=http_client
-    ).WorkflowExecutionService
+    return SwaggerClient.from_url('https://raw.githubusercontent.com/ga4gh/workflow-execution-service-schemas/develop/openapi/workflow_execution_service.swagger.yaml',
+                                  http_client=http_client).WorkflowExecutionService

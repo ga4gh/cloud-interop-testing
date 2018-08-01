@@ -5,8 +5,6 @@ This provides functions to save and get values into these three sections in the 
 """
 import logging
 import os
-import yaml
-import pkg_resources
 from synorchestrator.util import get_yaml, save_yaml
 
 logging.basicConfig(level=logging.INFO)
@@ -64,17 +62,16 @@ def show():
     print("\nWorkflow Evaluation Queues")
     print("(queue ID: workflow ID [workflow type])")
     print("-" * 75)
-    print(
-        '\n'.join('{}: {} [{}]'.format(k, eval_config[k]['workflow_id'], eval_config[k]['workflow_type'])
-        for k in orchestrator_config['evals'])
-    )
+    print('\n'.join('{}: {} [{}]'.format(k,
+                                         eval_config[k]['workflow_id'],
+                                         eval_config[k]['workflow_type']) for k in orchestrator_config['evals']))
     print("\nTool Registries")
     print("(TRS ID: host address)")
     print("-" * 75)
-    print('\n'.join('{}: {}'.format(k, trs_config[k]['host'])
-          for k in orchestrator_config['toolregistries']))
+    print('\n'.join('{}: {}'.format(k,
+                                    trs_config[k]['host']) for k in orchestrator_config['toolregistries']))
     print("\nWorkflow Services")
     print("(WES ID: host address)")
     print("-" * 75)
-    print('\n'.join('{}: {}'.format(k, wes_config[k]['host'])
-          for k in orchestrator_config['workflowservices']))
+    print('\n'.join('{}: {}'.format(k,
+                                    wes_config[k]['host']) for k in orchestrator_config['workflowservices']))

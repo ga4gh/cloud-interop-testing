@@ -8,6 +8,7 @@ import schema_salad.ref_resolver
 import datetime as dt
 from synorchestrator import wdl_parser
 from six import itervalues
+from past.builtins import basestring
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -55,7 +56,7 @@ def ctime2datetime(time_str):
 
 
 def convert_timedelta(duration):
-    days, seconds = duration.days, duration.seconds
+    days, seconds = duration.days, duration.seconds  # noqa
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     seconds = (seconds % 60)
@@ -103,7 +104,7 @@ def params_url2object(params_url, file_params=None):
     Resolve references and return object corresponding to the
     JSON params file at the specified URL.
 
-    Adapted from @teton's function in
+    Adapted from @tetron's function in
     https://github.com/common-workflow-language/workflow-service/
     blob/master/wes_client/__init__.py
     """
@@ -115,7 +116,7 @@ def params_url2object(params_url, file_params=None):
         res = urllib.urlopen(_squash_url_dups(params_url))
         params_json = json.loads(res.read())
         for k, v in params_json.items():
-            if k in file_params and not ':' in v[0] and not ':' in v:
+            if k in file_params and ':' not in v[0] and ':' not in v:
                 resolve_keys[k] = {"@type": "@id"}
     loader = schema_salad.ref_resolver.Loader(resolve_keys)
     params_object, _ = loader.resolve_ref(_squash_url_dups(params_url))
@@ -158,9 +159,8 @@ def get_wdl_inputs(wdl):
     decs = find_asts(workflow, 'Declaration')
     wdl_inputs = {}
     for dec in decs:
-        if (isinstance(dec.attr('type'), wdl_parser.Ast) and 
-            'name' in dec.attr('type').attributes):
-            dec_type = dec.attr('type').attr('name').source_string
+        if isinstance(dec.attr('type'), wdl_parser.Ast) and 'name' in dec.attr('type').attributes:
+            # dec_type = dec.attr('type').attr('name').source_string
             dec_subtype = dec.attr('type').attr('subtype')[0].source_string
             dec_name = '{}.{}'.format(workflow_name,
                                       dec.attr('name').source_string)
@@ -180,24 +180,19 @@ def get_packed_cwl(workflow_url):
     return subprocess32.check_output(['cwltool', '--pack', workflow_url])
 
 
-def sniff_workflow_type_version(workflow_descriptor, workflow_type):
+def sniff_workflow_type_version(descriptor, workflow_type):
     """
     Inspect workflow descriptor contents to check CWL/WDL version.
     """
-    def _cwl_sniffer(descriptor):
+    if workflow_type == 'CWL':
         return yaml.load(descriptor)['cwlVersion']
-    def _wdl_sniffer(descriptor):
+    elif workflow_type == 'WDL':
         try:
-            return [l.lstrip('version ') for l in descriptor.splitlines()
-                    if 'version' in l.split(' ')][0]
+            return [l.lstrip('version ') for l in descriptor.splitlines() if 'version' in l.split(' ')][0]
         except IndexError:
             return 'draft-2'
-
-    sniffer = {
-        'CWL': _cwl_sniffer,
-        'WDL': _wdl_sniffer
-    }
-    return sniffer[workflow_type](workflow_descriptor)
+    else:
+        raise ValueError('Unknown/supported workflow type: %s' % workflow_type)
 
 
 def build_trs_request():
@@ -207,10 +202,11 @@ def build_trs_request():
     pass
 
 
-def build_wes_request(
-    workflow_params, workflow_descriptor=None, workflow_url=None,
-    workflow_type='CWL', workflow_version=None
-):
+def build_wes_request(workflow_params,
+                      workflow_descriptor=None,
+                      workflow_url=None,
+                      workflow_type='CWL',
+                      workflow_version=None):
     """
     Prepare Workflow Execution Service request for a given submission.
     """

@@ -14,7 +14,6 @@ import re
 import pandas as pd
 import datetime as dt
 from IPython.display import display, clear_output
-
 from synorchestrator import config
 from synorchestrator import util
 from synorchestrator import eval
@@ -24,6 +23,7 @@ from synorchestrator.wes.client import WESClient
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 pd.set_option('display.width', 100)
+
 
 def run_submission(eval_id, submission_id, wes_id='local'):
     """
@@ -79,15 +79,13 @@ def run_checker(eval_id, wes_id, queue_only=True):
         version_id=workflow_config['version_id'],
         type=workflow_config['workflow_type']
     )
-    if (checker_descriptor['type'] == 'CWL' and
-        re.search('run:', checker_descriptor['descriptor'])):
-        checker_descriptor['descriptor'] = util.get_packed_cwl(
-            checker_descriptor['url']
-        )
+    if checker_descriptor['type'] == 'CWL' and re.search('run:', checker_descriptor['descriptor']):
+        checker_descriptor['descriptor'] = util.get_packed_cwl(checker_descriptor['url'])
+
     checker_tests = client.get_workflow_tests(
-        id=checker_workflow['id'],
+        fileid=checker_workflow['id'],
         version_id=workflow_config['version_id'],
-        type=workflow_config['workflow_type']
+        filetype=workflow_config['workflow_type']
     )
     wes_request = util.build_wes_request(
         workflow_descriptor=checker_descriptor['descriptor'],
@@ -103,7 +101,7 @@ def run_checker(eval_id, wes_id, queue_only=True):
         return submission_id
 
 
-def monitor(submissions, eval_ids=None, submission_ids=None):
+def monitor(submissions):
     """
     Monitor progress of workflow jobs.
     """
@@ -151,17 +149,3 @@ def monitor(submissions, eval_ids=None, submission_ids=None):
         monitor(statuses)
     else:
         print("Done")
-
-
-def run_all(eval_wes_map, checker=True, monitor_jobs=False):
-    """
-    Run all submissions for multiple queues in multiple environments
-    (cross product of queues, workflow service endpoints).
-    """
-    for eval_id in eval_wes_map:
-        submission_ids = [run_checker(eval_id, wes_id)
-                          for wes_id in eval_wes_map[eval_id]]
-    submissions = [run_eval(eval_id) for eval_id in eval_wes_map]
-    if monitor_jobs:
-        submissions = monitor(eval_wes_map.keys())
-    return submissions
