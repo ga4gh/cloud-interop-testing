@@ -25,6 +25,12 @@ def visit(d, op):
             visit(i, op)
 
 
+def heredoc(s, inputs_dict):
+    import textwrap
+    s = textwrap.dedent(s).format(**inputs_dict)
+    return s[1:] if s.startswith('\n') else s
+
+
 def get_yaml(filepath):
     try:
         with open(filepath, 'r') as f:
