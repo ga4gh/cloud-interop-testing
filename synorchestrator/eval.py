@@ -22,7 +22,7 @@ def create_submission(eval_id, submission_data, wes_id, type=None):
                                                     'data': submission_data,
                                                     'wes_id': wes_id,
                                                     'type': type}
-    save_json(EVALS_PATH)
+    save_json(EVALS_PATH, evals)
     logger.info("Created new job submission:\n - submission ID: {}".format(submission_id))
     logger.debug("\n - evaluation queue: {} ({})"
                  "\n - data:\n{}".format(eval_id,
@@ -34,18 +34,18 @@ def create_submission(eval_id, submission_data, wes_id, type=None):
 def get_submissions(eval_id, status='RECEIVED'):
     """
     Return all submissions to a queue matching the specified status.
+
+    RECEIVED is hard-coded on all job creations atm.
     """
     evals = get_json(EVALS_PATH)
-    return [id for id, bundle in evals[eval_id].items()
-            if bundle['status'] in status]
+    return [id for id, bundle in evals[eval_id].items() if bundle['status'] in status]
 
 
 def get_submission_bundle(eval_id, submission_id):
     """
     Submit a new job request to an evaluation queue.
     """
-    evals = get_json(EVALS_PATH)
-    return evals[eval_id][submission_id]
+    return get_json(EVALS_PATH)[eval_id][submission_id]
 
 
 def update_submission_status(eval_id, submission_id, status):
@@ -54,7 +54,7 @@ def update_submission_status(eval_id, submission_id, status):
     """
     evals = get_json(EVALS_PATH)
     evals[eval_id][submission_id]['status'] = status
-    save_json(EVALS_PATH)
+    save_json(EVALS_PATH, evals)
 
 
 def update_submission_run(eval_id, submission_id, run_data):
@@ -63,4 +63,4 @@ def update_submission_run(eval_id, submission_id, run_data):
     """
     evals = get_json(EVALS_PATH)
     evals[eval_id][submission_id]['run'] = run_data
-    save_json(EVALS_PATH)
+    save_json(EVALS_PATH, evals)

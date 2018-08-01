@@ -78,13 +78,10 @@ class TRSClient(object):
     def get_workflow_tests(self, fileid, version_id, filetype, fix_url=True):
         """
         Return a list of test JSONs (these allow you to execute the
-        workflow successfully) suitable for use with this descriptor
-        type.
+        workflow successfully) suitable for use with this descriptor type.
         """
         fileid = _format_workflow_id(fileid)
-        endpoint = 'tools/{}/versions/{}/{}/tests'.format(
-            fileid, version_id, filetype
-        )
+        endpoint = 'tools/{}/versions/{}/{}/tests'.format(fileid, version_id, filetype)
         tests = _get_endpoint(self, endpoint)
         if fix_url:
             descriptor = self.get_workflow_descriptor(fileid, version_id, filetype)

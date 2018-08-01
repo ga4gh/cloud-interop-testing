@@ -5,13 +5,25 @@ This provides functions to save and get values into these three sections in the 
 """
 import logging
 import os
-from synorchestrator.util import get_yaml, save_yaml
+from synorchestrator.util import get_yaml, save_yaml, heredoc
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-orchestrator_filepath = os.path.abspath('config/orchestrator.config.yaml')
+config_path = os.path.abspath('config.yaml')
+
+
+def eval_config():
+    return get_yaml(config_path)['evals']
+
+
+def trs_config():
+    return get_yaml(config_path)['toolregistries']
+
+
+def wes_config():
+    return get_yaml(config_path)['workflowservices']
 
 
 def add_eval(eval_id):
@@ -45,22 +57,16 @@ def add_workflowservice(wes_id):
 
 
 def set_yaml(section, var2add):
-    orchestrator_config = get_yaml(orchestrator_filepath)
+    orchestrator_config = get_yaml(config_path)
     orchestrator_config.setdefault(section, []).append(var2add)
-    save_yaml(orchestrator_filepath, orchestrator_config)
-
-
-def heredoc(s, inputs_dict):
-    import textwrap
-    s = textwrap.dedent(s).format(**inputs_dict)
-    return s[1:] if s.startswith('\n') else s
+    save_yaml(config_path, orchestrator_config)
 
 
 def show():
     """
     Show current application configuration.
     """
-    orchestrator_config = get_yaml(orchestrator_filepath)
+    orchestrator_config = get_yaml(config_path)
     evals = '\n'.join('{}:\t{}\t[{}]'.format(k, orchestrator_config['evals'][k]['workflow_id'], orchestrator_config['evals'][k]['workflow_type']) for k in orchestrator_config['evals'])
     trs = '\n'.join('{}: {}'.format(k, orchestrator_config['toolregistries'][k]['host']) for k in orchestrator_config['toolregistries'])
     wes = '\n'.join('{}: {}'.format(k, orchestrator_config['workflowservices'][k]['host']) for k in orchestrator_config['workflowservices'])

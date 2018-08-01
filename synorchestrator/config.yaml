@@ -12,6 +12,16 @@ toolregistries:
     auth:
     proto: "https"
 workflowservices:
+  hca-cromwell:
+    host: "g0n2qjnu94.execute-api.us-east-1.amazonaws.com/test"
+    auth:
+    auth_type: ""
+    proto: "http"
+  arvados-wes:
+    host: "wes.qr1hi.arvadosapi.com"
+    auth:
+    auth_type: ""
+    proto: "http"
   local:
     host: "0.0.0.0:8080"
     auth:

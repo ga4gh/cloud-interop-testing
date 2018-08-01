@@ -35,7 +35,7 @@ def run_submission(eval_id, submission_id, wes_id='local'):
         wes_id = submission['wes_id']
     logger.info("Submitting job '{}' for eval '{}' to WES endpoint '{}'"
                 .format(submission_id, eval_id, wes_id))
-    client = WESClient(**config.wes_config[wes_id])
+    client = WESClient(**config.wes_config()[wes_id])
     run_data = client.run_workflow(submission['data'])
     run_data['start_time'] = dt.datetime.now().ctime()
     eval.update_submission_run(eval_id, submission_id, run_data)
@@ -47,7 +47,7 @@ def run_eval(eval_id, wes_id=None):
     """
     Run all submissions in a queue in a single environment.
     """
-    eval_name = os.path.basename(config.eval_config[eval_id]['workflow_id'])
+    eval_name = os.path.basename(config.eval_config()[eval_id]['workflow_id'])
     submission_dict = {}
     for submission_id in eval.get_submissions(eval_id):
         bundle = run_submission(eval_id, submission_id, wes_id)
@@ -68,11 +68,11 @@ def run_checker(eval_id, wes_id, queue_only=True):
     Run checker workfllow for an evaluation workflow in a single
     environment.
     """
-    workflow_config = config.eval_config[eval_id]
+    workflow_config = config.eval_config()[eval_id]
     workflow_config['id'] = workflow_config['workflow_id']
     logger.info("Preparing checker workflow run request for '{}' from  '{}''"
                 .format(workflow_config['id'], workflow_config['trs_id']))
-    client = TRSClient(**config.trs_config[workflow_config['trs_id']])
+    client = TRSClient(**config.trs_config()[workflow_config['trs_id']])
     checker_workflow = client.get_workflow_checker(workflow_config['id'])
     checker_descriptor = client.get_workflow_descriptor(
         id=checker_workflow['id'],
@@ -111,7 +111,7 @@ def monitor(submissions):
         status_dict = {}
         for eval_id in submission_dict:
             for submission_id, bundle in submission_dict[eval_id].items():
-                client = WESClient(**config.wes_config[bundle['wes_id']])
+                client = WESClient(**config.wes_config()[bundle['wes_id']])
                 run = client.get_workflow_run_status(bundle['run_id'])
                 if run['state'] in ['QUEUED', 'INITIALIZING', 'RUNNING']:
                     etime = util.convert_timedelta(
