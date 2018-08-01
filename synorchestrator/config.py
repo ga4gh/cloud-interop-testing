@@ -12,12 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 orchestrator_filepath = os.path.abspath('config/orchestrator.config.yaml')
-# eval_filepath = os.path.abspath('configs/evals.config.yaml')
-# eval_config = get_yaml(eval_filepath)
-# trs_filepath = os.path.abspath('configs/toolregistries.config.yaml')
-# trs_config = get_yaml(trs_filepath)
-# wes_filepath = os.path.abspath('configs/workflowservices.config.yaml')
-# wes_config = get_yaml(wes_filepath)
 
 
 def add_eval(eval_id):
@@ -56,25 +50,37 @@ def set_yaml(section, var2add):
     save_yaml(orchestrator_filepath, orchestrator_config)
 
 
+def heredoc(s, inputs_dict):
+    import textwrap
+    s = textwrap.dedent(s).format(**inputs_dict)
+    return s[1:] if s.startswith('\n') else s
+
+
 def show():
     """
     Show current application configuration.
     """
     orchestrator_config = get_yaml(orchestrator_filepath)
-    print("\nOrchestrator options:")
-    print("\nWorkflow Evaluation Queues")
-    print("(queue ID: workflow ID [workflow type])")
-    print("-" * 75)
-    print('\n'.join('{}: {} [{}]'.format(k,
-                                         orchestrator_config['evals'][k]['workflow_id'],
-                                         orchestrator_config['evals'][k]['workflow_type']) for k in orchestrator_config['evals']))
-    print("\nTool Registries")
-    print("(TRS ID: host address)")
-    print("-" * 75)
-    print('\n'.join('{}: {}'.format(k,
-                                    orchestrator_config['toolregistries'][k]['host']) for k in orchestrator_config['toolregistries']))
-    print("\nWorkflow Services")
-    print("(WES ID: host address)")
-    print("-" * 75)
-    print('\n'.join('{}: {}'.format(k,
-                                    orchestrator_config['workflowservices'][k]['host']) for k in orchestrator_config['workflowservices']))
+    evals = '\n'.join('{}:\t{}\t[{}]'.format(k, orchestrator_config['evals'][k]['workflow_id'], orchestrator_config['evals'][k]['workflow_type']) for k in orchestrator_config['evals'])
+    trs = '\n'.join('{}: {}'.format(k, orchestrator_config['toolregistries'][k]['host']) for k in orchestrator_config['toolregistries'])
+    wes = '\n'.join('{}: {}'.format(k, orchestrator_config['workflowservices'][k]['host']) for k in orchestrator_config['workflowservices'])
+    display = heredoc('''
+        Orchestrator options:
+        Workflow Evaluation Queues
+        (queue ID: workflow ID [workflow type])
+        ---------------------------------------------------------------------------
+        {evals}
+        
+        Tool Registries
+        (TRS ID: host address)
+        ---------------------------------------------------------------------------
+        {trs}
+        
+        Workflow Services
+        (WES ID: host address)
+        ---------------------------------------------------------------------------
+        {wes}
+        ''', {'evals': evals,
+              'trs': trs,
+              'wes': wes})
+    print(display)
