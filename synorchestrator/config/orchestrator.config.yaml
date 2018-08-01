@@ -1,5 +1,4 @@
 orchestrator:
-  file: '~/.orchestratorConfig'
   evals:
     - 0
     - 1
@@ -8,20 +7,17 @@ orchestrator:
   workflowservices:
     - "local"
 toolregistries:
-  file: './toolregistries.config'
   dockstore:
     host: "dockstore.org:8443"
     auth:
     proto: "https"
 workflowservices:
-  file: './workflowservices.config'
   local:
     host: "0.0.0.0:8080"
     auth:
     auth_type: ""
     proto: "http"
 evals:
-  file: './evals.config'
   wflow0:
     workflow_id: "github.com/dockstore-testing/md5sum-checker"
     version_id: "develop"

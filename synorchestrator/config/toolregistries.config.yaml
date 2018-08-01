@@ -1,6 +1,0 @@
-toolregistries:
-  file: './toolregistries.config'
-  dockstore:
-    host: "dockstore.org:8443"
-    auth:
-    proto: "https"
