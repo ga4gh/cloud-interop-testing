@@ -1,10 +1,9 @@
 import logging
 import os
-import ruamel.yaml as yaml
 import json
 import datetime as dt
 
-from synorchestrator import config, util
+from synorchestrator import config
 from synorchestrator.util import get_json, save_json
 
 logger = logging.getLogger(__name__)
@@ -26,8 +25,9 @@ def create_submission(eval_id, submission_data, wes_id, type=None):
     save_json(EVALS_PATH)
     logger.info("Created new job submission:\n - submission ID: {}".format(submission_id))
     logger.debug("\n - evaluation queue: {} ({})"
-                 "\n - data:\n{}"
-                .format(eval_id, config.eval_config[eval_id]['workflow_id'], json.dumps(submission_data, indent=2)))
+                 "\n - data:\n{}".format(eval_id,
+                                         config.eval_config[eval_id]['workflow_id'],
+                                         json.dumps(submission_data, indent=2)))
     return submission_id
 
 
