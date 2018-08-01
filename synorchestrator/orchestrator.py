@@ -70,7 +70,7 @@ def run_checker(eval_id, wes_id, queue_only=True):
     """
     workflow_config = config.eval_config()[eval_id]
     workflow_config['id'] = workflow_config['workflow_id']
-    logger.info("Preparing checker workflow run request for '{}' from  '{}''"
+    logger.info("Preparing checker workflow run request for '{}' from '{}''"
                 .format(workflow_config['id'], workflow_config['trs_id']))
     client = TRSClient(**config.trs_config()[workflow_config['trs_id']])
     checker_workflow = client.get_workflow_checker(workflow_config['id'])
