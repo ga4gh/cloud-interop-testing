@@ -7,25 +7,16 @@ from synorchestrator.config import wes_config
 logger = logging.getLogger(__name__)
 
 
-def get_wes_opts(service_id, wes_config=None):
-    """
-    Look up stored parameters for workflow execution services.
-    """
-    return wes_config[service_id]
-
-
 def init_http_client(service_id=None, opts=None):
     """
     Initialize and configure HTTP requests client for selected service.
     """
     auth_header = {'token': 'Authorization',
-                   'api_key': 'X-API-KEY',
-                   None: ''}
+                   'api_key': 'X-API-KEY'}
     if service_id:
-        opts = get_wes_opts(service_id, wes_config=wes_config)
+        opts = wes_config[service_id]
 
     http_client = RequestsClient()
-    # split = urlparse.urlsplit('%s://%s/'.format(opts['proto'], opts['host']))
 
     http_client.set_api_key(
         host=opts['host'],

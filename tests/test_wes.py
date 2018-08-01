@@ -29,13 +29,6 @@ def mock_api_client():
         yield mock_api_client
 
 
-def test_get_wes_opts(mock_wes_config):
-
-    test_wes_opts = wes_client.get_wes_opts('mock_wes', mock_wes_config)
-
-    assert test_wes_opts == mock_wes_config['mock_wes']
-
-
 def test_init_http_client(mock_wes_config):
     mock_opts = mock_wes_config['mock_wes']
     test_http_client = wes_client.init_http_client(opts=mock_opts)
@@ -68,13 +61,9 @@ def test_wes_get_service_info(mock_api_client):
     assert test_service_info == mock_service_info
 
 def test_wes_list_runs(mock_api_client):
-    mock_runs = [
-        'foo', 'bar'
-    ]
+    mock_runs = ['foo', 'bar']
 
-    mock_api_client.ListRuns.return_value.response = BravadoResponseMock(
-        result=mock_runs
-    )
+    mock_api_client.ListRuns.return_value.response = BravadoResponseMock(result=mock_runs)
 
     client = wes_wrapper.WES(api_client=mock_api_client)
     test_runs = client.list_runs()
@@ -84,14 +73,9 @@ def test_wes_list_runs(mock_api_client):
 
 
 def test_wes_run_workflow(mock_api_client):
-    mock_run_id = {
-        'run_id': 'foo'
-    }
+    mock_run_id = {'run_id': 'foo'}
 
-    mock_api_client.RunWorkflow.return_value.response = BravadoResponseMock(
-        result=mock_run_id
-    )
-
+    mock_api_client.RunWorkflow.return_value.response = BravadoResponseMock(result=mock_run_id)
     client = wes_wrapper.WES(api_client=mock_api_client)
     test_run_id = client.run_workflow(request={})
 
@@ -100,19 +84,14 @@ def test_wes_run_workflow(mock_api_client):
 
 
 def test_wes_get_run(mock_api_client):
-    mock_run_log = {
-        'run_id': 'foo',
-        'request': {},
-        'state': '',
-        'run_log': {},
-        'task_logs': [],
-        'outputs': {}
-    }
+    mock_run_log = {'run_id': 'foo',
+                    'request': {},
+                    'state': '',
+                    'run_log': {},
+                    'task_logs': [],
+                    'outputs': {}}
 
-    mock_api_client.GetRunLog.return_value.response = BravadoResponseMock(
-        result=mock_run_log
-    )
-
+    mock_api_client.GetRunLog.return_value.response = BravadoResponseMock(result=mock_run_log)
     client = wes_wrapper.WES(api_client=mock_api_client)
     test_run_log = client.get_run(id='foo')
 
@@ -121,15 +100,10 @@ def test_wes_get_run(mock_api_client):
 
 
 def test_wes_get_run_status(mock_api_client):
-    mock_run_status = {
-        'run_id': 'foo',
-        'state': ''
-    }
+    mock_run_status = {'run_id': 'foo',
+                       'state': ''}
 
-    mock_api_client.GetRunStatus.return_value.response = BravadoResponseMock(
-        result=mock_run_status
-    )
-
+    mock_api_client.GetRunStatus.return_value.response = BravadoResponseMock(result=mock_run_status)
     client = wes_wrapper.WES(api_client=mock_api_client)
     test_run_status = client.get_run_status(id='foo')
 
