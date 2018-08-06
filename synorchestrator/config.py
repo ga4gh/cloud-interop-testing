@@ -49,8 +49,6 @@ def add_eval(wf_name,
               'workflow_url': wf_url,
               'workflow_jsonyaml': wf_jsonyaml,
               'workflow_attachments': wf_attachments}
-    print(config)
-    print(wf_name)
     set_yaml('evals', wf_name, config)
 
 
@@ -83,7 +81,6 @@ def add_workflowservice(service, auth, auth_type, host, proto):
 
 def set_yaml(section, service, var2add):
     orchestrator_config = get_yaml(config_path)
-    print(orchestrator_config)
     orchestrator_config.setdefault(section, {})[service] = var2add
     save_yaml(config_path, orchestrator_config)
 

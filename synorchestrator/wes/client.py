@@ -6,9 +6,6 @@ from wes_client.util import get_wf_details
 from wes_client.util import get_wf_list
 from wes_client.util import get_service_info as get_info
 
-# arvclient = WESClient(config.wes_config['arvados-wes'])
-# cromclient = WESClient(config.wes_config['hca-cromwell'])
-
 
 class WESClient(object):
     def __init__(self, service):
@@ -49,11 +46,3 @@ class WESClient(object):
                           self.auth,
                           self.proto,
                           self.host)
-
-
-# import json
-# client = WESClient(config.wes_config()['local'])
-# i = client.get_workflow_run_status("3af08b20ddf44a34973ab228188b0156")
-# print(i['state'])
-# j = client.get_workflow_run("3af08b20ddf44a34973ab228188b0156")
-# print(json.dumps(j, indent=4))
