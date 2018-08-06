@@ -13,7 +13,7 @@ import os
 import datetime as dt
 from requests.exceptions import ConnectionError
 from IPython.display import display, clear_output
-from synorchestrator.config import wes_config, eval_config
+from synorchestrator.config import wes_config, eval_config, trs_config
 from synorchestrator.util import get_json, ctime2datetime, convert_timedelta
 from synorchestrator.wes.client import WESClient
 from wes_client.util import get_status
@@ -37,7 +37,7 @@ def no_queue_run(service, wf_name):
     :return:
     """
     # fetch workflow params from config file
-    # use synorchestrator.config.add_eval() to add a workflow to this file
+    # synorchestrator.config.add_eval() can be used to add a workflow to this file
     wf = eval_config()[wf_name]
 
     submission_id = create_submission(wes_id=service,
@@ -106,14 +106,17 @@ def run_all():
 
 # def run_checker(eval_id, wes_id, queue_only=True):
 #     """
-#     Run checker workfllow for an evaluation workflow in a single
+#     Run checker workflow for an evaluation workflow in a single
 #     environment.
 #     """
-#     workflow_config = config.eval_config[eval_id]
+#     import re
+#     from synorchestrator.trs.client import TRSClient
+#
+#     workflow_config = eval_config[eval_id]
 #     workflow_config['id'] = workflow_config['workflow_id']
 #     logger.info("Preparing checker workflow run request for '{}' from  '{}''"
 #                 .format(workflow_config['id'], workflow_config['trs_id']))
-#     client = TRSClient(**config.trs_config[workflow_config['trs_id']])
+#     client = TRSClient(**trs_config[workflow_config['trs_id']])
 #     checker_workflow = client.get_workflow_checker(workflow_config['id'])
 #     checker_descriptor = client.get_workflow_descriptor(
 #         id=checker_workflow['id'],
@@ -122,15 +125,13 @@ def run_all():
 #     )
 #     if (checker_descriptor['type'] == 'CWL' and
 #         re.search('run:', checker_descriptor['descriptor'])):
-#         checker_descriptor['descriptor'] = util.get_packed_cwl(
-#             checker_descriptor['url']
-#         )
+#         checker_descriptor['descriptor'] = get_packed_cwl(checker_descriptor['url'])
 #     checker_tests = client.get_workflow_tests(
 #         id=checker_workflow['id'],
 #         version_id=workflow_config['version_id'],
 #         type=workflow_config['workflow_type']
 #     )
-#     wes_request = util.build_wes_request(
+#     wes_request = build_wes_request(
 #         workflow_descriptor=checker_descriptor['descriptor'],
 #         workflow_params=checker_tests[0]['url'],
 #         workflow_type=checker_descriptor['type']
@@ -141,7 +142,7 @@ def run_all():
 #     if not queue_only:
 #         return run_eval(eval_id, wes_id)
 #     else:
-#     return submission_id
+#         return submission_id
 
 
 def monitor_service(wf_service):
@@ -215,6 +216,3 @@ def monitor():
         display(status_df)
         sys.stdout.flush()
         time.sleep(1)
-
-no_queue_run('local', 'cwl_md5sum')
-# monitor()

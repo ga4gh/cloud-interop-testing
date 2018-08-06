@@ -4,13 +4,13 @@ python:
 
 before_install:
 - sudo apt-get update -qq
-- pip install toil[all]==3.16.0
+- pip install toil[all]
 - pip install . --process-dependency-links
 - pip install -r dev-requirements.txt
 
 script:
   - python setup.py test
-  - flake8 --exclude wdl_parser.py --max-line-length 888 synorchestrator/
+  - flake8 --max-line-length 888 synorchestrator/
 
 after_success:
   - coveralls
