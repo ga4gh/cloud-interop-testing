@@ -104,6 +104,46 @@ def run_all():
                 time.sleep(4)
 
 
+# def run_checker(eval_id, wes_id, queue_only=True):
+#     """
+#     Run checker workfllow for an evaluation workflow in a single
+#     environment.
+#     """
+#     workflow_config = config.eval_config[eval_id]
+#     workflow_config['id'] = workflow_config['workflow_id']
+#     logger.info("Preparing checker workflow run request for '{}' from  '{}''"
+#                 .format(workflow_config['id'], workflow_config['trs_id']))
+#     client = TRSClient(**config.trs_config[workflow_config['trs_id']])
+#     checker_workflow = client.get_workflow_checker(workflow_config['id'])
+#     checker_descriptor = client.get_workflow_descriptor(
+#         id=checker_workflow['id'],
+#         version_id=workflow_config['version_id'],
+#         type=workflow_config['workflow_type']
+#     )
+#     if (checker_descriptor['type'] == 'CWL' and
+#         re.search('run:', checker_descriptor['descriptor'])):
+#         checker_descriptor['descriptor'] = util.get_packed_cwl(
+#             checker_descriptor['url']
+#         )
+#     checker_tests = client.get_workflow_tests(
+#         id=checker_workflow['id'],
+#         version_id=workflow_config['version_id'],
+#         type=workflow_config['workflow_type']
+#     )
+#     wes_request = util.build_wes_request(
+#         workflow_descriptor=checker_descriptor['descriptor'],
+#         workflow_params=checker_tests[0]['url'],
+#         workflow_type=checker_descriptor['type']
+#     )
+#     submission_id = eval.create_submission(
+#         eval_id, wes_request, wes_id, type='checker'
+#     )
+#     if not queue_only:
+#         return run_eval(eval_id, wes_id)
+#     else:
+#     return submission_id
+
+
 def monitor_service(wf_service):
     """
     Returns a dictionary of all of the jobs under a single wes service appropriate
