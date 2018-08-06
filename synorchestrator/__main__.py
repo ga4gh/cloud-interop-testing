@@ -4,6 +4,7 @@ import sys
 import argparse
 import pkg_resources  # part of setuptools
 import logging
+from synorchestrator.orchestrator import monitor
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,6 +19,8 @@ def main(argv=sys.argv[1:]):
         pkg = pkg_resources.require('synapse-orchestrator')
         print(u"%s %s" % (sys.argv[0], pkg[0].version))
         exit(0)
+
+    monitor()
 
 
 if __name__ == '__main__':
