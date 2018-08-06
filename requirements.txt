@@ -8,3 +8,4 @@ pandas
 IPython
 future
 bravado
+toil[all]

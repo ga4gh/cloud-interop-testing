@@ -1,66 +1,53 @@
 import logging
 import os
-import json
 import datetime as dt
 
-from synorchestrator import config
 from synorchestrator.util import get_json, save_json
 
 logger = logging.getLogger(__name__)
 
-EVALS_PATH = os.path.join(os.path.dirname(__file__), '.evals')
+submission_queue = os.path.join(os.path.dirname(__file__), 'submission_queue.json')
 
 
-def create_submission(eval_id, submission_data, wes_id, type=None):
+def create_submission(wes_id, submission_data, wf_type='cwl', wf_name='wflow0'):
     """
     Submit a new job request to an evaluation queue.
+
+    Both type and wf_name are optional but could be used with TRS.
     """
-    evals = get_json(EVALS_PATH)
+    submissions = get_json(submission_queue)
     submission_id = dt.datetime.now().strftime('%d%m%d%H%M%S%f')
 
-    evals.setdefault(eval_id, {})[submission_id] = {'status': 'RECEIVED',
-                                                    'data': submission_data,
-                                                    'wes_id': wes_id,
-                                                    'type': type}
-    save_json(EVALS_PATH, evals)
-    logger.info("Created new job submission:\n - submission ID: {}".format(submission_id))
-    logger.debug("\n - evaluation queue: {} ({})"
-                 "\n - data:\n{}".format(eval_id,
-                                         config.eval_config[eval_id]['workflow_id'],
-                                         json.dumps(submission_data, indent=2)))
+    submissions.setdefault(wes_id, {})[submission_id] = {'status': 'RECEIVED',
+                                                         'data': submission_data,
+                                                         'wf_id': wf_name,
+                                                         'type': wf_type}
+    save_json(submission_queue, submissions)
+    logger.info(" Queueing Job for '{}' endpoint:"
+                "\n - submission ID: {}".format(wes_id, submission_id))
     return submission_id
 
 
-def get_submissions(eval_id, status='RECEIVED'):
-    """
-    Return all submissions to a queue matching the specified status.
-
-    RECEIVED is hard-coded on all job creations atm.
-    """
-    evals = get_json(EVALS_PATH)
-    return [id for id, bundle in evals[eval_id].items() if bundle['status'] in status]
+def get_submissions(wes_id, status='RECEIVED'):
+    """Return all ids with the requested status."""
+    submissions = get_json(submission_queue)
+    return [id for id, bundle in submissions[wes_id].items() if bundle['status'] == status]
 
 
-def get_submission_bundle(eval_id, submission_id):
-    """
-    Submit a new job request to an evaluation queue.
-    """
-    return get_json(EVALS_PATH)[eval_id][submission_id]
+def get_submission_bundle(wes_id, submission_id):
+    """Return the submission's info."""
+    return get_json(submission_queue)[wes_id][submission_id]
 
 
-def update_submission_status(eval_id, submission_id, status):
-    """
-    Update the status of a submission.
-    """
-    evals = get_json(EVALS_PATH)
-    evals[eval_id][submission_id]['status'] = status
-    save_json(EVALS_PATH, evals)
+def update_submission(wes_id, submission_id, param, status):
+    """Update the status of a submission."""
+    submissions = get_json(submission_queue)
+    submissions[wes_id][submission_id][param] = status
+    save_json(submission_queue, submissions)
 
 
-def update_submission_run(eval_id, submission_id, run_data):
-    """
-    Update information for a workflow run.
-    """
-    evals = get_json(EVALS_PATH)
-    evals[eval_id][submission_id]['run'] = run_data
-    save_json(EVALS_PATH, evals)
+def update_submission_run(wes_id, submission_id, param, status):
+    """Update the status of a submission."""
+    submissions = get_json(submission_queue)
+    submissions[wes_id][submission_id]['run'][param] = status
+    save_json(submission_queue, submissions)

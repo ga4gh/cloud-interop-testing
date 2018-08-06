@@ -1,0 +1,11 @@
+{
+  "bam_input": {
+        "class": "File",
+        "format": "http://edamontology.org/format_2572",
+        "path": "https://s3-us-west-2.amazonaws.com/achave11-redwood-storage/consonance-outputs/rna.SRR948778.bam"
+    },
+    "bamstats_report": {
+        "class": "File",
+        "path": "/tmp/bamstats_report.zip"
+    }
+}
