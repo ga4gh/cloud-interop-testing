@@ -8,63 +8,76 @@
 
 This application serves as a "workflow orchestrator" for GA4GH-style workflows, using the Synapse [**Evaluation Services**](http://docs.synapse.org/rest/#org.sagebionetworks.repo.web.controller.EvaluationController) to manage queues and submissions.
 
-## GA4GH Workflow Portability Testbed
+## Install and Run an Example
 
-The initial use case for this app will be to act as a workflow orchestrator for the [**Testbed Interoperability Platform**](https://docs.google.com/document/d/12Mq4v7o5VKF-DkFTQwsUQ-aWZ5aBeIcl_5YrhbaSv7M/edit?usp=sharing), a core deliverable of the GA4GH Cloud Workstream for 2018. This platform and the orchestrator will also support the next round of the **GA4GH/DREAM Workflow Execution Challenge**.
-
-Per the requirements linked in the document above, the orchestrator needs to perform at least 3 basic tasks:
-
-1. Makes TRS call to fetch a workflow
-2. Makes WES call to run (and check) a workflow
-3. Reports results
-
-Some other obvious functionality that we'll want to include (that we haven't necessarily implemented yet):
-
-+ The ability to onboard/register a new workflow (~ create and configure a queue)
-+ The ability to register a new WES endpoint 
-+ The ability to submit or trigger a new workflow execution job (run) 
-+ A central mechanism for reporting results across workflows, WES endpoints, and specific runs/parameters 
-
-These latter features are where existing Synapse systems come into play. Most of what we plan to do (at least for a proof of concept demonstration) can be accomplished with existing functionality of the `evaluation` API, the Synapse leaderboards, and various scripts/functions that have been designed to use these services to manage DREAM Challenges. 
-
-### Organization 
-
-Current modules:
-+ **`eval`**: 
-  + creates, configures, and gets information about Synapse evaluation queues
-  + retrieves and manages information (e.g. status) about individual submissions to an evaluation queue
-  + currently just stubs and stores submissions and queues locally — Synapse integration coming soon
-+ **`trs`**:
-  + acts as a lightweight client for the TRS API
-  + retrieves (and possibly updates) information about a workflow from a tool registry service (e.g. Dockstore)
-  + submits `requests` based on a subset of the Swagger spec for the GA4GH  Tool Registry Service schema (as opposed to any CLI that might exist for a TRS implemenation)
-+ **`wes`**:
-  + acts as a lightweight client for the WES API
-  + manages interactions with a workflow execution service endpoint, including submitting new workflow jobs, monitoring workflow run progress, and collecting results 
-  + submits `requests` based on a subset of the Swagger spec for the GA4GH Workflow Execution Service schema
-+ **`orchestrator`**:
-  + functions to glue together the various services above
-  + currently able to (1) take a given ID/URL for a workflow registered in a given TRS implementation; (2) prepare the workflow run request, including retrieval (and formatting) of parameters, if not provided; (3) post the workflow run request to a given WES implementation; (4) monitor and report results of the workflow run
-  + authentication/authorization might need to be handled here as well
-+ **`config`**: 
-  + includes functions for registering TRS and WES endpoints (adding them to the scope of options for the `orchestrator`)
-  + should eventually include more functionality for specifying the parameters of individual evaluation queues and endpoints
-
-### Development
-
-This software is still in pre-alpha phase, with frequent changes being made to the ["development" branch](https://github.com/Sage-Bionetworks/synapse-orchestrator/tree/develop). To work with or contribute to the latest version, clone this repo, check out the `develop` branch (if not active by default), and install from source. If you plan to make changes to the code, use the `-e` mode to make the installation follow the head without having to reinstall (using `conda` or `virtualenv` to create an isolated test environment is recommended).
-
-(example environment setup)
+First, setup and install the following in a virtualenv:
 ```
-conda create -n synorchestrator python=2.7
-source activate synorchestrator
-```
+virtualenv venv && . venv/bin/activate
 
-```
-git clone git://github.com/Sage-Bionetworks/synapse-orchestrator.git
+pip install toil[all]
+
+git clone https://github.com/DailyDreaming/synapse-orchestrator.git
 cd synapse-orchestrator
-pip install -e .
+git checkout wes-refactor
+pip install . --process-dependency-links && pip install -r dev-requirements.txt
+cd ..
+
+git clone https://github.com/common-workflow-language/workflow-service.git
+cd workflow-service
+git checkout symlinksNutil
+pip install . --process-dependency-links && pip install -r dev-requirements.txt
+cd ..
 ```
+
+Write a config at `~/orchestrator_config.json`, for example:
+```
+{
+    "toolregistries": {
+        "dockstore": {
+            "host": "dockstore.org:8443", 
+            "auth": "", 
+            "proto": "https"
+        }
+    }, 
+    "workflows": {
+        "wdl_UoM_align": {
+            "workflow_url": "tests/data/align.wdl", 
+            "workflow_attachments": [], 
+            "submission_type": "params", 
+            "trs_id": "dockstore", 
+            "version_id": "develop", 
+            "workflow_type": "WDL"
+        }, 
+    }, 
+    "workflowservices": {
+        "local": {
+            "auth_type": "", 
+            "host": "0.0.0.0:8080", 
+            "auth": "", 
+            "proto": "http"
+        }
+    }
+}
+```
+
+Then, activate the installation venv in 3 terminals:
+
+Start the server in Terminal 1:
+```(venv) $ wes-server --backend=wes_service.toil_wes --opt extra=--clean=never```
+
+Load the orchestrator monitor in Terminal 2:
+```(venv) $ orchestrate```
+
+In Terminal 3, an example use case might be to write a small script like:
+```
+from synorchestrator.orchestrator import set_queue_from_user_json, run_all
+
+set_queue_from_user_json('tests/data/user_submission_example.json')
+run_all()
+```
+ 
+ And run it:
+```(venv) $ python run_script.py```
 
 ### Contribute changes
 
