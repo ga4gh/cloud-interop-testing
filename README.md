@@ -16,7 +16,7 @@ virtualenv venv && . venv/bin/activate
 
 pip install toil[all]
 
-git clone https://github.com/DailyDreaming/synapse-orchestrator.git
+git clone https://github.com/ucsc-cgp/synapse-orchestrator.git
 cd synapse-orchestrator
 git checkout wes-refactor
 pip install . --process-dependency-links && pip install -r dev-requirements.txt
