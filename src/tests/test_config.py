@@ -100,7 +100,7 @@
 #
 #     # WHEN an evaluation queue is added to the configuration of the
 #     # workflow orchestrator app
-#     config.add_eval(42)
+#     config.add_workflow(42)
 #
 #     # THEN the evaluation queue ID should be stored in the list
 #     with open(str(mock_config_file), 'r') as f:
