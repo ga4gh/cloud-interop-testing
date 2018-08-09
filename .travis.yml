@@ -1,17 +1,16 @@
-sudo: required
 language: python
-script:
-  - nosetests -vs tests
+python: 
+  - '2.7'
 
 before_install:
-  - pip install pandas synapseclient pyyaml
+- sudo apt-get update -qq
+- pip install toil[all]
+- pip install . --process-dependency-links
+- pip install -r dev-requirements.txt
 
+script:
+  - python setup.py test
+  - flake8 --max-line-length 888 synorchestrator/
 
-matrix:
-  include:
-    - os: linux
-      python: 2.7.14
-    - os: linux
-      python: 3.5.3
-    - os: linux
-      python: 3.6.2
+after_success:
+  - coveralls

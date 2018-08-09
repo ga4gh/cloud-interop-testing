@@ -1,0 +1,6 @@
+wes-service
+synapseclient
+pandas
+future
+bravado
+IPython==5.8.0
