@@ -1,0 +1,56 @@
+{
+    "toolregistries": {
+        "dockstore": {
+            "host": "dockstore.org:8443", 
+            "auth": "", 
+            "proto": "https"
+        }
+    }, 
+    "workflows": {
+        "wdl_UoM_align": {
+            "workflow_url": "/home/quokka/git/current_demo/orchestrator/src/tests/data/align.wdl", 
+            "workflow_attachments": [], 
+            "submission_type": "params", 
+            "trs_id": "dockstore", 
+            "version_id": "develop", 
+            "workflow_type": "WDL"
+        }, 
+        "cwl_md5sum": {
+            "workflow_url": "/home/quokka/git/workflow-service/testdata/md5sum.cwl", 
+            "workflow_attachments": [
+                "file:///home/quokka/git/workflow-service/testdata/md5sum.input", 
+                "file:///home/quokka/git/workflow-service/testdata/dockstore-tool-md5sum.cwl"
+            ], 
+            "submission_type": "params", 
+            "trs_id": "dockstore", 
+            "version_id": "develop", 
+            "workflow_type": "CWL"
+        }
+    }, 
+    "workflowservices": {
+        "hca-cromwell": {
+            "auth_type": "", 
+            "host": "g0n2qjnu94.execute-api.us-east-1.amazonaws.com/test", 
+            "auth": "", 
+            "proto": "http"
+        }, 
+        "arvados-wes": {
+            "auth_type": "", 
+            "host": "wes.qr1hi.arvadosapi.com", 
+            "auth": "", 
+            "proto": "http"
+        }, 
+        "local": {
+            "auth_type": "", 
+            "host": "0.0.0.0:8080", 
+            "auth": "", 
+            "proto": "http"
+        }, 
+        "aws-toil-server": {
+            "auth_type": "", 
+            "host": "54.193.12.111:8080", 
+            "auth": "", 
+            "proto": "http"
+        }
+    }
+}
