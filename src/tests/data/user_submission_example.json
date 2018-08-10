@@ -1,0 +1,18 @@
+{"local":
+   {"NWD119836":
+      {"wf_name": "wdl_UoM_align",
+       "jsonyaml": "file://tests/data/NWD119836.json"},
+    "NWD136397":
+      {"wf_name": "wdl_UoM_align",
+       "jsonyaml": "file://tests/data/NWD136397.json"},
+    "NWD176325":
+      {"wf_name": "wdl_UoM_align",
+       "jsonyaml": "file://tests/data/NWD176325.json"},
+    "NWD231092":
+      {"wf_name": "wdl_UoM_align",
+       "jsonyaml": "file://tests/data/NWD231092.json"},
+    "NWD315403":
+      {"wf_name": "wdl_UoM_align",
+       "jsonyaml": "file://tests/data/NWD315403.json"}
+  }
+}

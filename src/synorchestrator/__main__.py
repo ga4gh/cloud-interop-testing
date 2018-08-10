@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import sys
 import argparse
 import pkg_resources  # part of setuptools
