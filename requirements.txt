@@ -1,11 +1,6 @@
-schema_salad
-ruamel.yaml
-cwltool
-subprocess32
 wes-service
 synapseclient
 pandas
-IPython
+IPython==5.8.0
 future
 bravado
-toil[all]
