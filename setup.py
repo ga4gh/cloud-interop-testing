@@ -24,6 +24,9 @@ setup(
     name='synapse-orchestrator',
     description='Synapse-based orchestrator for GA4GH workflows',
     packages=['synorchestrator'],
+    package_data={
+        'synorchestrator': ['workflow_execution_service.swagger.yaml']
+    },
     url='https://github.com/Sage-Bionetworks/synapse-orchestrator',
     download_url='https://github.com/Sage-Bionetworks/synapse-orchestrator',
     entry_points={
