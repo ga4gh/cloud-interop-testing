@@ -11,12 +11,13 @@ import sys
 import time
 import os
 import datetime as dt
+
 from requests.exceptions import ConnectionError
 from IPython.display import display, clear_output
+
 from synorchestrator.config import wes_config, eval_config, trs_config
 from synorchestrator.util import get_json, ctime2datetime, convert_timedelta
-from synorchestrator.wes.client import WESClient
-from wes_client.util import get_status
+from synorchestrator.wes.wrapper import WES
 from synorchestrator.eval import create_submission
 from synorchestrator.eval import get_submission_bundle
 from synorchestrator.eval import get_submissions
@@ -60,10 +61,10 @@ def run_submission(wes_id, submission_id):
                 " \n - submission ID: {}"
                 .format(wes_id, submission_id))
 
-    client = WESClient(wes_config()[wes_id])
-    run_data = client.run_workflow(submission['data']['wf'],
-                                   submission['data']['jsonyaml'],
-                                   submission['data']['attachments'])
+    wes_instance = WES(wes_config()[wes_id])
+    run_data = wes_instance.run_workflow(submission['data']['wf'],
+                                         submission['data']['jsonyaml'],
+                                         submission['data']['attachments'])
     run_data['start_time'] = dt.datetime.now().ctime()
     update_submission(wes_id, submission_id, 'run', run_data)
     update_submission(wes_id, submission_id, 'status', 'SUBMITTED')
