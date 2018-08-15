@@ -1,13 +1,15 @@
 import mock
 import pytest
+import inspect
 
 from bravado.requests_client import RequestsClient
 from bravado.client import SwaggerClient, ResourceDecorator
 from bravado.testing.response_mocks import BravadoResponseMock
+from wes_client.util import WESClient
 
 from synorchestrator.wes.client import _get_wes_opts
 from synorchestrator.wes.client import _init_http_client
-from synorchestrator.wes.client import WESClient
+from synorchestrator.wes.client import WESAdapter
 from synorchestrator.wes.client import load_wes_client
 from synorchestrator.wes.wrapper import WES
 
@@ -50,6 +52,107 @@ def test_load_wes_client_from_spec():
     assert isinstance(test_wes_client, ResourceDecorator)
 
 
+@pytest.fixture()
+def mock_wes_client(request):
+    mock_wes_client = mock.Mock(name='mock WESClient')
+    with mock.patch('wes_client.util.WESClient', 
+                    autospec=True, spec_set=True):
+        yield mock_wes_client
+
+
+class TestWESAdapter:
+    """
+    Tests methods for the :class:`WESAdapter` class, which translate
+    methods from the workflow-service :class:`WESClient` class to match
+    the interface defined in the GA4GH WES API spec. The tests below 
+    check whether the adapter methods are calling adaptee class methods
+    with the correct signature.
+    """
+    def test_init(self, mock_wes_config):   
+        mock_wes_client = WESClient(mock_wes_config['mock_wes'])
+
+        test_wes_adapter = WESAdapter(wes_client=mock_wes_client)
+        
+        assert isinstance(test_wes_adapter, WESAdapter)
+        assert hasattr(test_wes_adapter, '_wes_client')
+        assert isinstance(test_wes_adapter._wes_client, WESClient)
+    
+    def test_GetServiceInfo(self, mock_wes_client):
+        mock_response = {}
+        mock_wes_client.get_service_info.return_value = mock_response
+
+        wes_adapter = WESAdapter(wes_client=mock_wes_client)
+        test_args = {arg: '' for arg in 
+                     inspect.getargspec(WESClient.get_service_info)[0][1:]}
+        test_response = wes_adapter.GetServiceInfo()
+
+        mock_wes_client.get_service_info.assert_called_once_with(**test_args)
+        assert test_response == mock_response
+
+    def test_ListRuns(self, mock_wes_client):
+        mock_response = {}
+        mock_wes_client.list_runs.return_value = mock_response
+
+        wes_adapter = WESAdapter(wes_client=mock_wes_client)
+        test_args = {arg: '' for arg in 
+                     inspect.getargspec(WESClient.list_runs)[0][1:]}
+        test_response = wes_adapter.ListRuns()
+
+        mock_wes_client.list_runs.assert_called_once_with(**test_args)
+        assert test_response == mock_response
+
+    def test_RunWorkflow(self, mock_wes_client):
+        mock_request = {'workflow_url': '',
+                        'workflow_params': '',
+                        'attachment': ''}
+        mock_response = {}
+        mock_wes_client.run.return_value = mock_response
+
+        wes_adapter = WESAdapter(wes_client=mock_wes_client)
+        test_args = {arg: '' for arg in 
+                     inspect.getargspec(WESClient.run)[0][1:]}
+        test_response = wes_adapter.RunWorkflow(mock_request)
+
+        mock_wes_client.run.assert_called_once_with(**test_args)
+        assert test_response == mock_response
+
+    def test_CancelRun(self, mock_wes_client):
+        mock_response = {}
+        mock_wes_client.cancel.return_value = mock_response
+
+        wes_adapter = WESAdapter(wes_client=mock_wes_client)
+        test_args = {arg: '' for arg in 
+                     inspect.getargspec(WESClient.cancel)[0][1:]}
+        test_response = wes_adapter.CancelRun(run_id='')
+
+        mock_wes_client.cancel.assert_called_once_with(**test_args)
+        assert test_response == mock_response
+
+    def test_GetRunStatus(self, mock_wes_client):
+        mock_response = {}
+        mock_wes_client.get_run_status.return_value = mock_response
+
+        wes_adapter = WESAdapter(wes_client=mock_wes_client)
+        test_args = {arg: '' for arg in 
+                     inspect.getargspec(WESClient.get_run_status)[0][1:]}
+        test_response = wes_adapter.GetRunStatus(run_id='')
+
+        mock_wes_client.get_run_status.assert_called_once_with(**test_args)
+        assert test_response == mock_response
+
+    def test_GetRunLog(self, mock_wes_client):
+        mock_response = {}
+        mock_wes_client.get_run_log.return_value = mock_response
+
+        wes_adapter = WESAdapter(wes_client=mock_wes_client)
+        test_args = {arg: '' for arg in 
+                     inspect.getargspec(WESClient.get_run_log)[0][1:]}
+        test_response = wes_adapter.GetRunLog(run_id='')
+
+        mock_wes_client.get_run_log.assert_called_once_with(**test_args)
+        assert test_response == mock_response
+
+
 def test_load_wes_client_from_lib(mock_wes_config, monkeypatch):
     monkeypatch.setattr('synorchestrator.wes.client._get_wes_opts', 
                         lambda x: mock_wes_config['mock_wes'])
@@ -65,7 +168,7 @@ def test_load_wes_client_from_lib(mock_wes_config, monkeypatch):
                     'CancelRun',
                     'GetRunStatus', 
                     'GetRunLog']
-    assert isinstance(test_wes_client, WESClient)
+    assert isinstance(test_wes_client, WESAdapter)
     assert all([hasattr(test_wes_client, method) for method in spec_methods])
 
 
@@ -77,8 +180,8 @@ def mock_api_client(request):
                             return_value=mock_api_client):
             yield mock_api_client
     else:
-        mock_api_client = mock.Mock(name='mock WESClient')
-        with mock.patch('synorchestrator.wes.client.WESClient', 
+        mock_api_client = mock.Mock(name='mock WESAdapter')
+        with mock.patch('synorchestrator.wes.client.WESAdapter', 
                         autospec=True):
             yield mock_api_client
 
@@ -97,7 +200,6 @@ class TestWES:
         assert hasattr(wes_instance, 'api_client')
         assert hasattr(wes_instance.api_client, 'GetServiceInfo')  
 
-
     def test_get_service_info_bravado(self, mock_api_client):
         mock_service_info = {'workflow_type_versions': ['CWL', 'WDL']}
 
@@ -110,7 +212,6 @@ class TestWES:
         assert isinstance(test_service_info, dict) 
         assert test_service_info == mock_service_info
 
-
     def test_get_service_info_direct(self, mock_api_client):
         mock_service_info = {'workflow_type_versions': ['CWL', 'WDL']}
 
@@ -122,7 +223,6 @@ class TestWES:
 
         assert isinstance(test_service_info, dict) 
         assert test_service_info == mock_service_info
-
 
     def test_list_runs(self, mock_api_client):
         mock_runs = ['foo', 'bar']
@@ -137,7 +237,6 @@ class TestWES:
         assert isinstance(test_runs, list) 
         assert test_runs == mock_runs
 
-
     def test_run_workflow(self, mock_api_client):
         mock_run_id = {'run_id': 'foo'}
 
@@ -150,7 +249,6 @@ class TestWES:
 
         assert isinstance(test_run_id, dict) 
         assert test_run_id == mock_run_id
-
 
     def test_get_run(self, mock_api_client):
         mock_run_log = {'run_id': 'foo',
@@ -169,7 +267,6 @@ class TestWES:
 
         assert isinstance(test_run_log, dict) 
         assert test_run_log == mock_run_log
-
 
     def test_get_run_status(self, mock_api_client):
         mock_run_status = {'run_id': 'foo',
