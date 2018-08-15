@@ -37,66 +37,55 @@ def _init_http_client(service_id=None, opts=None):
     return http_client
     
 
-class WESClient(object):
+class WESInterface:
+    def GetServiceInfo(self):
+        pass
+    
+    def ListRuns(self):
+        pass
+
+    def RunWorkflow(self):
+        pass
+    
+    def CancelRun(self):
+        pass
+    
+    def GetRunStatus(self):
+        pass
+
+    def GetRunLog(self):
+        pass
+    
+
+class WESAdapter(WESInterface):
     """
     Adapter class for the WES client functionality from the 
     workflow-service library.
     """
-    def __init__(self, service, http_client):
-        from wes_client.util import run_wf
-        from wes_client.util import cancel_wf
-        from wes_client.util import get_status
-        from wes_client.util import get_wf_details
-        from wes_client.util import get_wf_list
-        from wes_client.util import get_service_info
+    _wes_client = None
 
-        self.host = service['host']
-        self.auth = service['auth']
-        self.auth_type = service['auth_type']
-        self.proto = service['proto']
-        self.http_client = http_client
+    def __init__(self, wes_client):
+        self._wes_client = wes_client
 
     def GetServiceInfo(self):
-        return get_service_info(self.http_client,
-                                self.auth,
-                                self.proto,
-                                self.host)
+        return self._wes_client.get_service_info()
     
     def ListRuns(self):
-        return get_wf_list(self.http_client,
-                           self.auth,
-                           self.proto,
-                           self.host)
+        return self._wes_client.list_runs()
     
     def RunWorkflow(self, request):
-        return run_wf(workflow_file=request['workflow_url'],
-                      jsonyaml=request['workflow_params'],
-                      attachments=request['attachment'],
-                      http_client=self.http_client,
-                      auth=self.auth,
-                      proto=self.proto,
-                      host=self.host)
+        return self._wes_client.run(wf=request['workflow_url'],
+                                    jsonyaml=request['workflow_params'],
+                                    attachments=request['attachment'])
     
     def CancelRun(self, run_id):
-        return cancel_wf(run_id,
-                         self.http_client,
-                         self.auth,
-                         self.proto,
-                         self.host)
+        return self._wes_client.cancel(run_id=run_id)
     
     def GetRunStatus(self, run_id):
-        return get_status(run_id,
-                          self.http_client,
-                          self.auth,
-                          self.proto,
-                          self.host)
+        return self._wes_client.get_run_status(run_id=run_id)
     
     def GetRunLog(self, run_id):
-        return get_wf_details(run_id,
-                              self.http_client,
-                              self.auth,
-                              self.proto,
-                              self.host)
+        return self._wes_client.get_run_log(run_id=run_id)
 
 
 def load_wes_client(service_id, http_client=None, client_library=None):
@@ -107,8 +96,9 @@ def load_wes_client(service_id, http_client=None, client_library=None):
         http_client = _init_http_client(service_id=service_id)
 
     if client_library is not None:
-        return WESClient(service=_get_wes_opts(service_id), 
-                         http_client=http_client)
+        from wes_client.util import WESClient
+        wes_client = WESClient(service=_get_wes_opts(service_id))
+        return WESAdapter(wes_client)
 
     spec_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 
                              'workflow_execution_service.swagger.yaml')
