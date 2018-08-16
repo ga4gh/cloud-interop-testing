@@ -122,11 +122,82 @@ class TestTRS:
         ]
 
         mock_response = BravadoResponseMock(result=mock_workflow_versions)
-        mock_api_client.toolsIdVersionsGet.return_value.response = mock_response
+        operator = mock_api_client.toolsIdVersionsGet
+        operator.return_value.response = mock_response
 
         trs_instance = TRS(trs_id='mock_trs', api_client=mock_api_client)
-        test_workflow_versions = trs_instance.get_workflow_versions('mock_wf')
+        test_workflow_versions = trs_instance.get_workflow_versions(
+            id='mock_wf'
+        )
 
         assert isinstance(test_workflow_versions, list) 
         assert test_workflow_versions == mock_workflow_versions
     
+    def test_get_workflow_descriptor(self, mock_api_client):
+        mock_workflow_descriptor = {'content': '', 'url': ''}
+
+        mock_response = BravadoResponseMock(result=mock_workflow_descriptor)
+        operator = mock_api_client.toolsIdVersionsVersionIdTypeDescriptorGet
+        operator.return_value.response = mock_response
+
+        trs_instance = TRS(trs_id='mock_trs', api_client=mock_api_client)
+        test_workflow_descriptor = trs_instance.get_workflow_descriptor(
+            id='mock_wf',
+            version_id='test',
+            type='CWL'
+        )
+
+        assert isinstance(test_workflow_descriptor, dict) 
+        assert test_workflow_descriptor == mock_workflow_descriptor
+    
+    def test_get_workflow_descriptor_relative(self, mock_api_client):
+        mock_workflow_descriptor = {'content': '', 'url': ''}
+
+        mock_response = BravadoResponseMock(result=mock_workflow_descriptor)
+        operator = mock_api_client.toolsIdVersionsVersionIdTypeDescriptorRelativePathGet
+        operator.return_value.response = mock_response
+
+        trs_instance = TRS(trs_id='mock_trs', api_client=mock_api_client)
+        test_workflow_descriptor = trs_instance.get_workflow_descriptor_relative(
+            id='mock_wf',
+            version_id='test',
+            type='CWL',
+            relative_path=''
+        )
+
+        assert isinstance(test_workflow_descriptor, dict) 
+        assert test_workflow_descriptor == mock_workflow_descriptor
+    
+    def test_get_workflow_tests(self, mock_api_client):
+        mock_workflow_tests = [{'content': '', 'url': ''}]
+
+        mock_response = BravadoResponseMock(result=mock_workflow_tests)
+        operator = mock_api_client.toolsIdVersionsVersionIdTypeTestsGet
+        operator.return_value.response = mock_response
+
+        trs_instance = TRS(trs_id='mock_trs', api_client=mock_api_client)
+        test_workflow_tests = trs_instance.get_workflow_tests(
+            id='mock_wf',
+            version_id='test',
+            type='CWL'
+        )
+
+        assert isinstance(test_workflow_tests, list) 
+        assert test_workflow_tests == mock_workflow_tests
+
+    def test_get_workflow_files(self, mock_api_client):
+        mock_workflow_files = [{'path': '', 'file_type': ''}]
+
+        mock_response = BravadoResponseMock(result=mock_workflow_files)
+        operator = mock_api_client.toolsIdVersionsVersionIdTypeFilesGet
+        operator.return_value.response = mock_response
+
+        trs_instance = TRS(trs_id='mock_trs', api_client=mock_api_client)
+        test_workflow_files = trs_instance.get_workflow_files(
+            id='mock_wf',
+            version_id='test',
+            type='CWL'
+        )
+
+        assert isinstance(test_workflow_files, list) 
+        assert test_workflow_files == mock_workflow_files

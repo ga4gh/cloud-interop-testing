@@ -66,49 +66,75 @@ class TRS(object):
         Return the descriptor for the specified workflow (examples
         include CWL, WDL, or Nextflow documents).
         """
-        # toolsIdVersionsVersionIdTypeDescriptorGet
         id = _format_workflow_id(id)
-        endpoint = 'tools/{}/versions/{}/{}/descriptor'.format(
-            id, version_id, type
+        res = self.api_client.toolsIdVersionsVersionIdTypeDescriptorGet(
+            id=id,
+            version_id=version_id,
+            type=type
         )
-        logger.info("getting descriptor from {}".format(endpoint))
-        return _get_endpoint(self, endpoint)
+        return _response_handler(res)
 
-    def get_workflow_tests(self, fileid, version_id, filetype, fix_url=True):
+    def get_workflow_descriptor_relative(self, 
+                                         id, 
+                                         version_id, 
+                                         type, 
+                                         relative_path):
+        """
+        Return an additional tool descriptor file relative to the main file.
+        """
+        id = _format_workflow_id(id)
+        res = self.api_client.toolsIdVersionsVersionIdTypeDescriptorRelativePathGet(
+            id=id,
+            version_id=version_id,
+            type=type,
+            relative_path=relative_path
+        )
+        return _response_handler(res)
+
+    def get_workflow_tests(self, id, version_id, type):
         """
         Return a list of test JSONs (these allow you to execute the
         workflow successfully) suitable for use with this descriptor type.
         """
-        # toolsIdVersionsVersionIdTypeTestsGet
-        fileid = _format_workflow_id(fileid)
-        endpoint = 'tools/{}/versions/{}/{}/tests'.format(fileid, version_id, filetype)
-        tests = _get_endpoint(self, endpoint)
-        if fix_url:
-            descriptor = self.get_workflow_descriptor(fileid, version_id, filetype)
-            for test in tests:
-                if test['url'].startswith('/'):
-                    test['url'] = os.path.join(os.path.dirname(descriptor['url']), os.path.basename(tests[0]['url']))
-        return tests
+        id = _format_workflow_id(id)
+        res = self.api_client.toolsIdVersionsVersionIdTypeTestsGet(
+            id=id,
+            version_id=version_id,
+            type=type
+        )
+        return _response_handler(res)
+        # fileid = _format_workflow_id(fileid)
+        # endpoint = 'tools/{}/versions/{}/{}/tests'.format(fileid, version_id, filetype)
+        # tests = _get_endpoint(self, endpoint)
+        # if fix_url:
+        #     descriptor = self.get_workflow_descriptor(fileid, version_id, filetype)
+        #     for test in tests:
+        #         if test['url'].startswith('/'):
+        #             test['url'] = os.path.join(os.path.dirname(descriptor['url']), os.path.basename(tests[0]['url']))
+        # return tests
 
-    def get_workflow_files(self, fileid, version_id, filetype):
+    def get_workflow_files(self, id, version_id, type):
         """
         Return a list of files associated with the workflow based
         on file type.
         """
-        # toolsIdVersionsVersionIdTypeFilesGet
-        fileid = _format_workflow_id(fileid)
-        endpoint = 'tools/{}/versions/{}/{}/files'.format(fileid, version_id, filetype)
-        return _get_endpoint(self, endpoint)
-
-    def post_verification(self, id, version_id, type, relative_path, requests):
-        """
-        Annotate test JSON with information on whether it ran successfully on particular platforms plus metadata
-        """
         id = _format_workflow_id(id)
-        endpoint ='extended/{}/versions/{}/{}/tests/{}'.format(
-            id, version_id, type, relative_path
+        res = self.api_client.toolsIdVersionsVersionIdTypeFilesGet(
+            id=id,
+            version_id=version_id,
+            type=type
         )
-        return _post_to_endpoint(self, endpoint, requests)
+        return _response_handler(res)
+
+    # def post_verification(self, id, version_id, type, relative_path, requests):
+    #     """
+    #     Annotate test JSON with information on whether it ran successfully on particular platforms plus metadata
+    #     """
+    #     id = _format_workflow_id(id)
+    #     endpoint ='extended/{}/versions/{}/{}/tests/{}'.format(
+    #         id, version_id, type, relative_path
+    #     )
+    #     return _post_to_endpoint(self, endpoint, requests)
 
 
 def _response_handler(response):
