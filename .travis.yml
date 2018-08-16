@@ -2,32 +2,12 @@ language: python
 python: 
   - '2.7'
 
-# commands to set up conda
 before_install:
-  - sudo apt-get update -qq
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # useful for debugging any issues with conda
-  - conda info -a
+- sudo apt-get update -qq
+- pip install toil[all]
+- pip install . --process-dependency-links
+- pip install -r dev-requirements.txt
 
-# commands to set up environment, install dependencies
-install:
-  - deps='pip pandas'
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
-  - source activate test-environment
-  - pip install python-coveralls
-  - pip install .
-  - pip install -r dev-requirements.txt
-
-# commands to run tests
 script:
   - python setup.py test
   - flake8 --select=E121,E123,E126,E226,E24,E704,W503,W504 --ignore=E501 synorchestrator/

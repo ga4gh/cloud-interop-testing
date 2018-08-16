@@ -1,17 +1,20 @@
 import logging
 import urlparse
+import os
 
 from bravado.requests_client import RequestsClient
 from bravado.client import SwaggerClient
 
+from synorchestrator.config import trs_config
+
 logger = logging.getLogger(__name__)
 
 
-def _get_trs_opts(service_id, trs_config=None):
+def _get_trs_opts(service_id):
     """
     Look up stored parameters for tool registry services.
     """
-    return trs_config[service_id]
+    return trs_config()[service_id]
 
 
 def _init_http_client(service_id=None, opts=None):
@@ -27,22 +30,25 @@ def _init_http_client(service_id=None, opts=None):
     http_client = RequestsClient()
     split = urlparse.urlsplit('%s://%s/'.format(opts['proto'], opts['host']))
 
-    http_client.set_api_key(
-        host=opts['host'],
-        api_key=opts['auth'],
-        param_name=auth_header[opts['auth_type']],
-        param_in='header'
-    )
+    http_client.set_api_key(host=opts['host'],
+                            api_key=opts['auth'],
+                            param_name=auth_header[opts['auth_type']],
+                            param_in='header')
     return http_client
 
 
-def load_trs_client(service_id=None, http_client=None):
+def load_trs_client(service_id, http_client=None):
     """
     Return an API client for the selected workflow execution service.
     """
     if http_client is None:
         http_client = _init_http_client(service_id=service_id)
-    return SwaggerClient.from_url(
-        'https://raw.githubusercontent.com/ga4gh/tool-registry-service-schemas/develop/src/main/resources/swagger/ga4gh-tool-discovery.yaml',
-        http_client=http_client
-    ).GA4GH
+    
+    spec_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 
+                             'ga4gh-tool-discovery.yaml')
+    spec_client = SwaggerClient.from_url('file:///{}'.format(spec_path), 
+                                         http_client=http_client)
+    return spec_client.GA4GH
+
+
+

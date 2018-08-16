@@ -1,104 +1,116 @@
 """
-Configure orchestrator application.
+The orchestrator config file has three sections: eval, trs, and wes.
+
+This provides functions to save and get values into these three sections in the file.
 """
 import logging
 import os
-import yaml
-import pkg_resources
+from synorchestrator.util import get_yaml, save_yaml, heredoc
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-CONFIG_PATH = os.path.join(os.path.expanduser('~'), '.orchestratorConfig')
 
-with pkg_resources.resource_stream(__name__, 'configs/evals.config') as f:
-    eval_config = yaml.load(f)
-with pkg_resources.resource_stream(__name__, 'configs/toolregistries.config') as f:
-    trs_config = yaml.load(f)
-with pkg_resources.resource_stream(__name__, 'configs/workflowservices.config') as f:
-    wes_config = yaml.load(f)
+config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
 
 
-def _get_orchestrator_config():
-    """
-    Read orchestrator configuration from file.
-
-    :return: object with current orchestrator app configuration
-    """
-    try:
-        with open(CONFIG_PATH, 'r') as f:
-            return yaml.load(f)
-    except IOError as e:
-        logger.warn("no orchestrator config file found")
-        return {}
+def eval_config():
+    return get_yaml(config_path)['evals']
 
 
-def _save_orchestrator_config(app_config):
-    """
-    Update orchestrator config file.
-    """
-    with open(CONFIG_PATH, 'w') as f:
-        yaml.dump(app_config, f, default_flow_style=False)
+def trs_config():
+    return get_yaml(config_path)['toolregistries']
 
 
-def add_eval(eval_id):
+def wes_config():
+    return get_yaml(config_path)['workflowservices']
+
+
+def add_eval(wf_name,
+             wf_type,
+             wf_url,
+             wf_jsonyaml,
+             wf_attachments,
+             submission_type='params',
+             trs_id='dockstore',
+             version_id='develop',
+             wf_id=''):
     """
     Register a Synapse evaluation queue to the orchestrator's
     scope of work.
 
     :param eval_id: integer ID of a Synapse evaluation queue
     """
-    app_config = _get_orchestrator_config()
-    app_config.setdefault('evals', []).append(eval_id)
-    _save_orchestrator_config(app_config)
+    config = {'submission_type': submission_type,
+              'trs_id': trs_id,
+              'version_id': version_id,
+              'workflow_id': wf_id,
+              'workflow_type': wf_type,
+              'workflow_url': wf_url,
+              'workflow_jsonyaml': wf_jsonyaml,
+              'workflow_attachments': wf_attachments}
+    set_yaml('evals', wf_name, config)
 
 
-def add_toolregistry(trs_id):
+def add_toolregistry(service, auth, host, proto):
     """
     Register a Tool Registry Service endpoint to the orchestrator's
     search space for workflows.
 
     :param trs_id: string ID of TRS endpoint (e.g., 'Dockstore')
     """
-    app_config = _get_orchestrator_config()
-    app_config.setdefault('toolregistries', []).append(trs_id)
-    _save_orchestrator_config(app_config)
+    config = {'auth': auth,
+              'host': host,
+              'proto': proto}
+    set_yaml('toolregistries', service, config)
 
 
-def add_workflowservice(wes_id):
+def add_workflowservice(service, auth, auth_type, host, proto):
     """
     Register a Workflow Execution Service endpoint to the
     orchestrator's available environment options.
 
     :param wes_id: string ID of WES endpoint (e.g., 'workflow-service')
     """
-    app_config = _get_orchestrator_config()
-    app_config.setdefault('workflowservices', []).append(wes_id)
-    _save_orchestrator_config(app_config)
+    config = {'auth': auth,
+              'auth_type': auth_type,
+              'host': host,
+              'proto': proto}
+    set_yaml('workflowservices', service, config)
+
+
+def set_yaml(section, service, var2add):
+    orchestrator_config = get_yaml(config_path)
+    orchestrator_config.setdefault(section, {})[service] = var2add
+    save_yaml(config_path, orchestrator_config)
 
 
 def show():
     """
     Show current application configuration.
     """
-    app_config = _get_orchestrator_config()
-    print("\nOrchestrator options:")
-    print("\nWorkflow Evaluation Queues")
-    print("(queue ID: workflow ID [workflow type])")
-    print("-" * 75)
-    print(
-        '\n'.join('{}: {} [{}]'.format(
-            k, eval_config[k]['workflow_id'], eval_config[k]['workflow_type']
-        )
-        for k in app_config['evals'])
-    )
-    print("\nTool Registries")
-    print("(TRS ID: host address)")
-    print("-" * 75)
-    print('\n'.join('{}: {}'.format(k, trs_config[k]['host'])
-          for k in app_config['toolregistries']))
-    print("\nWorkflow Services")
-    print("(WES ID: host address)")
-    print("-" * 75)
-    print('\n'.join('{}: {}'.format(k, wes_config[k]['host'])
-          for k in app_config['workflowservices']))
+    orchestrator_config = get_yaml(config_path)
+    evals = '\n'.join('{}:\t{}\t[{}]'.format(k, orchestrator_config['evals'][k]['workflow_id'], orchestrator_config['evals'][k]['workflow_type']) for k in orchestrator_config['evals'])
+    trs = '\n'.join('{}: {}'.format(k, orchestrator_config['toolregistries'][k]['host']) for k in orchestrator_config['toolregistries'])
+    wes = '\n'.join('{}: {}'.format(k, orchestrator_config['workflowservices'][k]['host']) for k in orchestrator_config['workflowservices'])
+    display = heredoc('''
+        Orchestrator options:
+
+        Workflow Evaluation Queues
+        (queue ID: workflow ID [workflow type])
+        ---------------------------------------------------------------------------
+        {evals}
+
+        Tool Registries
+        (TRS ID: host address)
+        ---------------------------------------------------------------------------
+        {trs}
+
+        Workflow Services
+        (WES ID: host address)
+        ---------------------------------------------------------------------------
+        {wes}
+        ''', {'evals': evals,
+              'trs': trs,
+              'wes': wes})
+    print(display)
