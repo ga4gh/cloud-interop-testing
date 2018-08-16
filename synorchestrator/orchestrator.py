@@ -129,11 +129,11 @@ def fetch_checker(trs, workflow_id):
 
 def build_checker_request(checker_descriptor, checker_tests):
     if (checker_descriptor['type'] == 'CWL' and
-        re.search('run:', checker_descriptor['descriptor'])):
-        checker_descriptor['descriptor'] = get_packed_cwl(checker_descriptor['url'])
+        re.search('run:', checker_descriptor['content'])):
+        checker_descriptor['content'] = get_packed_cwl(checker_descriptor['url'])
 
     checker_request = build_wes_request(
-        workflow_descriptor=checker_descriptor['descriptor'],
+        workflow_descriptor=checker_descriptor['content'],
         workflow_params=checker_tests[0]['url'],
         workflow_type=checker_descriptor['type']
     )
