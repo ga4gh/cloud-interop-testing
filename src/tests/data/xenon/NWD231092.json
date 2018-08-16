@@ -1,0 +1,25 @@
+{
+    "workflow_type": "CWL",
+    "workflow_type_version": "v1.0",
+    "workflow_url": "sbg://admin/sbg-public-data/topmed-alignment/1",
+    "workflow_params": {
+        "inputs": {
+            "bwa_index": {
+                "class": "File",
+                "path": "dg.4503/769410c1-ca90-4fb6-aa93-6ead38fe1223"
+            },
+            "dbsnp": {
+                "class": "File",
+                "path": "dg.4503/f48887f2-717f-4852-9280-edee699b1481"
+            },
+            "input_file": {
+                "class": "File",
+                "path": "dg.4503/33ceb094-68f0-4aed-8fd2-c1f3ff169254"
+            },
+            "reference_genome": {
+                "class": "File",
+                "path": "dg.4503/4a05ead4-dbda-4e6a-ac69-9f77ade843b8"
+            }
+        }
+    }
+}

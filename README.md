@@ -14,16 +14,18 @@ First, setup and install the following in a virtualenv:
 ```
 virtualenv venv && . venv/bin/activate
 
-pip install toil[all]
+git clone https://github.com/DataBiosphere/toil.git
+cd toil
+make prepare && make develop extras=[all]
+cd ..
 
-git clone https://github.com/ucsc-cgp/synapse-orchestrator.git
-cd synapse-orchestrator
+git clone https://github.com/DailyDreaming/orchestrator.git
+cd orchestrator
 pip install . --process-dependency-links && pip install -r dev-requirements.txt
 cd ..
 
 git clone https://github.com/common-workflow-language/workflow-service.git
 cd workflow-service
-git checkout symlinksNutil
 pip install . --process-dependency-links && pip install -r dev-requirements.txt
 cd ..
 ```
@@ -46,14 +48,16 @@ Write a config at `~/orchestrator_config.json`, for example:
             "trs_id": "dockstore", 
             "version_id": "develop", 
             "workflow_type": "WDL"
-        }, 
+        }
     }, 
     "workflowservices": {
         "local": {
-            "auth_type": "", 
-            "host": "0.0.0.0:8080", 
-            "auth": "", 
-            "proto": "http"
+            "host": "0.0.0.0:8080",
+            "auth": {"Authorization": ""},
+            "proto": "http",
+            "wespath": "ga4gh/wes/v1/",
+            "wfparam": "runs",
+            "version": "1"
         }
     }
 }

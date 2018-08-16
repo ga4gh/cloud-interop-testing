@@ -1,0 +1,24 @@
+{
+  "workflow_params": {
+    "reference_genome": {
+      "class": "File",
+      "path": "ark:/99999/fk4aZVT0ZWH8Ip0"
+    },
+    "bwa_index": {
+      "class": "File",
+      "path": "ark:/99999/fk4erydOcxk7PA2"
+    },
+    "dbsnp": {
+      "class": "File",
+      "path": "ark:/99999/fk4zKBK8XkAnaXQ"
+    },
+    "input_file": {
+      "class": "File",
+      "path": "ark:/99999/fk4U4TyRAKafWMB"
+    }
+  },
+  "workflow_descriptor": "TOPMed Alignment Workflow",
+  "workflow_url": "https://raw.githubusercontent.com/DataBiosphere/topmed-workflows/1.22.0/aligner/sbg-alignment-cwl/topmed-alignment.cwl",
+  "workflow_type_version": "v1.0",
+  "workflow_type": "CWL"
+}

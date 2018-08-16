@@ -71,7 +71,7 @@ def add_toolregistry(service, auth, host, proto):
     set_json('toolregistries', service, config)
 
 
-def add_workflowservice(service, auth, auth_type, host, proto):
+def add_workflowservice(service, auth, client, host, proto):
     """
     Register a Workflow Execution Service endpoint to the
     orchestrator's available environment options.
@@ -79,9 +79,9 @@ def add_workflowservice(service, auth, auth_type, host, proto):
     :param wes_id: string ID of WES endpoint (e.g., 'workflow-service')
     """
     config = {'auth': auth,
-              'auth_type': auth_type,
               'host': host,
-              'proto': proto}
+              'proto': proto,
+              'client': client}
     set_json('workflowservices', service, config)
 
 
