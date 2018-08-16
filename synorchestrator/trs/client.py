@@ -11,10 +11,7 @@ def _get_endpoint(client, endpoint):
     """
     Execute a generic API 'GET' request.
     """
-    res = requests.get(
-        '{}/{}'.format(client.base_url, endpoint),
-        headers=client.headers
-    )
+    res = requests.get('{}/{}'.format(client.base_url, endpoint), headers=client.headers)
     # TODO: add some exception handling for different responses
     return res.json()
 
@@ -39,7 +36,6 @@ class TRSClient(object):
         self.base_url = '{}://{}/api/ga4gh/v2'.format(proto, host)
         self.headers = {'Authorization': auth}
 
-
     def get_workflow(self, id):
         """
         Return one specific tool of class "workflow" (which has
@@ -50,7 +46,6 @@ class TRSClient(object):
         logging.info("retrieving workflow entry from {}".format(endpoint))
         return _get_endpoint(self, endpoint)
 
-
     def get_workflow_checker(self, id):
         """
         Return entry for the specified workflow's "checker workflow."
@@ -60,7 +55,6 @@ class TRSClient(object):
         logger.info("found checker workflow: {}".format(checker_id))
         return self.get_workflow(checker_id)
 
-
     def get_workflow_versions(self, id):
         """
         Return all versions of the specified workflow.
@@ -68,7 +62,6 @@ class TRSClient(object):
         id = _format_workflow_id(id)
         endpoint = 'tools/{}/versions'.format(id)
         return _get_endpoint(self, endpoint)
-
 
     def get_workflow_descriptor(self, id, version_id, type):
         """
@@ -82,36 +75,26 @@ class TRSClient(object):
         logger.info("getting descriptor from {}".format(endpoint))
         return _get_endpoint(self, endpoint)
 
-
-    def get_workflow_tests(self, id, version_id, type, fix_url=True):
+    def get_workflow_tests(self, fileid, version_id, filetype, fix_url=True):
         """
         Return a list of test JSONs (these allow you to execute the
-        workflow successfully) suitable for use with this descriptor
-        type.
+        workflow successfully) suitable for use with this descriptor type.
         """
-        id = _format_workflow_id(id)
-        endpoint = 'tools/{}/versions/{}/{}/tests'.format(
-            id, version_id, type
-        )
-        tests =  _get_endpoint(self, endpoint)
+        fileid = _format_workflow_id(fileid)
+        endpoint = 'tools/{}/versions/{}/{}/tests'.format(fileid, version_id, filetype)
+        tests = _get_endpoint(self, endpoint)
         if fix_url:
-            descriptor = self.get_workflow_descriptor(id, version_id, type)
+            descriptor = self.get_workflow_descriptor(fileid, version_id, filetype)
             for test in tests:
                 if test['url'].startswith('/'):
-                    test['url'] = os.path.join(
-                        os.path.dirname(descriptor['url']),
-                        os.path.basename(tests[0]['url'])
-                    )
+                    test['url'] = os.path.join(os.path.dirname(descriptor['url']), os.path.basename(tests[0]['url']))
         return tests
 
-
-    def get_workflow_files(self, id, version_id, type, fix_url=True):
+    def get_workflow_files(self, fileid, version_id, filetype):
         """
         Return a list of files associated with the workflow based
         on file type.
         """
-        id = _format_workflow_id(id)
-        endpoint = 'tools/{}/versions/{}/{}/files'.format(
-            id, version_id, type
-        )
+        fileid = _format_workflow_id(fileid)
+        endpoint = 'tools/{}/versions/{}/{}/files'.format(fileid, version_id, filetype)
         return _get_endpoint(self, endpoint)

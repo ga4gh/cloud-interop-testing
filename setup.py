@@ -1,7 +1,3 @@
-import os
-import sys
-import shutil
-
 # First, we try to use setuptools. If it's not available locally,
 # we fall back on ez_setup.
 try:
@@ -28,6 +24,9 @@ setup(
     name='synapse-orchestrator',
     description='Synapse-based orchestrator for GA4GH workflows',
     packages=['synorchestrator'],
+    package_data={
+        'synorchestrator': ['workflow_execution_service.swagger.yaml']
+    },
     url='https://github.com/Sage-Bionetworks/synapse-orchestrator',
     download_url='https://github.com/Sage-Bionetworks/synapse-orchestrator',
     entry_points={
