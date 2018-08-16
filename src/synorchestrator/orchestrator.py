@@ -171,26 +171,28 @@ def run_submission(wes_id, submission_id):
                 .format(wes_id, submission_id))
 
     client = WESClient(wes_config()[wes_id])
-    run_data = client.run_workflow(submission['data']['wf'],
-                                   submission['data']['jsonyaml'],
-                                   submission['data']['attachments'])
+    run_data = client.run(submission['data']['wf'],
+                          submission['data']['jsonyaml'],
+                          submission['data']['attachments'])
     run_data['start_time'] = dt.datetime.now().ctime()
     update_submission(wes_id, submission_id, 'run', run_data)
     update_submission(wes_id, submission_id, 'status', 'SUBMITTED')
     return run_data
 
 
-def run_next_queued(wf_service):
-    """
-    Run the next submission slated for a single WES endpoint.
+def services_w_wfs_left2run():
+    services = []
+    for wf_service in wes_config():
+        received_submissions = get_submissions(wf_service, status='RECEIVED')
+        if received_submissions:
+            services.append(wf_service)
+    return services
 
-    Return None if no submissions are queued.
-    """
-    queued_submissions = get_submissions(wf_service, status='RECEIVED')
-    if not queued_submissions:
+
+def service_ready(service):
+    if get_submissions(service, status='SUBMITTED'):
         return False
-    for submssn_id in sorted(queued_submissions):
-        return run_submission(wf_service, submssn_id)
+    return True
 
 
 def run_all():
@@ -200,22 +202,20 @@ def run_all():
     Check the status of each job per workflow service for status: COMPLETE
     before running the next queued job.
     """
-    # create a dictionary of services
-    current_job_state = {}
-    for wf_service in wes_config():
-        current_job_state[wf_service] = ''
-
-    # check all wfs for a given service for RUNNING/INITing/SUBMITTED (skip if True)
-    # else run the first queue
-    client = WESClient(wes_config()[wf_service])
-    for wf_service in wes_config():
-        run = run_next_queued(wf_service)
-        if run:
-            status = client.get_workflow_run_status(run['run_id'])['state']
-            while status not in ('COMPLETE', 'EXECUTOR_ERROR'):
-                time.sleep(4)
-                print('Current Status is: ' + status)
-                status = client.get_workflow_run_status(run['run_id'])['state']
+    services = services_w_wfs_left2run()
+    while services:
+        try:
+            for service in services:
+                if service_ready(service):
+                    received_submissions = sorted(get_submissions(service, status='RECEIVED'))
+                    try:
+                        run_submission(service, received_submissions[0])
+                    except ConnectionError:
+                        pass
+            services = services_w_wfs_left2run()
+        except ValueError:
+            pass
+        time.sleep(8)
 
 
 def monitor_service(wf_service):
@@ -243,17 +243,22 @@ def monitor_service(wf_service):
                 run = submissions[wf_service][run_id]['run']
 
                 client = WESClient(wes_config()[wf_service])
-                run['state'] = client.get_workflow_run_status(run['run_id'])['state']
+                try:
+                    wf_id = run['workflow_id']
+                except KeyError:
+                    wf_id = run['run_id']
+                run['state'] = client.get_run_status(wf_id)['state'].upper()
                 if run['state'] in ['QUEUED', 'INITIALIZING', 'RUNNING']:
                     etime = convert_timedelta(dt.datetime.now() - ctime2datetime(run['start_time']))
                 elif 'elapsed_time' not in run:
                     etime = '0h:0m:0s'
                 else:
+                    update_submission(wf_service, run_id, 'status', run['state'])
                     etime = run['elapsed_time']
                 update_submission_run(wf_service, run_id, 'elapsed_time', etime)
                 status_dict.setdefault(wf_service, {})[run_id] = {
                     'wf_id': submissions[wf_service][run_id]['wf_id'],
-                    'run_id': run['run_id'],
+                    'run_id': wf_id,
                     'sample_name': sample_name,
                     'run_status': run['state'],
                     'start_time': run['start_time'],
@@ -293,4 +298,8 @@ def monitor():
         os.system('clear')
         display(status_df)
         sys.stdout.flush()
-        time.sleep(1)
+        time.sleep(2)
+
+# set_queue_from_user_json('/home/quokka/git/current_demo/orchestrator/src/tests/data/user_submission_example.json')
+# run_all()
+# run_submission("local", "080808180808830195")
