@@ -3,6 +3,7 @@ import urllib
 import re
 
 from synorchestrator.trs.client import load_trs_client
+from synorchestrator.util import response_handler
 
 logger = logging.getLogger(__name__)
 
@@ -42,16 +43,7 @@ class TRS(object):
         """
         id = _format_workflow_id(id)
         res = self.api_client.toolsIdGet(id=id)
-        return _response_handler(res)
-
-    # def get_workflow_checker(self, id):
-    #     """
-    #     Return entry for the specified workflow's "checker workflow."
-    #     """
-    #     checker_url = urllib.unquote(self.get_workflow(id=id)['checker_url'])
-    #     checker_id = re.sub('^.*#workflow/', '', checker_url)
-    #     logger.info("found checker workflow: {}".format(checker_id))
-    #     return self.get_workflow(id=checker_id)
+        return response_handler(res)
 
     def get_workflow_versions(self, id):
         """
@@ -59,7 +51,7 @@ class TRS(object):
         """
         id = _format_workflow_id(id=id)
         res = self.api_client.toolsIdVersionsGet(id=id)
-        return _response_handler(res)
+        return response_handler(res)
 
     def get_workflow_descriptor(self, id, version_id, type):
         """
@@ -72,7 +64,7 @@ class TRS(object):
             version_id=version_id,
             type=type
         )
-        return _response_handler(res)
+        return response_handler(res)
 
     def get_workflow_descriptor_relative(self, 
                                          id, 
@@ -89,7 +81,7 @@ class TRS(object):
             type=type,
             relative_path=relative_path
         )
-        return _response_handler(res)
+        return response_handler(res)
 
     def get_workflow_tests(self, id, version_id, type):
         """
@@ -102,7 +94,7 @@ class TRS(object):
             version_id=version_id,
             type=type
         )
-        return _response_handler(res)
+        return response_handler(res)
         # fileid = _format_workflow_id(fileid)
         # endpoint = 'tools/{}/versions/{}/{}/tests'.format(fileid, version_id, filetype)
         # tests = _get_endpoint(self, endpoint)
@@ -124,21 +116,4 @@ class TRS(object):
             version_id=version_id,
             type=type
         )
-        return _response_handler(res)
-
-    # def post_verification(self, id, version_id, type, relative_path, requests):
-    #     """
-    #     Annotate test JSON with information on whether it ran successfully on particular platforms plus metadata
-    #     """
-    #     id = _format_workflow_id(id)
-    #     endpoint ='extended/{}/versions/{}/{}/tests/{}'.format(
-    #         id, version_id, type, relative_path
-    #     )
-    #     return _post_to_endpoint(self, endpoint, requests)
-
-
-def _response_handler(response):
-    try:
-        return response.response().result
-    except:
-        return response
+        return response_handler(res)
