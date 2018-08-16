@@ -1,6 +1,7 @@
 import logging
 
 from synorchestrator.wes.client import load_wes_client
+from synorchestrator.util import response_handler
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +21,14 @@ class WES(object):
         Get information about Workflow Execution Service.
         """
         res = self.api_client.GetServiceInfo()
-        return _response_handler(res)
+        return response_handler(res)
 
     def list_runs(self):
         """
         List all the workflow runs in order of oldest to newest.
         """
         res = self.api_client.ListRuns()
-        return _response_handler(res)
+        return response_handler(res)
 
     def run_workflow(self, request):
         """
@@ -35,32 +36,25 @@ class WES(object):
         to monitor its progress.
         """
         res = self.api_client.RunWorkflow(request)
-        return _response_handler(res)
+        return response_handler(res)
 
     def cancel_run(self, id):
         """
         Cancel a running workflow.
         """
         res = self.api_client.CancelRun(id)
-        return _response_handler(res)
+        return response_handler(res)
 
     def get_run(self, id):
         """
         Get detailed info about a workflow run.
         """
         res = self.api_client.GetRunLog(id)
-        return _response_handler(res)
+        return response_handler(res)
 
     def get_run_status(self, id):
         """
         Get quick status info about a workflow run.
         """
         res = self.api_client.GetRunStatus(id)
-        return _response_handler(res)
-
-
-def _response_handler(response):
-    try:
-        return response.response().result
-    except:
-        return response
+        return response_handler(res)

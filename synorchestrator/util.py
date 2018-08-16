@@ -39,6 +39,13 @@ def save_json(filepath, app_config):
         json.dump(app_config, f, indent=4)
 
 
+def response_handler(response):
+    try:
+        return response.response().result
+    except:
+        return response
+
+
 def ctime2datetime(time_str):
     return dt.datetime.strptime(time_str, '%a %b %d %H:%M:%S %Y')
 

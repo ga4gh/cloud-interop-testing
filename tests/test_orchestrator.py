@@ -82,7 +82,7 @@ def mock_wes(request):
 @pytest.fixture()
 def mock_trs(request):
     mock_trs = mock.Mock(name='mock TRS')
-    with mock.patch('synorchestrator.trs.client.TRSClient', 
+    with mock.patch('synorchestrator.trs.wrapper.TRS', 
                     autospec=True, spec_set=True):
         yield mock_trs
 
@@ -163,7 +163,7 @@ def test_check_queue(mock_queue_config,
                         lambda: mock_queue_config)
     monkeypatch.setattr('synorchestrator.orchestrator.trs_config', 
                         lambda: mock_trs_config)
-    monkeypatch.setattr('synorchestrator.orchestrator.TRSClient', 
+    monkeypatch.setattr('synorchestrator.orchestrator.TRS', 
                         lambda host,auth,proto: mock_trs)
     monkeypatch.setattr('synorchestrator.orchestrator.fetch_checker', 
                         lambda trs,workflow_id: ({}, {}))
