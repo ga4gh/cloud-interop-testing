@@ -5,8 +5,11 @@ from bravado.requests_client import RequestsClient
 from bravado.client import SwaggerClient, ResourceDecorator
 from bravado.testing.response_mocks import BravadoResponseMock
 
-import synorchestrator.trs.client as trs_client
-import synorchestrator.trs.wrapper as trs_wrapper
+from synorchestrator.trs.client import _get_trs_opts
+from synorchestrator.trs.client import _init_http_client
+from synorchestrator.trs.client import load_trs_client
+from synorchestrator.trs.wrapper import TRS
+
 
 @pytest.fixture()
 def mock_trs_config():
@@ -29,43 +32,101 @@ def mock_api_client():
         yield mock_api_client
 
 
-def test__get_trs_opts(mock_trs_config):
-
-    test_trs_opts = trs_client._get_trs_opts('mock_trs', mock_trs_config)
+def test__get_trs_opts(mock_trs_config, monkeypatch):
+    monkeypatch.setattr('synorchestrator.trs.client.trs_config', 
+                        lambda: mock_trs_config)
+    test_trs_opts = _get_trs_opts('mock_trs')
 
     assert test_trs_opts == mock_trs_config['mock_trs']
 
 
 def test__init_http_client(mock_trs_config):
     mock_opts = mock_trs_config['mock_trs']
-    test_http_client = trs_client._init_http_client(opts=mock_opts)
+    test_http_client = _init_http_client(opts=mock_opts)
 
     assert isinstance(test_http_client, RequestsClient)
     assert test_http_client.authenticator.host == mock_opts['host']
     assert test_http_client.authenticator.api_key == mock_opts['auth']
 
 
-def test_load_trs_client():
+def test_load_trs_client_from_spec():
     mock_http_client = RequestsClient()
-    test_trs_client = trs_client.load_trs_client(http_client=mock_http_client)
-    
+    test_trs_client = load_trs_client(service_id='mock_trs',
+                                      http_client=mock_http_client)
+
     assert isinstance(test_trs_client, ResourceDecorator)
 
 
-def test_trs_get_metadata(mock_api_client):
-    mock_metadata = {
-        'version': '1.0.0',
-        'api_version': '1.0.0',
-        'country': '',
-        'friendly_name': 'mock_trs'
-    }
+@pytest.fixture()
+def mock_api_client():
+    mock_api_client = mock.Mock(name='mock SwaggerClient')
+    with mock.patch.object(SwaggerClient, 'from_url', 
+                        return_value=mock_api_client):
+        yield mock_api_client
 
-    mock_api_client.metadataGet.return_value.response = BravadoResponseMock(
-        result=mock_metadata
-    )
 
-    client = trs_wrapper.TRS(api_client=mock_api_client)
-    test_metadata = client.get_metadata()
+class TestTRS:
+    """
+    Tests methods for the :class:`TRS` class, which serve as the main
+    Python interface for the GA4GH TRS API. The tests below are primarily
+    checking whether each method is making calls to the correct path
+    and correctly handling responses.
+    """
+    def test_init(self, mock_api_client):
+        trs_instance = TRS(trs_id='mock_trs', 
+                           api_client=mock_api_client)
 
-    assert isinstance(test_metadata, dict) 
-    assert test_metadata == mock_metadata
+        assert hasattr(trs_instance, 'api_client')
+        assert hasattr(trs_instance.api_client, 'metadataGet')  
+        
+    def test_get_metadata(self, mock_api_client):
+        mock_metadata = {
+            'version': '1.0.0',
+            'api_version': '1.0.0',
+            'country': '',
+            'friendly_name': 'mock_trs'
+        }
+
+        mock_response = BravadoResponseMock(result=mock_metadata)
+        mock_api_client.metadataGet.return_value.response = mock_response
+
+        trs_instance = TRS(trs_id='mock_trs', api_client=mock_api_client)
+        test_metadata = trs_instance.get_metadata()
+
+        assert isinstance(test_metadata, dict) 
+        assert test_metadata == mock_metadata
+
+    def test_get_workflow(self, mock_api_client):
+        mock_workflow = {
+            'url': '',
+            'id': 'mock_wf',
+            'organization': '',
+            'author': '',
+            'toolclass': {},
+            'versions': []
+        }
+
+        mock_response = BravadoResponseMock(result=mock_workflow)
+        mock_api_client.toolsIdGet.return_value.response = mock_response
+
+        trs_instance = TRS(trs_id='mock_trs', api_client=mock_api_client)
+        test_workflow = trs_instance.get_workflow('mock_wf')
+
+        assert isinstance(test_workflow, dict) 
+        assert test_workflow == mock_workflow  
+
+    def test_get_workflow_versions(self, mock_api_client):
+        mock_workflow_versions = [
+            {'url': '', 'id': ''},
+            {'url': '', 'id': ''}
+        ]
+
+        mock_response = BravadoResponseMock(result=mock_workflow_versions)
+        mock_api_client.toolsIdVersionsGet.return_value.response = mock_response
+
+        trs_instance = TRS(trs_id='mock_trs', api_client=mock_api_client)
+        test_workflow_versions = trs_instance.get_workflow_versions('mock_wf')
+
+        assert isinstance(test_workflow_versions, list) 
+        assert test_workflow_versions == mock_workflow_versions
+    
