@@ -37,6 +37,29 @@ def _init_http_client(service_id=None, opts=None):
     return http_client
 
 
+class TRSInterface:
+    def metadataGet(self):
+        pass
+
+    def toolsIdGet(self):
+        pass
+    
+    def toolsIdVersionsGet(self):
+        pass
+
+    def toolsIdVersionsVersionIdTypeDescriptorGet(self):
+        pass
+    
+    def toolsIdVersionsVersionIdTypeDescriptorRelativePathGet(self):
+        pass
+
+    def toolsIdVersionsVersionIdTypeTestsGet(self):
+        pass
+    
+    def toolsIdVersionsVersionIdTypeFilesGet(self):
+        pass
+
+
 def load_trs_client(service_id, http_client=None):
     """
     Return an API client for the selected workflow execution service.
