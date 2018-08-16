@@ -20,7 +20,7 @@ from synorchestrator.config import wes_config, trs_config
 from synorchestrator.config import eval_config as queue_config
 from synorchestrator.util import get_json, ctime2datetime, convert_timedelta
 from synorchestrator.wes.wrapper import WES
-from synorchestrator.trs.client import TRSClient
+from synorchestrator.trs.wrapper import TRS
 from synorchestrator.eval import create_submission
 from synorchestrator.eval import get_submission_bundle
 from synorchestrator.eval import get_submissions
@@ -150,7 +150,7 @@ def check_queue(queue_id, wes_id):
     logger.info("Preparing checker workflow run request for '{}' from  '{}''"
                 .format(wf_config['id'], wf_config['trs_id']))
     
-    trs_instance = TRSClient(**trs_config()[wf_config['trs_id']])
+    trs_instance = TRS(**trs_config()[wf_config['trs_id']])
 
     checker_descriptor, checker_tests = fetch_checker(
         trs=trs_instance, 
