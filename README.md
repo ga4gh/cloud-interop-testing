@@ -19,8 +19,8 @@ cd toil
 make prepare && make develop extras=[all]
 cd ..
 
-git clone https://github.com/DailyDreaming/orchestrator.git
-cd orchestrator
+git clone https://github.com/ucsc-cgp/synapse-orchestrator.git
+cd synapse-orchestrator
 pip install . --process-dependency-links && pip install -r dev-requirements.txt
 cd ..
 
