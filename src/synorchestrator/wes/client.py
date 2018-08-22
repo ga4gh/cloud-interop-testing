@@ -3,7 +3,7 @@ import json
 import glob
 import requests
 import urllib
-import logging
+import time
 import schema_salad.ref_resolver
 
 from wes_service.util import visit
@@ -21,14 +21,9 @@ def wf_type(workflow_file):
 
 
 def wf_version(workflow_file):
-    # TODO: Check inside of the file, handling local/http/etc.
     if wf_type(workflow_file) == 'PY':
         return '2.7'
-    # elif wf_type(workflow_file) == 'CWL':
-    #     # only works locally
-    #     return yaml.load(open(workflow_file))['cwlVersion']
     else:
-        # TODO: actually check the wdl file
         return "v1.0"
 
 
@@ -106,9 +101,6 @@ def expand_globs(attachments):
 
 
 def wes_reponse(postresult):
-    if postresult.status_code != 200:
-        logging.error("%s", json.loads(postresult.text))
-        exit(1)
     return json.loads(postresult.text)
 
 
@@ -209,7 +201,7 @@ class WESClient(object):
                                   headers=self.auth)
         return wes_reponse(postresult)
 
-    def get_run_status(self, run_id):
+    def get_run_status(self, run_id, max_timeout=20):
         """
         Get quick status info about a running workflow.
 
@@ -221,4 +213,14 @@ class WESClient(object):
         """
         postresult = requests.get("%s://%s/%s%s/%s/status" % (self.proto, self.host, self.wespath, self.wfparam, run_id),
                                   headers=self.auth)
+        rcode = postresult.status_code
+        timeout = 0
+        while rcode >= 300:
+            time.sleep(2)
+            timeout += 2
+            postresult = requests.get("%s://%s/%s%s/%s/status" % (self.proto, self.host, self.wespath, self.wfparam, run_id),
+                                      headers=self.auth)
+            rcode = postresult.status_code
+            if timeout > max_timeout:
+                break
         return wes_reponse(postresult)
