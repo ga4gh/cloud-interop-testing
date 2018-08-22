@@ -6,7 +6,12 @@ from synorchestrator.util import get_json, save_json
 
 logger = logging.getLogger(__name__)
 
+
 submission_queue = os.path.join(os.path.dirname(__file__), 'submission_queue.json')
+
+
+def create_queue():
+    pass
 
 
 def create_submission(wes_id, submission_data, wf_type='cwl', wf_name='wflow0'):

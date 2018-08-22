@@ -26,6 +26,10 @@ def wes_config():
     return get_yaml(config_path)['workflowservices']
 
 
+def testbed_config():
+    pass
+
+
 def add_eval(wf_name,
              wf_type,
              wf_url,

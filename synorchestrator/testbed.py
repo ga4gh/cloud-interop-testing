@@ -7,21 +7,14 @@ import re
 
 from synorchestrator.config import eval_config as queue_config
 from synorchestrator.config import trs_config
+from synorchestrator.config import testbed_config
 
 from synorchestrator.trs.wrapper import TRS
-from synorchestrator.eval import create_submission
+from synorchestrator.eval import create_queue, create_submission
 from synorchestrator.orchestrator import run_queue
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-
-def testbed_config():
-    pass
-
-
-def create_queue():
-    pass
 
 
 def get_checker_id(trs, workflow_id):
