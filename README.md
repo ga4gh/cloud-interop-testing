@@ -81,13 +81,3 @@ run_all()
  
  And run it:
 ```(venv) $ python run_script.py```
-
-### Contribute changes
-
-Switch back to the top level (`synapse-orchestrator`) folder, check out a new branch off of `develop`, edit the code, commit changes, open a pull request.
-
-### TODO
-
-+ add functions/arguments for configuring (registering TRS/WES endpoints, authenticating, etc.) the `orchestrator`
-+ figure out how to configure and connect Synapse evaluation queues and submissions to `orchestrator`
-+ update `travis.yml` to build `synapse-orchestrator` (and `workflow-service`) before running tests
