@@ -1,0 +1,24 @@
+{
+    "workflow_params": {
+        "bwa_index": {
+            "class": "File",
+            "path": "/renci/irods/topmed-demo/alignment-workflow/reference-files/hs38DH.fa.tar"
+        },
+        "dbsnp": {
+            "class": "File",
+            "path": "/renci/irods/topmed-demo/alignment-workflow/reference-files/Homo_sapiens_assembly38.dbsnp138.vcf.gz"
+        },
+        "input_file": {
+            "class": "File",
+            "path": "/renci/irods/topmed-demo/alignment-workflow/downsampled_crams/NWD119836.0005.recab.cram"
+        },
+        "reference_genome": {
+            "class": "File",
+            "path": "/renci/irods/topmed-demo/alignment-workflow/reference-files/hs38DH.fa"
+        }
+    },
+    "workflow_descriptor": "TOPMed Alignment Workflow",
+    "workflow_url": "https://raw.githubusercontent.com/DataBiosphere/topmed-workflows/e063603e80b382084def46f15f4ecb8968354346/aligner/sbg-alignment-cwl/topmed-alignment.cwl",
+    "workflow_type": "CWL",
+    "workflow_type_version": "v1.0"
+}
