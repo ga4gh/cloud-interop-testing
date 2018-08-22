@@ -2,86 +2,111 @@
   "Xenon-SevenBridges":
   {"NWD119836_downsampled":
        {"wf_name": "cwl_UoM_align",
-        "jsonyaml": "file://tests/data/xenon/NWD119836.json"},
+        "jsonyaml": "file://tests/data/xenon/NWD119836.json",
+        "input": "dg.4503/bba53290-a870-442e-a03b-1ccb857b1894"},
    "NWD136397_downsampled":
        {"wf_name": "cwl_UoM_align",
-        "jsonyaml": "file://tests/data/xenon/NWD136397.json"},
+        "jsonyaml": "file://tests/data/xenon/NWD136397.json",
+        "input": "dg.4503/376874ef-2df8-41b1-9681-b08cc25d82c3"},
    "NWD176325_downsampled":
        {"wf_name": "cwl_UoM_align",
-        "jsonyaml": "file://tests/data/xenon/NWD176325.json"},
+        "jsonyaml": "file://tests/data/xenon/NWD176325.json",
+        "input": "dg.4503/00e6cfa9-a183-42f6-bb44-b70347106bbe"},
    "NWD231092_downsampled":
        {"wf_name": "cwl_UoM_align",
-        "jsonyaml": "file://tests/data/xenon/NWD231092.json"},
+        "jsonyaml": "file://tests/data/xenon/NWD231092.json",
+        "input": "dg.4503/33ceb094-68f0-4aed-8fd2-c1f3ff169254"},
    "NWD315403_downsampled":
        {"wf_name": "cwl_UoM_align",
-        "jsonyaml": "file://tests/data/xenon/NWD315403.json"}
+        "jsonyaml": "file://tests/data/xenon/NWD315403.json",
+        "input": "dg.4503/0e1c8c39-bfb2-4acf-8d4f-ffd40470f04e"}
    },
   "Calcium-Toil-AWS":
    {"NWD119836_downsampled":
       {"wf_name": "wdl_UoM_align",
-       "jsonyaml": "file://tests/data/calcium/NWD119836.json"},
+       "jsonyaml": "file://tests/data/calcium/NWD119836.json",
+       "input": "gs://.../NWD119836.0005.recab.cram"},
     "NWD136397_downsampled":
       {"wf_name": "wdl_UoM_align",
-       "jsonyaml": "file://tests/data/calcium/NWD136397.json"},
+       "jsonyaml": "file://tests/data/calcium/NWD136397.json",
+       "input": "gs://.../NWD136397.0005.recab.cram"},
     "NWD176325_downsampled":
       {"wf_name": "wdl_UoM_align",
-       "jsonyaml": "file://tests/data/calcium/NWD176325.json"},
+       "jsonyaml": "file://tests/data/calcium/NWD176325.json",
+       "input": "gs://.../NWD176325.0005.recab.cram"},
     "NWD231092_downsampled":
       {"wf_name": "wdl_UoM_align",
-       "jsonyaml": "file://tests/data/calcium/NWD231092.json"},
+       "jsonyaml": "file://tests/data/calcium/NWD231092.json",
+       "input": "gs://.../NWD231092.0005.recab.cram"},
     "NWD315403_downsampled":
       {"wf_name": "wdl_UoM_align",
-       "jsonyaml": "file://tests/data/calcium/NWD315403.json"}
+       "jsonyaml": "file://tests/data/calcium/NWD315403.json",
+       "input": "gs://.../NWD315403.0005.recab.cram"}
   },
  "Argon-Globus":
    {"NWD119836_downsampled":
       {"wf_name": "cwl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD119836.json"},
+       "jsonyaml": "file://tests/data/argon/NWD119836.json",
+       "input": "ark:/99999/fk4cAzlMXIUOfes"},
     "NWD136397_downsampled":
       {"wf_name": "cwl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD136397.json"},
+       "jsonyaml": "file://tests/data/argon/NWD136397.json",
+       "input": "ark:/99999/fk456x1jMoFxfKB"},
     "NWD176325_downsampled":
       {"wf_name": "cwl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD176325.json"},
+       "jsonyaml": "file://tests/data/argon/NWD176325.json",
+       "input": "ark:/99999/fk4U4TyRAKafWMB"},
     "NWD231092_downsampled":
       {"wf_name": "cwl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD231092.json"},
+       "jsonyaml": "file://tests/data/argon/NWD231092.json",
+       "input": "ark:/99999/fk4jVBacAVBkFsL"},
     "NWD315403_downsampled":
       {"wf_name": "cwl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD315403.json"}
-  },
- "Helium-Toil-Chronos":
-   {"NWD119836_downsampled":
-      {"wf_name": "cwl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD119836.json"},
-    "NWD136397_downsampled":
-      {"wf_name": "cwl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD136397.json"},
-    "NWD176325_downsampled":
-      {"wf_name": "cwl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD176325.json"},
-    "NWD231092_downsampled":
-      {"wf_name": "cwl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD231092.json"},
-    "NWD315403_downsampled":
-      {"wf_name": "cwl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD315403.json"}
+       "jsonyaml": "file://tests/data/argon/NWD315403.json",
+       "input": "ark:/99999/fk41FSiqz9iY58R1"}
   },
  "Calcium-Cromwell-Google":
    {"NWD119836_downsampled":
       {"wf_name": "wdl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD119836.json"},
+       "jsonyaml": "file:///home/ubuntu/NWD119836.json",
+       "input": "gs://.../NWD119836.0005.recab.cram"},
     "NWD136397_downsampled":
       {"wf_name": "wdl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD136397.json"},
+       "jsonyaml": "file:///home/ubuntu/NWD136397.json",
+       "input": "gs://.../NWD136397.0005.recab.cram"},
     "NWD176325_downsampled":
       {"wf_name": "wdl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD176325.json"},
+       "jsonyaml": "file:///home/ubuntu/NWD176325.json",
+       "input": "gs://.../NWD176325.0005.recab.cram"},
     "NWD231092_downsampled":
       {"wf_name": "wdl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD231092.json"},
+       "jsonyaml": "file:///home/ubuntu/NWD231092.json",
+       "input": "gs://.../NWD231092.0005.recab.cram"},
     "NWD315403_downsampled":
       {"wf_name": "wdl_UoM_align",
-       "jsonyaml": "file://tests/data/argon/NWD315403.json"}
+       "jsonyaml": "file:///home/ubuntu/NWD315403.json",
+       "input": "gs://.../NWD315403.0005.recab.cram"}
+  },
+ "Helium-Toil-Chronos":
+   {"NWD119836_downsampled":
+      {"wf_name": "cwl_UoM_align",
+       "jsonyaml": "file://tests/data/helium/NWD119836.json",
+       "input": "/renci/.../NWD119836.0005.recab.cram"},
+    "NWD136397_downsampled":
+      {"wf_name": "cwl_UoM_align",
+       "jsonyaml": "file://tests/data/helium/NWD136397.json",
+       "input": "/renci/.../NWD119836.0005.recab.cram"},
+    "NWD176325_downsampled":
+      {"wf_name": "cwl_UoM_align",
+       "jsonyaml": "file://tests/data/helium/NWD176325.json",
+       "input": "/renci/.../NWD119836.0005.recab.cram"},
+    "NWD231092_downsampled":
+      {"wf_name": "cwl_UoM_align",
+       "jsonyaml": "file://tests/data/helium/NWD231092.json",
+       "input": "/renci/.../NWD119836.0005.recab.cram"},
+    "NWD315403_downsampled":
+      {"wf_name": "cwl_UoM_align",
+       "jsonyaml": "file://tests/data/helium/NWD315403.json",
+       "input": "/renci/.../NWD119836.0005.recab.cram"}
   }
 }
