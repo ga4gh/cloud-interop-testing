@@ -16,12 +16,10 @@ import re
 from requests.exceptions import ConnectionError
 from IPython.display import display, clear_output
 
-from synorchestrator.config import wes_config, trs_config
+from synorchestrator.config import wes_config
 from synorchestrator.config import eval_config as queue_config
 from synorchestrator.util import get_json, ctime2datetime, convert_timedelta
 from synorchestrator.wes.wrapper import WES
-from synorchestrator.trs.wrapper import TRS
-from synorchestrator.eval import create_submission
 from synorchestrator.eval import get_submission_bundle
 from synorchestrator.eval import get_submissions
 from synorchestrator.eval import update_submission
@@ -108,71 +106,6 @@ def run_next_queued(queue_id):
         return False
     for sub_id in sorted(queued_submissions):
         return run_submission(queue_id, sub_id)
-
-
-def fetch_checker(trs, workflow_id):
-    checker_workflow = trs.get_workflow_checker(workflow_id)
-
-    checker_descriptor = trs.get_workflow_descriptor(
-        id=checker_workflow['id'],
-        version_id=workflow_config['version_id'],
-        type=workflow_config['workflow_type']
-    )
-
-    checker_tests = trs.get_workflow_tests(
-        id=checker_workflow['id'],
-        version_id=workflow_config['version_id'],
-        type=workflow_config['workflow_type']
-    )
-    return checker_descriptor, checker_tests
-
-
-def build_checker_request(checker_descriptor, checker_tests):
-    if (checker_descriptor['type'] == 'CWL' and
-        re.search('run:', checker_descriptor['descriptor'])):
-        checker_descriptor['descriptor'] = get_packed_cwl(checker_descriptor['url'])
-
-    checker_request = build_wes_request(
-        workflow_descriptor=checker_descriptor['descriptor'],
-        workflow_params=checker_tests[0]['url'],
-        workflow_type=checker_descriptor['type']
-    )
-    return checker_request
-
-
-def check_queue(queue_id, wes_id):
-    """
-    Run checker workflow for an evaluation queue in a single
-    environment.
-    """
-    wf_config = queue_config()[queue_id]
-    wf_config['id'] = wf_config['workflow_id']
-    logger.info("Preparing checker workflow run request for '{}' from  '{}''"
-                .format(wf_config['id'], wf_config['trs_id']))
-    
-    trs_instance = TRS(**trs_config()[wf_config['trs_id']])
-
-    checker_descriptor, checker_tests = fetch_checker(
-        trs=trs_instance, 
-        workflow_id=wf_config['id']
-    )
-    checker_request = build_checker_request(checker_descriptor, checker_tests)
-
-    submission_id = create_submission(
-        queue_id, checker_request, wes_id, type='checker'
-    )
-    return run_queue(queue_id)
-
-
-def check_all(queue_wes_map):
-    """
-    Check workflows for multiple queues in multiple environments
-    (cross product of queues, workflow service endpoints).
-    """
-    submission_logs = [check_queue(queue_id, wes_id)
-                       for queue_id in queue_wes_map
-                       for wes_id in queue_wes_map[queue_id]]
-    return submission_logs
 
 
 def run_all():

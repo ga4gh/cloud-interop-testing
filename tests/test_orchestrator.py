@@ -10,8 +10,6 @@ from synorchestrator.wes.wrapper import WES
 from synorchestrator.orchestrator import run_submission
 from synorchestrator.orchestrator import run_queue
 from synorchestrator.orchestrator import run_next_queued
-from synorchestrator.orchestrator import check_queue
-from synorchestrator.orchestrator import check_all
 from synorchestrator.orchestrator import run_all
 from synorchestrator.orchestrator import monitor_queue
 from synorchestrator.orchestrator import monitor
@@ -45,18 +43,6 @@ def mock_wes_config():
 
 
 @pytest.fixture()
-def mock_trs_config():
-    mock_trs_config = {
-        'mock_trs': {
-            'auth': 'auth_token',
-            'host': '0.0.0.0:8080',
-            'proto': 'https'
-        }
-    }
-    yield mock_trs_config
-
-
-@pytest.fixture()
 def mock_submission(request):
     mock_submission = {
         'mock_sub': {
@@ -77,14 +63,6 @@ def mock_wes(request):
     with mock.patch('synorchestrator.wes.wrapper.WES', 
                     autospec=True, spec_set=True):
         yield mock_wes
-
-
-@pytest.fixture()
-def mock_trs(request):
-    mock_trs = mock.Mock(name='mock TRS')
-    with mock.patch('synorchestrator.trs.wrapper.TRS', 
-                    autospec=True, spec_set=True):
-        yield mock_trs
 
 
 def test_run_submission(mock_submission, 
@@ -153,83 +131,6 @@ def test_run_next_queued(monkeypatch):
     test_run_data = run_next_queued(queue_id='mock_queue')
 
     assert test_run_data == mock_run_data
-
-
-def test_check_queue(mock_queue_config, 
-                     mock_trs_config, 
-                     mock_trs, 
-                     monkeypatch):
-    monkeypatch.setattr('synorchestrator.orchestrator.queue_config', 
-                        lambda: mock_queue_config)
-    monkeypatch.setattr('synorchestrator.orchestrator.trs_config', 
-                        lambda: mock_trs_config)
-    monkeypatch.setattr('synorchestrator.orchestrator.TRS', 
-                        lambda host,auth,proto: mock_trs)
-    monkeypatch.setattr('synorchestrator.orchestrator.fetch_checker', 
-                        lambda trs,workflow_id: ({}, {}))
-    monkeypatch.setattr('synorchestrator.orchestrator.build_checker_request', 
-                        lambda x,y: {})
-    monkeypatch.setattr('synorchestrator.orchestrator.create_submission', 
-                        lambda w,x,y,type: 'mock_sub')
-    mock_submission_log = {
-        'mock_wf': {
-            'mock_sub': {
-                'queue_id': 'mock_queue',
-                'job': '',
-                'wes_id': '',
-                'run_id': 'mock_run',
-                'status': 'QUEUED',
-                'start_time': ''
-            }
-        }
-    }
-    monkeypatch.setattr('synorchestrator.orchestrator.run_queue', 
-                        lambda x: mock_submission_log)
-
-    test_submission_log = check_queue(queue_id='mock_queue', wes_id='mock_wes')
-
-    assert test_submission_log == mock_submission_log
-
-
-def test_check_all(mock_queue_config, monkeypatch):
-    monkeypatch.setattr('synorchestrator.orchestrator.queue_config', 
-                        lambda: mock_queue_config)
-
-    mock_submission_logs = {
-        'mock_wes_1': {
-            'mock_wf': {
-                'mock_sub': {
-                    'queue_id': 'mock_queue',
-                    'job': '',
-                    'wes_id': 'mock_wes_1',
-                    'run_id': 'mock_run',
-                    'status': 'QUEUED',
-                    'start_time': ''
-                }
-            }
-        },
-        'mock_wes_2': {
-            'mock_wf': {
-                'mock_sub': {
-                    'queue_id': 'mock_queue',
-                    'job': '',
-                    'wes_id': 'mock_wes_2',
-                    'run_id': 'mock_run',
-                    'status': 'QUEUED',
-                    'start_time': ''
-                }
-            }
-        }
-    }
-    monkeypatch.setattr('synorchestrator.orchestrator.check_queue', 
-                        lambda x,y: mock_submission_logs[y])
-
-    mock_queue_wes_map = {
-        'mock_queue': ['mock_wes_1', 'mock_wes_2']
-    }
-    test_submission_logs = check_all(mock_queue_wes_map)
-    assert all([log in mock_submission_logs.values() 
-                for log in test_submission_logs])
 
 
 def test_run_all(mock_queue_config, monkeypatch):
