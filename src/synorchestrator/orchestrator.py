@@ -139,12 +139,12 @@ class Orchestrator(object):
             attach = []
 
         submission_id = self.create_submission(wes_id=service,
-                                          submission_data={'wf': wf['workflow_url'],
-                                                           'jsonyaml': wf_jsonyaml,
-                                                           'attachments': attach},
-                                          wf_name=wf_name,
-                                          wf_type=wf['workflow_type'],
-                                          sample=sample)
+                                               submission_data={'wf': wf['workflow_url'],
+                                                                'jsonyaml': wf_jsonyaml,
+                                                                'attachments': attach},
+                                               wf_name=wf_name,
+                                               wf_type=wf['workflow_type'],
+                                               sample=sample)
         return submission_id
 
     def no_queue_run(self, service, wf_name, wf_jsonyaml, sample='NA', attach=None):

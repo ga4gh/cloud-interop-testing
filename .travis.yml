@@ -9,7 +9,7 @@ before_install:
 
 script:
   - python setup.py test
-  - flake8 --max-line-length 888 synorchestrator/
+  - flake8 --max-line-length 888
 
 after_success:
   - coveralls

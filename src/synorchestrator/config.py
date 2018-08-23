@@ -64,7 +64,6 @@ class Config(object):
                   'workflow_attachments': wf_attachments}
         self.set_json('workflows', wf_name, config)
 
-
     def add_toolregistry(self, service, auth, host, proto):
         """
         Register a Tool Registry Service endpoint to the orchestrator's
@@ -108,17 +107,17 @@ class Config(object):
         wes = '\n'.join('{}:\t{}'.format(k, orchestrator_config['workflowservices'][k]['host']) for k in orchestrator_config['workflowservices'])
         display = heredoc('''
             Orchestrator Options:
-    
+
             Parametrized Workflows
             (Workflow Name [Workflow Type])
             ---------------------------------------------------------------------------
             {wfs}
-    
+
             Tool Registries
             (TRS ID: Host Address)
             ---------------------------------------------------------------------------
             {trs}
-    
+
             Workflow Services
             (WES ID: Host Address)
             ---------------------------------------------------------------------------

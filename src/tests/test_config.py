@@ -2,12 +2,10 @@
 
 import unittest
 import os
-import json
 from synorchestrator import config, util
 
 
 class ConfigTests(unittest.TestCase):
-
     def setUp(self):
         super(ConfigTests, self).setUp()
         self.default_loc = os.path.join(os.path.expanduser('~'), 'orchestrator_config.json')
@@ -32,9 +30,9 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(c1.config_path, self.default_loc)
         with open(c1.config_path, 'r') as f:
             self.assertEqual(f.read(), '{"workflows": {},\n'
-                                        ' "toolregistries": {},\n'
-                                        ' "workflowservices": {}'
-                                        '}\n')
+                                       ' "toolregistries": {},\n'
+                                       ' "workflowservices": {}'
+                                       '}\n')
 
     def testConfigInitWritesSpecifiedLoc(self):
         """Test that Config() writes the default json to a specified location."""
@@ -44,9 +42,9 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(c1.config_path, self.config_loc)
         with open(c1.config_path, 'r') as f:
             self.assertEqual(f.read(), '{"workflows": {},\n'
-                                        ' "toolregistries": {},\n'
-                                        ' "workflowservices": {}'
-                                        '}\n')
+                                       ' "toolregistries": {},\n'
+                                       ' "workflowservices": {}'
+                                       '}\n')
 
     def testConfigInitFindsExistingFile(self):
         """Test that Config() finds the proper file."""
@@ -83,12 +81,12 @@ class ConfigTests(unittest.TestCase):
         """Test that add_workflow() adds entries to the config properly."""
         c = config.Config(self.config_loc)  # Write the empty file.
         c.add_workflow('cactus',
-                        'Toil',
-                        'wf_url',
-                        'workflow_attachments',
-                        'submission_type',
-                        'trs_id',
-                        'version_id')
+                       'Toil',
+                       'wf_url',
+                       'workflow_attachments',
+                       'submission_type',
+                       'trs_id',
+                       'version_id')
         config_file = util.get_json(self.config_loc)
 
         self.assertTrue('workflows' in config_file)
