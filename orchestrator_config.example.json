@@ -7,19 +7,27 @@
         }
     }, 
     "workflows": {
-        "wdl_UoM_align": {
-            "workflow_url": "/home/quokka/git/current_demo/orchestrator/src/tests/data/align.wdl", 
+        "cwl_UoM_align": {
+            "workflow_url": "https://raw.githubusercontent.com/DataBiosphere/topmed-workflows/master/aligner/sbg-alignment-cwl/topmed-alignment.cwl",
             "workflow_attachments": [], 
             "submission_type": "params", 
             "trs_id": "dockstore", 
             "version_id": "develop", 
             "workflow_type": "WDL"
+        },
+        "wdl_UoM_align": {
+            "workflow_url": "https://raw.githubusercontent.com/DataBiosphere/topmed-workflows/master/aligner/u_of_michigan_aligner/u_of_michigan_aligner.wdl",
+            "workflow_attachments": [],
+            "submission_type": "params",
+            "trs_id": "dockstore",
+            "version_id": "develop",
+            "workflow_type": "WDL"
         }, 
         "cwl_md5sum": {
-            "workflow_url": "/home/quokka/git/workflow-service/testdata/md5sum.cwl", 
+            "workflow_url": "https://raw.githubusercontent.com/briandoconnor/dockstore-workflow-md5sum/develop/md5sum.cwl", 
             "workflow_attachments": [
-                "file:///home/quokka/git/workflow-service/testdata/md5sum.input", 
-                "file:///home/quokka/git/workflow-service/testdata/dockstore-tool-md5sum.cwl"
+                "file://tests/data/md5sum.input", 
+                "file://tests/data/dockstore-tool-md5sum.cwl"
             ], 
             "submission_type": "params", 
             "trs_id": "dockstore", 
@@ -28,29 +36,58 @@
         }
     }, 
     "workflowservices": {
-        "hca-cromwell": {
-            "auth_type": "", 
-            "host": "g0n2qjnu94.execute-api.us-east-1.amazonaws.com/test", 
-            "auth": "", 
-            "proto": "http"
-        }, 
-        "arvados-wes": {
-            "auth_type": "", 
-            "host": "wes.qr1hi.arvadosapi.com", 
-            "auth": "", 
-            "proto": "http"
-        }, 
+        "Toil-AWS": {
+            "host": "54.153.44.62:8080",
+            "auth": {"Authorization": "<token>"},
+            "proto": "http",
+            "wespath": "ga4gh/wes/v1/",
+            "wfparam": "runs",
+            "version": "1"
+        },
+        "Cromwell-Google": {
+            "host": "35.226.102.121:9090",
+            "auth": {"Authorization": "Bearer <token>",
+                     "Content-Type": "application/json"},
+            "proto": "http",
+            "wespath": "ga4gh/wes/v1/",
+            "wfparam": "workflows",
+            "version": "0"
+        },
+        "Globus": {
+            "host": "nihcommons.globusgenomics.org",
+            "auth": {"Authorization": "<token>",
+                     "Accept": "application/json",
+                     "Content-Type": "application/json"},
+            "proto": "https",
+            "wespath": "wes/",
+            "wfparam": "workflows",
+            "version": "0"
+        },
+        "SevenBridges": {
+            "host": "f4c-wes-api.sbgenomics.com",
+            "auth": {"X-SBG-Auth-Token": "<token>",
+                     "Accept": "application/json",
+                     "Content-Type": "application/json"},
+            "proto": "https",
+            "wespath": "",
+            "wfparam": "workflows",
+            "version": "0"
+        },
+        "Toil-Chronos": {
+            "host": "18.213.240.91:8080",
+            "auth": {"Content-Type": "application/json"},
+            "proto": "http",
+            "wespath": "ga4gh/wes/v1/",
+            "wfparam": "runs",
+            "version": "0"
+        },
         "local": {
-            "auth_type": "", 
-            "host": "0.0.0.0:8080", 
-            "auth": "", 
-            "proto": "http"
-        }, 
-        "aws-toil-server": {
-            "auth_type": "", 
-            "host": "54.193.12.111:8080", 
-            "auth": "", 
-            "proto": "http"
+            "host": "0.0.0.0:8080",
+            "auth": {"Authorization": ""},
+            "proto": "http",
+            "wespath": "ga4gh/wes/v1/",
+            "wfparam": "runs",
+            "version": "1"
         }
     }
 }
