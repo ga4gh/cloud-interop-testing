@@ -24,12 +24,11 @@ logger = logging.getLogger(__name__)
 
 
 class Orchestrator():
+    def __init__(self, queue_path=None, config_path=None):
+        self.config = Config(config_path)  # Should be first. Many methods rely on config.
+        self.queue_path = self.return_queue(queue_path)
 
-    def __init__(self, queue_path=None, config_path=None, args=None):
-        self.config = Config(config_path) # Should be first. Many methods rely on config.
-        self.queue_loc = self.create_queue_json(queue_path)
-
-    def create_queue_json(self, given=None):
+    def return_queue(self, user_supplied_queue_path=None):
         """
         Create a submission queue file if one does not exist.
 
@@ -37,15 +36,11 @@ class Orchestrator():
         It will only create the submission queue file if it does not already exist. This allows the user the specify a
         location in the init which could point to an existing file or the location where they want a new one to be created.
         """
-        queue_loc = given or os.path.join(os.path.expanduser('~'), 'submission_queue.json')
+        queue_loc = user_supplied_queue_path or os.path.join(os.path.expanduser('~'), 'submission_queue.json')
         if not os.path.exists(queue_loc):
             with open(queue_loc, 'w') as f:
                 f.write('{}\n')
         return queue_loc
-
-    @property
-    def queue_path(self):
-        return self.queue_loc
 
     def create_submission(self, wes_id, submission_data, wf_type, wf_name, sample):
         submissions = get_json(self.queue_path)
@@ -242,38 +237,64 @@ class Orchestrator():
                     'start_time': '-',
                     'elapsed_time': '-'}
             else:
-                try:
+                if submissions[wf_service][run_id]['status'] in ['COMPLETE', 'SYSTEM_ERROR', 'EXECUTOR_ERROR']:
                     run = submissions[wf_service][run_id]['run']
-
-                    client = WESClient(self.config.wes_config()[wf_service])
                     try:
                         wf_id = run['workflow_id']
                     except KeyError:
                         wf_id = run['run_id']
-                    run['state'] = client.get_run_status(wf_id)['state'].upper()
-                    if run['state'] in ['QUEUED', 'INITIALIZING', 'RUNNING']:
-                        etime = convert_timedelta(dt.datetime.now() - ctime2datetime(run['start_time']))
-                    elif 'elapsed_time' not in run:
-                        etime = '0h:0m:0s'
-                    else:
-                        self.update_submission(wf_service, run_id, 'status', run['state'])
-                        etime = run['elapsed_time']
-                    self.update_submission_run(wf_service, run_id, 'elapsed_time', etime)
                     status_dict.setdefault(wf_service, {})[run_id] = {
                         'wf_id': submissions[wf_service][run_id]['wf_id'],
                         'run_id': wf_id,
                         'sample_name': sample_name,
-                        'run_status': run['state'],
+                        'run_status': submissions[wf_service][run_id]['status'],
                         'start_time': run['start_time'],
-                        'elapsed_time': etime}
-                except ConnectionError:
-                    status_dict.setdefault(wf_service, {})[run_id] = {
-                        'wf_id': 'ConnectionError',
-                        'run_id': '-',
-                        'sample_name': sample_name,
-                        'run_status': '-',
-                        'start_time': '-',
-                        'elapsed_time': '-'}
+                        'elapsed_time': run['elapsed_time']}
+                else:
+                    try:
+                        run = submissions[wf_service][run_id]['run']
+                        if 'run_id' not in run and 'workflow_id' not in run:
+                            status_dict.setdefault(wf_service, {})[run_id] = {
+                                'wf_id': submissions[wf_service][run_id]['wf_id'],
+                                'run_id': '-',
+                                'sample_name': sample_name,
+                                'run_status': 'INITIALIZING',
+                                'start_time': '-',
+                                'elapsed_time': '-'}
+                        else:
+                            client = WESClient(self.config.wes_config[wf_service])
+                            try:
+                                wf_id = run['workflow_id']
+                            except KeyError:
+                                wf_id = run['run_id']
+                            if 'state' not in run:
+                                run['state'] = client.get_run_status(wf_id)['state'].upper()
+                            elif run['state'].upper() not in ['COMPLETED', 'OK', 'EXECUTOR_ERROR', 'SYSTEM_ERROR']:
+                                run['state'] = client.get_run_status(wf_id)['state'].upper()
+
+                            if run['state'] in ['QUEUED', 'INITIALIZING', 'RUNNING']:
+                                etime = convert_timedelta(dt.datetime.now() - ctime2datetime(run['start_time']))
+                            elif 'elapsed_time' not in run:
+                                etime = '0h:0m:0s'
+                            else:
+                                self.update_submission(wf_service, run_id, 'status', run['state'])
+                                etime = run['elapsed_time']
+                                self.update_submission_run(wf_service, run_id, 'elapsed_time', etime)
+                            status_dict.setdefault(wf_service, {})[run_id] = {
+                                'wf_id': submissions[wf_service][run_id]['wf_id'],
+                                'run_id': wf_id,
+                                'sample_name': sample_name,
+                                'run_status': run['state'],
+                                'start_time': run['start_time'],
+                                'elapsed_time': etime}
+                    except ConnectionError:
+                        status_dict.setdefault(wf_service, {})[run_id] = {
+                            'wf_id': 'ConnectionError',
+                            'run_id': '-',
+                            'sample_name': sample_name,
+                            'run_status': '-',
+                            'start_time': '-',
+                            'elapsed_time': '-'}
 
         return status_dict
 

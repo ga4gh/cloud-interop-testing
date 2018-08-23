@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 class Config():
 
-    def __init__(self, config_loc=""):
-        self.config_loc = self._create_config(config_loc)
+    def __init__(self, config_path=None):
+        self.config_path = self.return_config(config_path)
 
-    def _create_config(self, given=""):
+    def return_config(self, user_supplied_config_path=""):
         """
         Create a config file if one does not exist.
 
@@ -25,7 +25,7 @@ class Config():
         It will only create the config file if it does not already exist. This allows the user the specify a location
         in the init which could point to an existing file or the location where they want a new one to be created.
         """
-        config_loc = given or os.path.join(os.path.expanduser('~'), 'orchestrator_config.json')
+        config_loc = user_supplied_config_path or os.path.join(os.path.expanduser('~'), 'orchestrator_config.json')
         if not os.path.exists(config_loc):
             with open(config_loc, 'w') as f:
                 f.write('{"workflows": {},\n'
@@ -33,10 +33,6 @@ class Config():
                         ' "workflowservices": {}'
                         '}\n')
         return config_loc
-
-    @property
-    def config_path(self):
-        return self.config_loc
 
     def wf_config(self):
         return get_json(self.config_path)['workflows']
