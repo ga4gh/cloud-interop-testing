@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-class Orchestrator():
+class Orchestrator(object):
     def __init__(self, queue_path=None, config_path=None):
         self.config = Config(config_path)  # Should be first. Many methods rely on config.
         self.queue_path = self.return_queue(queue_path)

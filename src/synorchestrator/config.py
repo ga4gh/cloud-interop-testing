@@ -12,8 +12,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class Config():
-
+class Config(object):
     def __init__(self, config_path=None):
         self.config_path = self.return_config(config_path)
 
