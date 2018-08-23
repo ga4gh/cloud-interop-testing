@@ -3,7 +3,7 @@ import sys
 import argparse
 import pkg_resources  # part of setuptools
 import logging
-from synorchestrator.orchestrator import monitor
+from synorchestrator.orchestrator import Orchestrator
 
 logging.basicConfig(level=logging.INFO)
 
@@ -12,6 +12,7 @@ def main(argv=sys.argv[1:]):
 
     parser = argparse.ArgumentParser(description='Synapse Workflow Orchestrator')
     parser.add_argument("--version", action="store_true", default=False)
+
     args = parser.parse_args(argv)
 
     if args.version:
@@ -19,7 +20,8 @@ def main(argv=sys.argv[1:]):
         print(u"%s %s" % (sys.argv[0], pkg[0].version))
         exit(0)
 
-    monitor()
+    orch = Orchestrator()
+    orch.monitor()
 
 
 if __name__ == '__main__':
