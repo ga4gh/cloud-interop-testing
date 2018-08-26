@@ -3,6 +3,7 @@ import urlparse
 import os
 
 from bravado.requests_client import RequestsClient
+from bravado.swagger_model import Loader
 from bravado.client import SwaggerClient
 
 from synorchestrator.config import trs_config
@@ -23,12 +24,12 @@ def _init_http_client(service_id=None, opts=None):
     """
     auth_header = {'token': 'Authorization',
                    'api_key': 'X-API-KEY',
-                   None: ''} 
+                   '': ''} 
     if service_id:
         opts = _get_trs_opts(service_id)
 
     http_client = RequestsClient()
-    split = urlparse.urlsplit('%s://%s/'.format(opts['proto'], opts['host']))
+    split = urlparse.urlsplit('{}://{}/'.format(opts['proto'], opts['host']))
 
     http_client.set_api_key(host=opts['host'],
                             api_key=opts['auth'],
@@ -69,8 +70,18 @@ def load_trs_client(service_id, http_client=None):
     
     spec_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 
                              'ga4gh-tool-discovery.yaml')
-    spec_client = SwaggerClient.from_url('file:///{}'.format(spec_path), 
-                                         http_client=http_client)
+    spec_path = os.path.abspath(spec_path)
+
+    opts = _get_trs_opts(service_id)
+    api_url = '{}://{}'.format(opts['proto'], opts['host'])
+    
+    loader = Loader(http_client, request_headers=None)
+    spec_dict = loader.load_spec('file:///{}'.format(spec_path), 
+                                 base_url=api_url)
+    spec_client = SwaggerClient.from_spec(spec_dict, 
+                                          origin_url=api_url, 
+                                          http_client=http_client,
+                                          config={'use_models': False})
     return spec_client.GA4GH
 
 

@@ -49,7 +49,9 @@ def test__init_http_client(mock_trs_config):
     assert test_http_client.authenticator.api_key == mock_opts['auth']
 
 
-def test_load_trs_client_from_spec():
+def test_load_trs_client_from_spec(mock_trs_config, monkeypatch):
+    monkeypatch.setattr('synorchestrator.trs.client._get_trs_opts', 
+                        lambda x: mock_trs_config['mock_trs'])
     mock_http_client = RequestsClient()
     test_trs_client = load_trs_client(service_id='mock_trs',
                                       http_client=mock_http_client)
@@ -60,7 +62,7 @@ def test_load_trs_client_from_spec():
 @pytest.fixture()
 def mock_api_client():
     mock_api_client = mock.Mock(name='mock SwaggerClient')
-    with mock.patch.object(SwaggerClient, 'from_url', 
+    with mock.patch.object(SwaggerClient, 'from_spec', 
                         return_value=mock_api_client):
         yield mock_api_client
 
