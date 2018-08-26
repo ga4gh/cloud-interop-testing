@@ -44,7 +44,10 @@ def test__init_http_client(mock_wes_config):
     assert test_http_client.authenticator.api_key == mock_opts['auth']
 
 
-def test_load_wes_client_from_spec():
+def test_load_wes_client_from_spec(mock_wes_config, monkeypatch):
+    monkeypatch.setattr('synorchestrator.wes.client._get_wes_opts', 
+                        lambda x: mock_wes_config['mock_wes'])
+
     mock_http_client = RequestsClient()
     test_wes_client = load_wes_client(service_id='mock_wes',
                                       http_client=mock_http_client)
@@ -176,7 +179,7 @@ def test_load_wes_client_from_lib(mock_wes_config, monkeypatch):
 def mock_api_client(request):
     if request.param is None:
         mock_api_client = mock.Mock(name='mock SwaggerClient')
-        with mock.patch.object(SwaggerClient, 'from_url', 
+        with mock.patch.object(SwaggerClient, 'from_spec', 
                             return_value=mock_api_client):
             yield mock_api_client
     else:
