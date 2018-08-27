@@ -69,9 +69,9 @@ def test_get_checker_id(mock_trs,  monkeypatch):
     assert test_checker_id == mock_checker_id
 
 
-def test_check_queue(mock_queue_config, 
-                     mock_trs, 
-                     monkeypatch):
+def test_check_workflow(mock_queue_config, 
+                        mock_trs, 
+                        monkeypatch):
     monkeypatch.setattr('synorchestrator.testbed.queue_config', 
                         lambda: mock_queue_config)
     monkeypatch.setattr('synorchestrator.testbed.TRS', 
