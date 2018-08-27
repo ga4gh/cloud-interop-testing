@@ -3,7 +3,14 @@ import pytest
 import yaml
 import textwrap
 
-from synorchestrator import config
+from synorchestrator.config import queue_config
+from synorchestrator.config import trs_config
+from synorchestrator.config import wes_config
+from synorchestrator.config import add_queue
+from synorchestrator.config import add_toolregistry
+from synorchestrator.config import add_workflowservice
+from synorchestrator.config import set_yaml
+from synorchestrator.config import show
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -15,9 +22,9 @@ def mock_orchestratorconfig(tmpdir):
     logger.info("[setup] mock orchestrator config file, create local file")
 
     mock_config_text = """
-    evals:
-      eval1: {}
-      eval2: {}
+    queues:
+      wf1: {}
+      wf2: {}
 
     toolregistries:
       trs1: {}
@@ -36,29 +43,30 @@ def mock_orchestratorconfig(tmpdir):
     logger.info("[teardown] mock orchestrator config file, remove file")
 
 
-def test_eval_config(mock_orchestratorconfig, monkeypatch):
+def test_queue_config(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr(config, 'config_path', str(mock_orchestratorconfig))
-
+    monkeypatch.setattr('synorchestrator.config.config_path', 
+                        str(mock_orchestratorconfig))
 
     # WHEN the configuration data in the file is loaded
-    test_config = config.eval_config()
+    test_config = queue_config()
 
     # THEN the returned object is correctly parsed from the YAML stream
     assert(
         test_config == {
-            'eval1': {},
-            'eval2': {}
+            'wf1': {},
+            'wf2': {}
         }
     )
 
 
 def test_trs_config(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr(config, 'config_path', str(mock_orchestratorconfig))
-
+    monkeypatch.setattr('synorchestrator.config.config_path', 
+                        str(mock_orchestratorconfig))
+    
     # WHEN the configuration data in the file is loaded
-    test_config = config.trs_config()
+    test_config = trs_config()
 
     # THEN the returned object is correctly parsed from the YAML stream
     assert(
@@ -71,10 +79,11 @@ def test_trs_config(mock_orchestratorconfig, monkeypatch):
 
 def test_wes_config(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr(config, 'config_path', str(mock_orchestratorconfig))
-
+    monkeypatch.setattr('synorchestrator.config.config_path', 
+                        str(mock_orchestratorconfig))
+    
     # WHEN the configuration data in the file is loaded
-    test_config = config.wes_config()
+    test_config = wes_config()
 
     # THEN the returned object is correctly parsed from the YAML stream
     assert(
@@ -85,51 +94,51 @@ def test_wes_config(mock_orchestratorconfig, monkeypatch):
     )
 
 
-def test_add_eval(mock_orchestratorconfig, monkeypatch):
+def test_add_queue(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr(config, 'config_path', str(mock_orchestratorconfig))
-
+    monkeypatch.setattr('synorchestrator.config.config_path', 
+                        str(mock_orchestratorconfig))
+    
     # WHEN an evaluation queue is added to the configuration of the
     # workflow orchestrator app
-    config.add_eval(
-        wf_name='mock_wf',
-        wf_type='',
-        wf_url='',
-        wf_jsonyaml='',
-        wf_attachments=[]
+    add_queue(
+        wf_id='mock_wf',
+        version_id='develop',
+        wf_type=''
     )
 
-    mock_config = {'submission_type': 'params',
-                   'trs_id': 'dockstore',
+    mock_config = {'workflow_id': 'mock_wf',
                    'version_id': 'develop',
-                   'workflow_id': '',
                    'workflow_type': '',
-                   'workflow_url': '',
-                   'workflow_jsonyaml': '',
-                   'workflow_attachments': []}
+                   'trs_id': 'dockstore',
+                   'wes_default': 'local',
+                   'wes_opts': ['local']}
 
     # THEN the evaluation queue config should be stored in the config file
     with open(str(mock_orchestratorconfig), 'r') as f:
-        test_config = yaml.load(f)['evals']
+        test_config = yaml.load(f)['queues']
 
-    assert('mock_wf' in test_config)
-    assert(test_config['mock_wf'] == mock_config)
+    assert('mock_wf__develop' in test_config)
+    assert(test_config['mock_wf__develop'] == mock_config)
 
 
 def test_add_toolregistry(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr(config, 'config_path', str(mock_orchestratorconfig))
+    monkeypatch.setattr('synorchestrator.config.config_path', 
+                        str(mock_orchestratorconfig))
 
     # WHEN a TRS endpoint is added to the configuration of the
     # workflow orchestrator app
-    config.add_toolregistry(
+    add_toolregistry(
         service='mock_trs',
         auth='',
+        auth_type='',
         host='',
         proto=''
     )
 
     mock_config = {'auth': '',
+                   'auth_type': '',
                    'host': '',
                    'proto': ''}
 
@@ -143,11 +152,12 @@ def test_add_toolregistry(mock_orchestratorconfig, monkeypatch):
 
 def test_add_workflowservice(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr(config, 'config_path', str(mock_orchestratorconfig))
-
+    monkeypatch.setattr('synorchestrator.config.config_path', 
+                        str(mock_orchestratorconfig))
+    
     # WHEN a WES endpoint is added to the configuration of the
     # workflow orchestrator app
-    config.add_workflowservice(
+    add_workflowservice(
         service='mock_wes',
         auth='',
         auth_type='',
@@ -170,10 +180,11 @@ def test_add_workflowservice(mock_orchestratorconfig, monkeypatch):
 
 def test_set_yaml(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr(config, 'config_path', str(mock_orchestratorconfig))
-
+    monkeypatch.setattr('synorchestrator.config.config_path', 
+                        str(mock_orchestratorconfig))
+    
     # WHEN the config is set for a given section and service
-    config.set_yaml(
+    set_yaml(
         section='mock_section',
         service='mock_service',
         var2add={}
