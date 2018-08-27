@@ -2,7 +2,6 @@ import logging
 import mock
 import pytest
 import yaml
-import textwrap
 
 from synorchestrator.config import queue_config
 from synorchestrator.config import trs_config
@@ -17,34 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture(scope='function')
-def mock_orchestratorconfig(tmpdir):
-    # a mocked config file for a the orchestrator app
-    logger.info("[setup] mock orchestrator config file, create local file")
-
-    mock_config_text = """
-    queues:
-      wf1: {}
-      wf2: {}
-
-    toolregistries:
-      trs1: {}
-      trs2: {}
-
-    workflowservices:
-      wes1: {}
-      wes2: {}
-    """
-    mock_config_file = tmpdir.join('config.yaml')
-    logger.debug("writing config file: {}".format(str(mock_config_file)))
-    mock_config_file.write(textwrap.dedent(mock_config_text))
-
-    yield mock_config_file
-
-    logger.info("[teardown] mock orchestrator config file, remove file")
-
-
-def test_queue_config(mock_orchestratorconfig, monkeypatch):
+def test_queue_config(mock_orchestratorconfig, mock_queue_config, monkeypatch):
     # GIVEN an orchestrator config file exists
     monkeypatch.setattr('synorchestrator.config.config_path', 
                         str(mock_orchestratorconfig))
@@ -53,15 +25,10 @@ def test_queue_config(mock_orchestratorconfig, monkeypatch):
     test_config = queue_config()
 
     # THEN the returned object is correctly parsed from the YAML stream
-    assert(
-        test_config == {
-            'wf1': {},
-            'wf2': {}
-        }
-    )
+    assert(test_config == mock_queue_config)
 
 
-def test_trs_config(mock_orchestratorconfig, monkeypatch):
+def test_trs_config(mock_orchestratorconfig, mock_trs_config, monkeypatch):
     # GIVEN an orchestrator config file exists
     monkeypatch.setattr('synorchestrator.config.config_path', 
                         str(mock_orchestratorconfig))
@@ -70,15 +37,10 @@ def test_trs_config(mock_orchestratorconfig, monkeypatch):
     test_config = trs_config()
 
     # THEN the returned object is correctly parsed from the YAML stream
-    assert(
-        test_config == {
-            'trs1': {},
-            'trs2': {}
-        }
-    )
+    assert(test_config == mock_trs_config)
 
 
-def test_wes_config(mock_orchestratorconfig, monkeypatch):
+def test_wes_config(mock_orchestratorconfig, mock_wes_config, monkeypatch):
     # GIVEN an orchestrator config file exists
     monkeypatch.setattr('synorchestrator.config.config_path', 
                         str(mock_orchestratorconfig))
@@ -87,12 +49,7 @@ def test_wes_config(mock_orchestratorconfig, monkeypatch):
     test_config = wes_config()
 
     # THEN the returned object is correctly parsed from the YAML stream
-    assert(
-        test_config == {
-            'wes1': {},
-            'wes2': {}
-        }
-    )
+    assert(test_config == mock_wes_config)
 
 
 def test_add_queue(mock_orchestratorconfig, monkeypatch):

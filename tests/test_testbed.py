@@ -7,41 +7,6 @@ from synorchestrator.testbed import check_workflow
 from synorchestrator.testbed import check_all
 
 
-@pytest.fixture()
-def mock_queue_config():
-    mock_queue_config = {
-        'mock_wf': {
-            'trs_id': 'mock_trs',
-            'version_id': '',
-            'type': '',
-            'wes_opts': ['mock_wes_1', 'mock_wes_2']
-        },
-        'mock_wf_2': {
-            'trs_id': 'mock_trs',
-            'version_id': '',
-            'type': '',
-            'wes_opts': ['mock_wes_1', 'mock_wes_2']
-        }
-    }
-    yield mock_queue_config
-
-
-@pytest.fixture()
-def mock_trs(request):
-    mock_trs = mock.Mock(name='mock TRS')
-    with mock.patch('synorchestrator.trs.wrapper.TRS', 
-                    autospec=True, spec_set=True):
-        yield mock_trs
-
-
-@pytest.fixture()
-def mock_wes(request):
-    mock_wes = mock.Mock(name='mock WES')
-    with mock.patch('synorchestrator.wes.wrapper.WES', 
-                    autospec=True, spec_set=True):
-        yield mock_wes
-
-
 def test_poll_services(mock_queue_config, 
                        mock_trs,
                        mock_wes,
@@ -55,8 +20,7 @@ def test_poll_services(mock_queue_config,
 
     test_service_status = poll_services()
     assert test_service_status == {'toolregistries': {'mock_trs': True},
-                                   'workflowservices': {'mock_wes_1': True,
-                                                        'mock_wes_2': True}}
+                                   'workflowservices': {'local': True}}
 
 
 def test_get_checker_id(mock_trs,  monkeypatch):
@@ -100,8 +64,8 @@ def test_check_workflow(mock_queue_config,
     monkeypatch.setattr('synorchestrator.testbed.run_queue', 
                         lambda x: mock_submission_log)
 
-    test_submission_log = check_workflow(workflow_id='mock_wf', 
-                                         wes_id='mock_wes')
+    test_submission_log = check_workflow(workflow_id='mock_wf__develop', 
+                                         wes_id='local')
 
     assert test_submission_log == mock_submission_log
 
