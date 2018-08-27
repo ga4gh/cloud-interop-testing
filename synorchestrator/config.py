@@ -5,6 +5,7 @@ This provides functions to save and get values into these three sections in the 
 """
 import logging
 import os
+
 from synorchestrator.util import get_yaml, save_yaml, heredoc
 
 logging.basicConfig(level=logging.INFO)
@@ -26,11 +27,13 @@ def wes_config():
     return get_yaml(config_path)['workflowservices']
 
 
-def add_queue(wf_id,
-              version_id,
-              wf_type,
+def add_queue(wf_type,
               queue_name=None,
               trs_id='dockstore',
+              wf_id=None,
+              version_id='local',
+              wf_url=None,
+              wf_attachments=None,
               wes_default='local',
               wes_opts=None):
     """
@@ -41,11 +44,16 @@ def add_queue(wf_id,
     """
     if queue_name is None:
         queue_name = '{}__{}'.format(os.path.basename(wf_id), version_id)
+
+    # TODO: require either workflow url/attachments OR
+    # TRS information for retrieval
     wes_opts = [wes_default] if wes_opts is None else wes_opts
-    config = {'workflow_id': wf_id,
-              'version_id': version_id,
-              'workflow_type': wf_type,
+    config = {'workflow_type': wf_type,
               'trs_id': trs_id,
+              'workflow_id': wf_id,
+              'version_id': version_id,
+              'workflow_url': wf_url,
+              'workflow_attachments': wf_attachments,
               'wes_default': wes_default,
               'wes_opts': wes_opts}
     set_yaml('queues', queue_name, config)

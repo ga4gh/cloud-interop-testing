@@ -1,4 +1,5 @@
 import logging
+import mock
 import pytest
 import yaml
 import textwrap
@@ -107,10 +108,12 @@ def test_add_queue(mock_orchestratorconfig, monkeypatch):
         wf_type=''
     )
 
-    mock_config = {'workflow_id': 'mock_wf',
-                   'version_id': 'develop',
-                   'workflow_type': '',
+    mock_config = {'workflow_type': '',
                    'trs_id': 'dockstore',
+                   'workflow_id': 'mock_wf',
+                   'version_id': 'develop',
+                   'workflow_url': None,
+                   'workflow_attachments': None,
                    'wes_default': 'local',
                    'wes_opts': ['local']}
 
