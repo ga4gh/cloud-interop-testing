@@ -16,7 +16,6 @@ import re
 from requests.exceptions import ConnectionError
 from IPython.display import display, clear_output
 
-from synorchestrator.config import wes_config
 from synorchestrator.config import queue_config
 from synorchestrator.util import get_json, ctime2datetime, convert_timedelta
 from synorchestrator.wes.wrapper import WES
@@ -30,27 +29,27 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-def no_queue_run(service, wf_name):
-    """
-    Put a workflow in the queue and immmediately run it.
+# def no_queue_run(service, wf_name):
+#     """
+#     Put a workflow in the queue and immmediately run it.
 
-    :param service:
-    :param wf_name:
-    :return:
-    """
-    # fetch workflow params from config file
-    # 
-    # synorchestrator.config.add_eval() can be used to add a workflow
-    # to this file
-    wf = eval_config()[wf_name]
-    wf_data = {'wf': wf['workflow_url'],
-               'jsonyaml': wf['workflow_jsonyaml'],
-               'attachments': wf['workflow_attachments']}
-    submission_id = create_submission(wes_id=service,
-                                      submission_data=wf_data,
-                                      wf_name=wf_name,
-                                      wf_type=wf['workflow_type'])
-    run_submission(service, submission_id)
+#     :param service:
+#     :param wf_name:
+#     :return:
+#     """
+#     # fetch workflow params from config file
+#     # 
+#     # synorchestrator.config.add_eval() can be used to add a workflow
+#     # to this file
+#     wf = eval_config()[wf_name]
+#     wf_data = {'wf': wf['workflow_url'],
+#                'jsonyaml': wf['workflow_jsonyaml'],
+#                'attachments': wf['workflow_attachments']}
+#     submission_id = create_submission(wes_id=service,
+#                                       submission_data=wf_data,
+#                                       wf_name=wf_name,
+#                                       wf_type=wf['workflow_type'])
+#     run_submission(service, submission_id)
 
 
 def run_submission(queue_id, submission_id, wes_id=None):
@@ -66,10 +65,11 @@ def run_submission(queue_id, submission_id, wes_id=None):
                 " \n - submission ID: {}"
                 .format(wes_id, submission_id))
 
-    wes_instance = WES(wes_config()[wes_id])
-    run_data = wes_instance.run_workflow(submission['data']['wf'],
-                                         submission['data']['jsonyaml'],
-                                         submission['data']['attachments'])
+    wes_instance = WES(wes_id)
+    request = {
+        'workflow_jsonyaml': submission['data']
+    }
+    run_data = wes_instance.run_workflow(submission['data'])
     run_data['start_time'] = dt.datetime.now().ctime()
     run_data['status'] = wes_instance.get_run_status(run_data['run_id'])
     update_submission(wes_id, submission_id, 'run', run_data)
@@ -130,7 +130,7 @@ def monitor_queue(queue_handle, submission_log):
     log_entry = submission_log[queue_handle]
     queue_status = {}
     for sub_id, sub_log in log_entry.items():
-        wes_instance = WES(**wes_config()[sub_log['wes_id']])
+        wes_instance = WES(sub_log['wes_id'])
         run_status = wes_instance.get_run_status(sub_log['run_id'])
         if run_status['state'] in ['QUEUED', 'INITIALIZING', 'RUNNING']:
             etime = convert_timedelta(

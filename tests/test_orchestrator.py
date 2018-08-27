@@ -29,17 +29,17 @@ def mock_queue_config():
     yield mock_queue_config
 
 
-@pytest.fixture()
-def mock_wes_config():
-    mock_wes_config = {
-        'mock_wes': {
-            'auth': 'auth_token',
-            'auth_type': 'token',
-            'host': '0.0.0.0:8080',
-            'proto': 'https'
-        }
-    }
-    yield mock_wes_config
+# @pytest.fixture()
+# def mock_wes_config():
+#     mock_wes_config = {
+#         'mock_wes': {
+#             'auth': 'auth_token',
+#             'auth_type': 'token',
+#             'host': '0.0.0.0:8080',
+#             'proto': 'https'
+#         }
+#     }
+#     yield mock_wes_config
 
 
 @pytest.fixture()
@@ -67,14 +67,13 @@ def mock_wes(request):
 
 def test_run_submission(mock_submission, 
                         mock_wes, 
-                        mock_wes_config, 
                         monkeypatch):
     monkeypatch.setattr('synorchestrator.orchestrator.get_submission_bundle', 
                         lambda x,y: mock_submission['mock_sub'])
-    monkeypatch.setattr('synorchestrator.orchestrator.wes_config', 
-                        lambda: mock_wes_config)
+    # monkeypatch.setattr('synorchestrator.orchestrator.wes_config', 
+    #                     lambda: mock_wes_config)
     monkeypatch.setattr('synorchestrator.orchestrator.WES', 
-                        lambda x: mock_wes)
+                        lambda wes_id: mock_wes)
     monkeypatch.setattr('synorchestrator.orchestrator.update_submission', 
                         lambda w,x,y,z: None)
 
@@ -156,11 +155,11 @@ def test_run_all(mock_queue_config, monkeypatch):
     assert test_submission_logs == [mock_submission_log]
 
 
-def test_monitor_queue(mock_wes_config, mock_wes, monkeypatch):
-    monkeypatch.setattr('synorchestrator.orchestrator.wes_config', 
-                        lambda: mock_wes_config) 
+def test_monitor_queue(mock_wes, monkeypatch):
+    # monkeypatch.setattr('synorchestrator.orchestrator.wes_config', 
+    #                     lambda: mock_wes_config) 
     monkeypatch.setattr('synorchestrator.orchestrator.WES', 
-                        lambda auth,auth_type,host,proto: mock_wes)
+                        lambda wes_id: mock_wes)
     monkeypatch.setattr('synorchestrator.orchestrator.convert_timedelta', 
                         lambda x: 0)
     monkeypatch.setattr('synorchestrator.orchestrator.ctime2datetime', 
