@@ -1,47 +1,29 @@
 import mock
 import pytest
 
+from synorchestrator.testbed import poll_services
 from synorchestrator.testbed import get_checker_id
 from synorchestrator.testbed import check_workflow
 from synorchestrator.testbed import check_all
 
 
 @pytest.fixture()
-def mock_testbed_config():
-    mock_testbed_config = {
+def mock_queue_config():
+    mock_queue_config = {
         'mock_wf': {
             'trs_id': 'mock_trs',
             'version_id': '',
             'type': '',
-            'wes': []
-        }
-    }
-    yield mock_testbed_config
-
-
-@pytest.fixture()
-def mock_queue_config():
-    mock_queue_config = {
-        'mock_queue': {
-            'workflow_trs_id': 'mock_trs',
-            'workflow_id': 'mock_wf',
-            'workflow_version_id': '',
-            'workflow_type': ''
+            'wes_opts': ['mock_wes_1', 'mock_wes_2']
+        },
+        'mock_wf_2': {
+            'trs_id': 'mock_trs',
+            'version_id': '',
+            'type': '',
+            'wes_opts': ['mock_wes_1', 'mock_wes_2']
         }
     }
     yield mock_queue_config
-
-
-@pytest.fixture()
-def mock_trs_config():
-    mock_trs_config = {
-        'mock_trs': {
-            'auth': 'auth_token',
-            'host': '0.0.0.0:8080',
-            'proto': 'https'
-        }
-    }
-    yield mock_trs_config
 
 
 @pytest.fixture()
@@ -52,10 +34,32 @@ def mock_trs(request):
         yield mock_trs
 
 
-def test_get_checker_id(mock_trs_config, mock_trs,  monkeypatch):
+@pytest.fixture()
+def mock_wes(request):
+    mock_wes = mock.Mock(name='mock WES')
+    with mock.patch('synorchestrator.wes.wrapper.WES', 
+                    autospec=True, spec_set=True):
+        yield mock_wes
+
+
+def test_poll_services(mock_queue_config, 
+                       mock_trs,
+                       mock_wes,
+                       monkeypatch):
+    monkeypatch.setattr('synorchestrator.testbed.queue_config', 
+                        lambda: mock_queue_config)
     monkeypatch.setattr('synorchestrator.testbed.TRS', 
-                        lambda host,auth,proto: mock_trs)
-    
+                        lambda trs_id: mock_trs) 
+    monkeypatch.setattr('synorchestrator.testbed.WES', 
+                        lambda wes_id: mock_wes)  
+
+    test_service_status = poll_services()
+    assert test_service_status == {'toolregistries': {'mock_trs': True},
+                                   'workflowservices': {'mock_wes_1': True,
+                                                        'mock_wes_2': True}}
+
+
+def test_get_checker_id(mock_trs,  monkeypatch):
     mock_checker_url = '/%23workflow%2Fmock_wf%2F_cwl_checker'
     mock_trs.get_workflow.return_value = {'checker_url': mock_checker_url}
     mock_checker_id = 'mock_wf/_cwl_checker'
@@ -65,19 +69,13 @@ def test_get_checker_id(mock_trs_config, mock_trs,  monkeypatch):
     assert test_checker_id == mock_checker_id
 
 
-def test_check_queue(mock_testbed_config,
-                     mock_queue_config, 
-                     mock_trs_config, 
+def test_check_queue(mock_queue_config, 
                      mock_trs, 
                      monkeypatch):
-    monkeypatch.setattr('synorchestrator.testbed.testbed_config', 
-                        lambda: mock_testbed_config)
     monkeypatch.setattr('synorchestrator.testbed.queue_config', 
                         lambda: mock_queue_config)
-    monkeypatch.setattr('synorchestrator.testbed.trs_config', 
-                        lambda: mock_trs_config)
     monkeypatch.setattr('synorchestrator.testbed.TRS', 
-                        lambda host,auth,proto: mock_trs)                        
+                        lambda trs_id: mock_trs)                        
     monkeypatch.setattr('synorchestrator.testbed.get_checker_id', 
                         lambda x,y: 'mock_wf_checker')
     monkeypatch.setattr('synorchestrator.testbed.create_queue', 
@@ -108,7 +106,7 @@ def test_check_queue(mock_testbed_config,
     assert test_submission_log == mock_submission_log
 
 
-def test_check_all(mock_testbed_config, monkeypatch):
+def test_check_all(mock_queue_config, monkeypatch):
     monkeypatch.setattr('synorchestrator.testbed.queue_config', 
                         lambda: mock_queue_config)
 

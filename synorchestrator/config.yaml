@@ -49,4 +49,3 @@ workflowservices:
     host: 0.0.0.0:8080
     proto: http
 
-

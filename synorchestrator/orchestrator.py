@@ -17,7 +17,7 @@ from requests.exceptions import ConnectionError
 from IPython.display import display, clear_output
 
 from synorchestrator.config import wes_config
-from synorchestrator.config import eval_config as queue_config
+from synorchestrator.config import queue_config
 from synorchestrator.util import get_json, ctime2datetime, convert_timedelta
 from synorchestrator.wes.wrapper import WES
 from synorchestrator.eval import get_submission_bundle
