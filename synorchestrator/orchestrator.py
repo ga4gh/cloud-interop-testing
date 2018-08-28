@@ -29,29 +29,6 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-# def no_queue_run(service, wf_name):
-#     """
-#     Put a workflow in the queue and immmediately run it.
-
-#     :param service:
-#     :param wf_name:
-#     :return:
-#     """
-#     # fetch workflow params from config file
-#     # 
-#     # synorchestrator.config.add_eval() can be used to add a workflow
-#     # to this file
-#     wf = eval_config()[wf_name]
-#     wf_data = {'wf': wf['workflow_url'],
-#                'jsonyaml': wf['workflow_jsonyaml'],
-#                'attachments': wf['workflow_attachments']}
-#     submission_id = create_submission(wes_id=service,
-#                                       submission_data=wf_data,
-#                                       wf_name=wf_name,
-#                                       wf_type=wf['workflow_type'])
-#     run_submission(service, submission_id)
-
-
 def run_submission(queue_id, submission_id, wes_id=None):
     """
     For a single submission to a single evaluation queue, run
@@ -66,9 +43,7 @@ def run_submission(queue_id, submission_id, wes_id=None):
                 .format(wes_id, submission_id))
 
     wes_instance = WES(wes_id)
-    request = {
-        'workflow_jsonyaml': submission['data']
-    }
+    request = {'workflow_jsonyaml': submission['data']}
     run_data = wes_instance.run_workflow(submission['data'])
     run_data['start_time'] = dt.datetime.now().ctime()
     run_data['status'] = wes_instance.get_run_status(run_data['run_id'])

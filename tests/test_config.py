@@ -60,9 +60,10 @@ def test_add_queue(mock_orchestratorconfig, monkeypatch):
     # WHEN an evaluation queue is added to the configuration of the
     # workflow orchestrator app
     add_queue(
+        queue_id='mock_queue',
+        wf_type='',
         wf_id='mock_wf',
-        version_id='develop',
-        wf_type=''
+        version_id='develop'
     )
 
     mock_config = {'workflow_type': '',
@@ -78,8 +79,8 @@ def test_add_queue(mock_orchestratorconfig, monkeypatch):
     with open(str(mock_orchestratorconfig), 'r') as f:
         test_config = yaml.load(f)['queues']
 
-    assert('mock_wf__develop' in test_config)
-    assert(test_config['mock_wf__develop'] == mock_config)
+    assert('mock_queue' in test_config)
+    assert(test_config['mock_queue'] == mock_config)
 
 
 def test_add_toolregistry(mock_orchestratorconfig, monkeypatch):

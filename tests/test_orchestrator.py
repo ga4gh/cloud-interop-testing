@@ -49,7 +49,7 @@ def test_run_queue(mock_queue_config, monkeypatch):
     monkeypatch.setattr('synorchestrator.orchestrator.run_submission', 
                         lambda x,y,z: mock_run_data)
 
-    test_submission_log = run_queue(queue_id='mock_wf__develop', 
+    test_submission_log = run_queue(queue_id='mock_queue_1', 
                                     wes_id='local')
 
     log_fields = ['queue_id',
@@ -82,11 +82,11 @@ def test_run_next_queued(monkeypatch):
 def test_run_all(mock_queue_config, monkeypatch):
     monkeypatch.setattr('synorchestrator.orchestrator.queue_config', 
                         lambda: mock_queue_config)
-    queue_log_map = {'mock_wf__develop': 1,
-                     'mock_wf__prod': 0}
+    queue_log_map = {'mock_queue_1': 1,
+                     'mock_queue_2': 0}
     mock_submission_logs = [
         {
-            'mock_wf__develop': {
+            'mock_queue_1': {
                 'mock_sub': {
                     'queue_id': 'mock_queue',
                     'job': '',
@@ -98,7 +98,7 @@ def test_run_all(mock_queue_config, monkeypatch):
             }
         },
         {
-            'mock_wf__prod': {
+            'mock_queue_2': {
                 'mock_sub': {
                     'queue_id': 'mock_queue',
                     'job': '',

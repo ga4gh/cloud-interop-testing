@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 @pytest.fixture()
 def mock_queue_config():
     mock_queue_config = {
-        'mock_wf__develop': {
+        'mock_queue_1': {
             'trs_id': 'mock_trs',
             'workflow_id': 'mock_wf',
             'version_id': 'develop',
@@ -20,7 +20,7 @@ def mock_queue_config():
             'wes_default': 'local',
             'wes_opts': ['local']
         },
-        'mock_wf__prod': {
+        'mock_queue_2': {
             'trs_id': 'mock_trs',
             'workflow_id': 'mock_wf',
             'version_id': 'prod',

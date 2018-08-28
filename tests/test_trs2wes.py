@@ -23,7 +23,7 @@ def test_fetch_queue_workflow(mock_orchestratorconfig,
     mock_trs.get_workflow_descriptor.return_value = {'url': 'mock_wf_url'}
     mock_trs.get_workflow_files.return_value = [{'url': 'mock_file_url'}]
 
-    fetch_queue_workflow('mock_wf__develop')
+    fetch_queue_workflow('mock_queue_1')
 
     mock_config = {'workflow_id': 'mock_wf',
                    'version_id': 'develop',
@@ -37,4 +37,4 @@ def test_fetch_queue_workflow(mock_orchestratorconfig,
     with open(str(mock_orchestratorconfig), 'r') as f:
         test_config = yaml.load(f)['queues']
 
-    assert(test_config['mock_wf__develop'] == mock_config)
+    assert(test_config['mock_queue_1'] == mock_config)

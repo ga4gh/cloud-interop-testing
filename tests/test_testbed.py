@@ -64,7 +64,7 @@ def test_check_workflow(mock_queue_config,
     monkeypatch.setattr('synorchestrator.testbed.run_queue', 
                         lambda x: mock_submission_log)
 
-    test_submission_log = check_workflow(workflow_id='mock_wf__develop', 
+    test_submission_log = check_workflow(queue_id='mock_queue_1', 
                                          wes_id='local')
 
     assert test_submission_log == mock_submission_log

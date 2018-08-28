@@ -61,25 +61,25 @@ def get_checker_id(trs, workflow_id):
     return checker_id
 
 
-def check_workflow(workflow_id, wes_id):
+def check_workflow(queue_id, wes_id):
     """
     Run checker workflow in a single environment.
     """
-    wf_config = queue_config()[workflow_id]
+    wf_config = queue_config()[queue_id]
     logger.info("Preparing checker workflow run request for '{}' from  '{}''"
-                .format(workflow_id, wf_config['trs_id']))
+                .format(wf_config['workflow_id'], wf_config['trs_id']))
     
     trs_instance = TRS(wf_config['trs_id'])
-    checker_id = get_checker_id(trs_instance, workflow_id)
+    checker_id = get_checker_id(trs_instance, wf_config['workflow_id'])
     
     queue_id = create_queue(workflow={'trs_id': wf_config['trs_id'],
                                       'id': checker_id,  
                                       'version_id': wf_config['version_id'],
-                                      'type': wf_config['type']})
+                                      'type': wf_config['workflow_type']})
 
     checker_job = trs_instance.get_workflow_tests(id=checker_id,
                                                   version_id=wf_config['version_id'],
-                                                  type=wf_config['type'])[0]
+                                                  type=wf_config['workflow_type'])[0]
 
     submission_id = create_submission(queue_id=queue_id, 
                                       submission_data=checker_job, 

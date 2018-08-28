@@ -25,4 +25,5 @@ def fetch_queue_workflow(queue_name):
     wf_config['workflow_attachments'] = [wf_file['url']
                                          for wf_file in wf_files]
     set_yaml('queues', queue_name, wf_config)
+
     

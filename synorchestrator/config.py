@@ -27,8 +27,8 @@ def wes_config():
     return get_yaml(config_path)['workflowservices']
 
 
-def add_queue(wf_type,
-              queue_name=None,
+def add_queue(queue_id,
+              wf_type,
               trs_id='dockstore',
               wf_id=None,
               version_id='local',
@@ -42,9 +42,6 @@ def add_queue(wf_type,
 
     :param eval_id: integer ID of a Synapse evaluation queue
     """
-    if queue_name is None:
-        queue_name = '{}__{}'.format(os.path.basename(wf_id), version_id)
-
     # TODO: require either workflow url/attachments OR
     # TRS information for retrieval
     wes_opts = [wes_default] if wes_opts is None else wes_opts
@@ -56,7 +53,7 @@ def add_queue(wf_type,
               'workflow_attachments': wf_attachments,
               'wes_default': wes_default,
               'wes_opts': wes_opts}
-    set_yaml('queues', queue_name, config)
+    set_yaml('queues', queue_id, config)
 
 
 def add_toolregistry(service, auth, auth_type, host, proto):
