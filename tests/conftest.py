@@ -16,7 +16,9 @@ def mock_queue_config():
             'trs_id': 'mock_trs',
             'workflow_id': 'mock_wf',
             'version_id': 'develop',
-            'workflow_type': '',
+            'workflow_type': 'CWL',
+            'workflow_url': None,
+            'workflow_attachments': None,
             'wes_default': 'local',
             'wes_opts': ['local']
         },
@@ -24,7 +26,9 @@ def mock_queue_config():
             'trs_id': 'mock_trs',
             'workflow_id': 'mock_wf',
             'version_id': 'prod',
-            'workflow_type': '',
+            'workflow_type': 'CWL',
+            'workflow_url': None,
+            'workflow_attachments': None,
             'wes_default': 'local',
             'wes_opts': ['local']
         }
@@ -127,9 +131,19 @@ def mock_submission(request):
     mock_submission = {
         'mock_sub': {
             'status': '',
-            'data': {'wf': '',
-                     'jsonyaml': '',
-                     'attachments': []},
+            'data': 'mock_json_url',
+            'wes_id': 'mock_wes',
+            'run': {}
+        }
+    }
+    yield mock_submission
+
+@pytest.fixture()
+def mock_submission_log(request):
+    mock_submission = {
+        'mock_sub': {
+            'status': '',
+            'data': 'mock_json_url',
             'wes_id': 'mock_wes',
             'run': {}
         }

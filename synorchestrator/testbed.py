@@ -7,6 +7,7 @@ import re
 
 from requests.exceptions import ConnectionError
 
+from synorchestrator.config import add_queue
 from synorchestrator.config import queue_config
 from synorchestrator.config import trs_config
 from synorchestrator.config import wes_config
@@ -66,26 +67,29 @@ def check_workflow(queue_id, wes_id):
     Run checker workflow in a single environment.
     """
     wf_config = queue_config()[queue_id]
-    logger.info("Preparing checker workflow run request for '{}' from  '{}''"
+    logger.info("Preparing checker workflow run request for '{}' from  '{}'"
                 .format(wf_config['workflow_id'], wf_config['trs_id']))
     
     trs_instance = TRS(wf_config['trs_id'])
     checker_id = get_checker_id(trs_instance, wf_config['workflow_id'])
     
-    queue_id = create_queue(workflow={'trs_id': wf_config['trs_id'],
-                                      'id': checker_id,  
-                                      'version_id': wf_config['version_id'],
-                                      'type': wf_config['workflow_type']})
+    checker_queue_id = '{}_checker'.format(queue_id)
+    add_queue(queue_id=checker_queue_id,
+              wf_type=wf_config['workflow_type'],
+              trs_id=wf_config['trs_id'],
+              wf_id=checker_id,
+              version_id=wf_config['version_id'],
+              wes_default=wf_config['wes_default'],
+              wes_opts=wf_config['wes_opts'])
 
     checker_job = trs_instance.get_workflow_tests(id=checker_id,
                                                   version_id=wf_config['version_id'],
                                                   type=wf_config['workflow_type'])[0]
 
-    submission_id = create_submission(queue_id=queue_id, 
-                                      submission_data=checker_job, 
-                                      wes_id=wes_id, 
-                                      type='checker')
-    return run_queue(queue_id)
+    submission_id = create_submission(queue_id=checker_queue_id, 
+                                      submission_data=checker_job['url'], 
+                                      wes_id=wes_id)
+    return run_queue(checker_queue_id)
 
 
 def check_all(workflow_wes_map):

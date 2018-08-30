@@ -14,7 +14,7 @@ def create_queue():
     pass
 
 
-def create_submission(wes_id, submission_data, wf_type='cwl', wf_name='wflow0'):
+def create_submission(queue_id, submission_data, wes_id=None):
     """
     Submit a new job request to an evaluation queue.
 
@@ -23,12 +23,12 @@ def create_submission(wes_id, submission_data, wf_type='cwl', wf_name='wflow0'):
     submissions = get_json(submission_queue)
     submission_id = dt.datetime.now().strftime('%d%m%d%H%M%S%f')
 
-    submissions.setdefault(wes_id, {})[submission_id] = {'status': 'RECEIVED',
-                                                         'data': submission_data,
-                                                         'wf_id': wf_name,
-                                                         'type': wf_type}
+    submission = {'status': 'RECEIVED',
+                  'data': submission_data,
+                  'wes_id': wes_id}
+    submissions.setdefault(queue_id, {})[submission_id] = submission
     save_json(submission_queue, submissions)
-    logger.info(" Queueing Job for '{}' endpoint:"
+    logger.info(" Queueing job for '{}' endpoint:"
                 "\n - submission ID: {}".format(wes_id, submission_id))
     return submission_id
 

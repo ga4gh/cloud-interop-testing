@@ -1,1 +1,28 @@
-{}
+{
+    "mock_queue_1_checker": {
+        "300830132103603319": {
+            "status": "RECEIVED", 
+            "wes_id": "local", 
+            "data": ""
+        }, 
+        "300830132218187497": {
+            "status": "RECEIVED", 
+            "wes_id": "local", 
+            "data": ""
+        }
+    }, 
+    "queue_2": {
+        "290829144913482607": {
+            "status": "RECEIVED", 
+            "wes_id": "local", 
+            "data": "https://raw.githubusercontent.com/dockstore-testing/md5sum-checker/develop/checker-input-cwl.json"
+        }
+    }, 
+    "queue_2_checker": {
+        "300830113517388970": {
+            "status": "RECEIVED", 
+            "wes_id": "local", 
+            "data": "https://raw.githubusercontent.com/dockstore-testing/md5sum-checker/develop/checker-input-cwl.json"
+        }
+    }
+}

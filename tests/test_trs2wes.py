@@ -21,13 +21,15 @@ def test_fetch_queue_workflow(mock_orchestratorconfig,
                         lambda trs_id: mock_trs)
     
     mock_trs.get_workflow_descriptor.return_value = {'url': 'mock_wf_url'}
-    mock_trs.get_workflow_files.return_value = [{'url': 'mock_file_url'}]
+    mock_trs.get_workflow_files.return_value = [{'file_type': 'SECONDARY_DESCRIPTOR',
+                                                 'path': 'mock_path'}]
+    mock_trs.get_workflow_descriptor_relative.return_value = {'url': 'mock_file_url'}
 
     fetch_queue_workflow('mock_queue_1')
 
     mock_config = {'workflow_id': 'mock_wf',
                    'version_id': 'develop',
-                   'workflow_type': '',
+                   'workflow_type': 'CWL',
                    'trs_id': 'mock_trs',
                    'workflow_url': 'mock_wf_url',
                    'workflow_attachments': ['mock_file_url'],
