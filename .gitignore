@@ -112,5 +112,7 @@ ENV/
 # local config files
 *.config
 *.evals
+*config.yaml
+*submission_queue.json
 
 .DS_Store

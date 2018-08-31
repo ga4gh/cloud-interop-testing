@@ -8,7 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 submission_queue = os.path.join(os.path.dirname(__file__), 'submission_queue.json')
-
+if not os.path.exists(submission_queue):
+    save_json(submission_queue, {})
 
 def create_queue():
     pass
