@@ -13,7 +13,7 @@ from synorchestrator.config import trs_config
 from synorchestrator.config import wes_config
 from synorchestrator.trs.wrapper import TRS
 from synorchestrator.wes.wrapper import WES
-from synorchestrator.eval import create_queue, create_submission
+from synorchestrator.queue import create_submission
 from synorchestrator.orchestrator import run_queue
 
 logging.basicConfig(level=logging.DEBUG)

@@ -1,1 +1,9 @@
-{}
+{
+    "mock_queue_1_checker": {
+        "300830212830955405": {
+            "status": "RECEIVED", 
+            "wes_id": "local", 
+            "data": ""
+        }
+    }
+}
