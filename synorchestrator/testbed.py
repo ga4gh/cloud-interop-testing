@@ -11,6 +11,7 @@ from synorchestrator.config import add_queue
 from synorchestrator.config import queue_config
 from synorchestrator.config import trs_config
 from synorchestrator.config import wes_config
+from synorchestrator.config import set_yaml
 from synorchestrator.trs.wrapper import TRS
 from synorchestrator.wes.wrapper import WES
 from synorchestrator.queue import create_submission
@@ -101,6 +102,15 @@ def check_all(workflow_wes_map):
                        for workflow_id in workflow_wes_map
                        for wes_id in workflow_wes_map[workflow_id]]
     return submission_logs
+
+
+def store_verification(queue_id, wes_id):
+    """
+    Record checker status for selected workflow and environment.
+    """
+    wf_config = queue_config()[queue_id]
+    wf_config.setdefault('wes_verified', []).append(wes_id)
+    set_yaml('queues', queue_id, wf_config)
 
 
 # def post_verification(self, id, version_id, type, relative_path, requests):
