@@ -54,9 +54,3 @@ def update_submission(wes_id, submission_id, param, status):
     submissions[wes_id][submission_id][param] = status
     save_json(submission_queue, submissions)
 
-
-def update_submission_run(wes_id, submission_id, param, status):
-    """Update the status of a submission."""
-    submissions = get_json(submission_queue)
-    submissions[wes_id][submission_id]['run'][param] = status
-    save_json(submission_queue, submissions)

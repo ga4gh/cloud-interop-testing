@@ -20,11 +20,10 @@ from synorchestrator.config import queue_config
 from synorchestrator.util import get_json, ctime2datetime, convert_timedelta
 from synorchestrator.wes.wrapper import WES
 from trs2wes import fetch_queue_workflow
-from synorchestrator.eval import get_submission_bundle
-from synorchestrator.eval import get_submissions
-from synorchestrator.eval import update_submission
-from synorchestrator.eval import update_submission_run
-from synorchestrator.eval import submission_queue
+from synorchestrator.queue import get_submission_bundle
+from synorchestrator.queue import get_submissions
+from synorchestrator.queue import update_submission
+from synorchestrator.queue import submission_queue
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

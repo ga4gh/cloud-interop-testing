@@ -42,8 +42,6 @@ def test_check_workflow(mock_queue_config,
                         lambda trs_id: mock_trs)                        
     monkeypatch.setattr('synorchestrator.testbed.get_checker_id', 
                         lambda x,y: 'mock_wf_checker')
-    monkeypatch.setattr('synorchestrator.testbed.create_queue', 
-                        lambda workflow: 'mock_queue')
     monkeypatch.setattr('synorchestrator.testbed.add_queue', 
                         lambda **kwargs: None)
     mock_trs.get_workflow_tests.return_value = [{'content': '', 'url': ''}]
