@@ -1,25 +1,25 @@
 queues:
   queue_1:
-    trs_id: ''
-    version_id: develop
+    trs_id: null
+    version_id: null
     wes_default: local
     wes_opts:
     - local
     workflow_attachments:
     - file://tests/testdata/md5sum.input
     - file://tests/testdata/dockstore-tool-md5sum.cwl
-    workflow_id: ''
+    workflow_id: null
     workflow_type: CWL
     workflow_url: file://tests/testdata/md5sum.cwl
 toolregistries:
   dockstore:
-    auth: ''
-    auth_type: ''
+    auth: null
+    auth_type: null
     host: dockstore.org:8443
     proto: https
 workflowservices:
   local:
-    auth: ''
-    auth_type: ''
+    auth: null
+    auth_type: null
     host: 0.0.0.0:8080
     proto: http
