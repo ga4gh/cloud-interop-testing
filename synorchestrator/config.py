@@ -1,5 +1,5 @@
 """
-The orchestrator config file has three sections: eval, trs, and wes.
+The orchestrator config file has three sections: queues, trs, and wes.
 
 This provides functions to save and get values into these three sections in the file.
 """
@@ -37,13 +37,12 @@ def add_queue(queue_id,
               wes_default='local',
               wes_opts=None):
     """
-    Register a Synapse evaluation queue to the orchestrator's
+    Register a workflow evaluation queue to the orchestrator's
     scope of work.
-
-    :param eval_id: integer ID of a Synapse evaluation queue
     """
-    # TODO: require either workflow url/attachments OR
-    # TRS information for retrieval
+    if not wf_id and not wf_url:
+        raise ValueError("One of either 'wf_id' or 'wf_url' must be specified.")
+
     wes_opts = [wes_default] if wes_opts is None else wes_opts
     config = {'workflow_type': wf_type,
               'trs_id': trs_id,
@@ -61,7 +60,7 @@ def add_toolregistry(service, auth, auth_type, host, proto):
     Register a Tool Registry Service endpoint to the orchestrator's
     search space for workflows.
 
-    :param trs_id: string ID of TRS endpoint (e.g., 'Dockstore')
+    :param trs_id: string ID of TRS endpoint (e.g., 'dockstore')
     """
     config = {'auth': auth,
               'auth_type': auth,
@@ -70,18 +69,33 @@ def add_toolregistry(service, auth, auth_type, host, proto):
     set_yaml('toolregistries', service, config)
 
 
-def add_workflowservice(service, auth, auth_type, host, proto):
+def add_workflowservice(service, host, auth=None, auth_type=None, proto='https'):
     """
     Register a Workflow Execution Service endpoint to the
     orchestrator's available environment options.
 
-    :param wes_id: string ID of WES endpoint (e.g., 'workflow-service')
+    :param wes_id: string ID of WES endpoint (e.g., 'local')
     """
     config = {'auth': auth,
               'auth_type': auth_type,
               'host': host,
               'proto': proto}
     set_yaml('workflowservices', service, config)
+
+
+def add_wes_opt(queue_ids, wes_id, make_default=False):
+    """
+    Add a WES endpoint to the execution options of the specified
+    workflow queues.
+    """
+    if not isinstance(queue_ids, list):
+        queue_ids = [queue_ids]
+    for queue_id in queue_ids:
+        wf_config = queue_config()[queue_id]
+        wf_config['wes_opts'].append(wes_id)
+        if make_default:
+            wf_config['wes_default'] = wes_id
+        set_yaml('queues', queue_id, wf_config)
 
 
 def set_yaml(section, service, var2add):
@@ -95,16 +109,39 @@ def show():
     Show current application configuration.
     """
     orchestrator_config = get_yaml(config_path)
-    workflows = '\n'.join('{}:\t{}\t[{}]'.format(k, orchestrator_config['queues'][k]['workflow_id'], orchestrator_config['queues'][k]['workflow_type']) for k in orchestrator_config['queues'])
-    trs = '\n'.join('{}: {}'.format(k, orchestrator_config['toolregistries'][k]['host']) for k in orchestrator_config['toolregistries'])
-    wes = '\n'.join('{}: {}'.format(k, orchestrator_config['workflowservices'][k]['host']) for k in orchestrator_config['workflowservices'])
+    queues = '\n'.join(
+        ('{}: {} ({})\n'
+         '  > workflow URL: {}\n'
+         '  > workflow type: {}\n'
+         '  > from TRS: {}\n'
+         '  > WES options: {}').format(
+            k, 
+            orchestrator_config['queues'][k]['workflow_id'],
+            orchestrator_config['queues'][k]['version_id'],
+            orchestrator_config['queues'][k]['workflow_url'],
+            orchestrator_config['queues'][k]['workflow_type'],
+            orchestrator_config['queues'][k]['trs_id'],
+            orchestrator_config['queues'][k]['wes_opts']
+        ) 
+        for k in orchestrator_config['queues']
+    )
+    trs = '\n'.join('{}: {}'.format(
+        k, 
+        orchestrator_config['toolregistries'][k]['host']) 
+        for k in orchestrator_config['toolregistries']
+    )
+    wes = '\n'.join('{}: {}'.format(
+        k, 
+        orchestrator_config['workflowservices'][k]['host']) 
+        for k in orchestrator_config['workflowservices']
+    )
     display = heredoc('''
         Orchestrator options:
 
         Workflow Evaluation Queues
-        (queue ID: workflow ID [workflow type])
+        (queue ID: workflow ID [version])
         ---------------------------------------------------------------------------
-        {evals}
+        {queues}
 
         Tool Registries
         (TRS ID: host address)
@@ -115,7 +152,7 @@ def show():
         (WES ID: host address)
         ---------------------------------------------------------------------------
         {wes}
-        ''', {'evals': evals,
+        ''', {'queues': queues,
               'trs': trs,
               'wes': wes})
     print(display)
