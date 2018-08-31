@@ -5,6 +5,7 @@ This provides functions to save and get values into these three sections in the 
 """
 import logging
 import os
+
 from synorchestrator.util import get_yaml, save_yaml, heredoc
 
 logging.basicConfig(level=logging.INFO)
@@ -14,8 +15,8 @@ logger = logging.getLogger(__name__)
 config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
 
 
-def eval_config():
-    return get_yaml(config_path)['evals']
+def queue_config():
+    return get_yaml(config_path)['queues']
 
 
 def trs_config():
@@ -26,33 +27,36 @@ def wes_config():
     return get_yaml(config_path)['workflowservices']
 
 
-def add_eval(wf_name,
-             wf_type,
-             wf_url,
-             wf_jsonyaml,
-             wf_attachments,
-             submission_type='params',
-             trs_id='dockstore',
-             version_id='develop',
-             wf_id=''):
+def add_queue(queue_id,
+              wf_type,
+              trs_id='dockstore',
+              wf_id=None,
+              version_id='local',
+              wf_url=None,
+              wf_attachments=None,
+              wes_default='local',
+              wes_opts=None):
     """
     Register a Synapse evaluation queue to the orchestrator's
     scope of work.
 
     :param eval_id: integer ID of a Synapse evaluation queue
     """
-    config = {'submission_type': submission_type,
+    # TODO: require either workflow url/attachments OR
+    # TRS information for retrieval
+    wes_opts = [wes_default] if wes_opts is None else wes_opts
+    config = {'workflow_type': wf_type,
               'trs_id': trs_id,
-              'version_id': version_id,
               'workflow_id': wf_id,
-              'workflow_type': wf_type,
+              'version_id': version_id,
               'workflow_url': wf_url,
-              'workflow_jsonyaml': wf_jsonyaml,
-              'workflow_attachments': wf_attachments}
-    set_yaml('evals', wf_name, config)
+              'workflow_attachments': wf_attachments,
+              'wes_default': wes_default,
+              'wes_opts': wes_opts}
+    set_yaml('queues', queue_id, config)
 
 
-def add_toolregistry(service, auth, host, proto):
+def add_toolregistry(service, auth, auth_type, host, proto):
     """
     Register a Tool Registry Service endpoint to the orchestrator's
     search space for workflows.
@@ -60,6 +64,7 @@ def add_toolregistry(service, auth, host, proto):
     :param trs_id: string ID of TRS endpoint (e.g., 'Dockstore')
     """
     config = {'auth': auth,
+              'auth_type': auth,
               'host': host,
               'proto': proto}
     set_yaml('toolregistries', service, config)
@@ -90,7 +95,7 @@ def show():
     Show current application configuration.
     """
     orchestrator_config = get_yaml(config_path)
-    evals = '\n'.join('{}:\t{}\t[{}]'.format(k, orchestrator_config['evals'][k]['workflow_id'], orchestrator_config['evals'][k]['workflow_type']) for k in orchestrator_config['evals'])
+    workflows = '\n'.join('{}:\t{}\t[{}]'.format(k, orchestrator_config['queues'][k]['workflow_id'], orchestrator_config['queues'][k]['workflow_type']) for k in orchestrator_config['queues'])
     trs = '\n'.join('{}: {}'.format(k, orchestrator_config['toolregistries'][k]['host']) for k in orchestrator_config['toolregistries'])
     wes = '\n'.join('{}: {}'.format(k, orchestrator_config['workflowservices'][k]['host']) for k in orchestrator_config['workflowservices'])
     display = heredoc('''

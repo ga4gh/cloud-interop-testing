@@ -112,3 +112,5 @@ ENV/
 # local config files
 *.config
 *.evals
+
+.DS_Store

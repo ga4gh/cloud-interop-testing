@@ -3,6 +3,7 @@ import urlparse
 import os
 
 from bravado.requests_client import RequestsClient
+from bravado.swagger_model import Loader
 from bravado.client import SwaggerClient
 
 from synorchestrator.config import wes_config
@@ -23,7 +24,7 @@ def _init_http_client(service_id=None, opts=None):
     """
     auth_header = {'token': 'Authorization',
                    'api_key': 'X-API-KEY',
-                   None: ''} 
+                   '': ''} 
     if service_id:
         opts = _get_wes_opts(service_id)
 
@@ -99,9 +100,20 @@ def load_wes_client(service_id, http_client=None, client_library=None):
         from wes_client.util import WESClient
         wes_client = WESClient(service=_get_wes_opts(service_id))
         return WESAdapter(wes_client)
-
+    
     spec_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 
                              'workflow_execution_service.swagger.yaml')
-    spec_client = SwaggerClient.from_url('file:///{}'.format(spec_path), 
-                                         http_client=http_client)
+    spec_path = os.path.abspath(spec_path)
+
+    opts = _get_wes_opts(service_id)
+    api_url = '{}://{}'.format(opts['proto'], opts['host'])
+    
+    loader = Loader(http_client, request_headers=None)
+    spec_dict = loader.load_spec('file:///{}'.format(spec_path), 
+                                 base_url=api_url)
+    spec_client = SwaggerClient.from_spec(spec_dict, 
+                                          origin_url=api_url, 
+                                          http_client=http_client,
+                                          config={'use_models': False})
+    
     return spec_client.WorkflowExecutionService

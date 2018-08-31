@@ -26,7 +26,7 @@ class TRS(object):
     """
     def __init__(self, trs_id, api_client=None):
         if api_client is None:
-            api_client = load_trs_client()
+            api_client = load_trs_client(service_id=trs_id)
         self.api_client = api_client
 
     def get_metadata(self):
