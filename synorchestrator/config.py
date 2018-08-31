@@ -12,7 +12,41 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def _default_config():
+    """
+    Create default app config, if not existing.
+    """
+    config = {
+        'queues': {
+            'queue_1': {
+                'trs_id': None,
+                'version_id': None,
+                'wes_default': 'local',
+                'wes_opts': ['local'],
+                'workflow_attachments': [
+                    'file://tests/testdata/md5sum.input',
+                    'file://tests/testdata/dockstore-tool-md5sum.cwl'],
+                'workflow_id': None,
+                'workflow_type': 'CWL',
+                'workflow_url': 'file://tests/testdata/md5sum.cwl'}},
+        'toolregistries': {
+            'dockstore': {
+                'auth': None,
+                'auth_type': None,
+                'host': 'dockstore.org:8443',
+                'proto': 'https'}},
+        'workflowservices': {
+            'local': {
+                'auth': None,
+                'auth_type': None,
+                'host': '0.0.0.0:8080',
+                'proto': 'http'}}}
+    save_yaml(config_path, config)
+
+
 config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
+if not os.path.exists(config_path):
+    _default_config()
 
 
 def queue_config():
@@ -41,7 +75,8 @@ def add_queue(queue_id,
     scope of work.
     """
     if not wf_id and not wf_url:
-        raise ValueError("One of either 'wf_id' or 'wf_url' must be specified.")
+        raise ValueError(
+            "One of either 'wf_id' or 'wf_url' must be specified.")
 
     wes_opts = [wes_default] if wes_opts is None else wes_opts
     config = {'workflow_type': wf_type,
@@ -115,24 +150,24 @@ def show():
          '  > workflow type: {}\n'
          '  > from TRS: {}\n'
          '  > WES options: {}').format(
-            k, 
+            k,
             orchestrator_config['queues'][k]['workflow_id'],
             orchestrator_config['queues'][k]['version_id'],
             orchestrator_config['queues'][k]['workflow_url'],
             orchestrator_config['queues'][k]['workflow_type'],
             orchestrator_config['queues'][k]['trs_id'],
             orchestrator_config['queues'][k]['wes_opts']
-        ) 
+        )
         for k in orchestrator_config['queues']
     )
     trs = '\n'.join('{}: {}'.format(
-        k, 
-        orchestrator_config['toolregistries'][k]['host']) 
+        k,
+        orchestrator_config['toolregistries'][k]['host'])
         for k in orchestrator_config['toolregistries']
     )
     wes = '\n'.join('{}: {}'.format(
-        k, 
-        orchestrator_config['workflowservices'][k]['host']) 
+        k,
+        orchestrator_config['workflowservices'][k]['host'])
         for k in orchestrator_config['workflowservices']
     )
     display = heredoc('''
@@ -156,3 +191,6 @@ def show():
               'trs': trs,
               'wes': wes})
     print(display)
+
+
+
