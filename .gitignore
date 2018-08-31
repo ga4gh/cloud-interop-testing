@@ -112,5 +112,6 @@ ENV/
 # local config files
 *.config
 *.evals
+*config.yaml
 
 .DS_Store
