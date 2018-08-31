@@ -142,26 +142,33 @@ def monitor():
     Monitor progress of workflow jobs.
     """
     import pandas as pd
-    pd.set_option('display.width', 100)
+    pd.set_option('display.width', 1000)
+    pd.set_option('display.max_columns', 10)
+    pd.set_option('display.expand_frame_repr', False)
 
-    statuses = []
+    try:
+        while True:
+            statuses = []
+            
+            clear_output(wait=True)
+            os.system('clear')
 
-    for queue_id in queue_config():
-        statuses.append(monitor_queue(queue_id))
-    status_tracker = pd.DataFrame.from_dict(
-        {i: status[i]
-         for status in statuses
-         for i in status},
-        orient='index')
+            for queue_id in queue_config():
+                statuses.append(monitor_queue(queue_id))
+            if all([status == {} for status in statuses]):
+                print("No jobs running...")
+            else:
+                status_tracker = pd.DataFrame.from_dict(
+                    {i: status[i]
+                    for status in statuses
+                    for i in status},
+                    orient='index')
 
-    clear_output(wait=True)
-    os.system('clear')
-    display(status_tracker)
-    sys.stdout.flush()
-    if any(status_tracker['status']
-           .isin(['QUEUED', 'INITIALIZING', 'RUNNING'])):
-        time.sleep(1)
-        monitor()
-    else:
-        print("Done")
-        return statuses
+                display(status_tracker)
+                sys.stdout.flush()
+
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nDone")
+        return
+
