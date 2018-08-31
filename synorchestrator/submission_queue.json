@@ -1,28 +1,22 @@
 {
     "mock_queue_1_checker": {
-        "300830132103603319": {
+        "300830205117081368": {
             "status": "RECEIVED", 
             "wes_id": "local", 
             "data": ""
-        }, 
-        "300830132218187497": {
-            "status": "RECEIVED", 
-            "wes_id": "local", 
-            "data": ""
-        }
-    }, 
-    "queue_2": {
-        "290829144913482607": {
-            "status": "RECEIVED", 
-            "wes_id": "local", 
-            "data": "https://raw.githubusercontent.com/dockstore-testing/md5sum-checker/develop/checker-input-cwl.json"
         }
     }, 
     "queue_2_checker": {
-        "300830113517388970": {
-            "status": "RECEIVED", 
+        "300830204009185550": {
+            "status": "VALIDATED", 
             "wes_id": "local", 
-            "data": "https://raw.githubusercontent.com/dockstore-testing/md5sum-checker/develop/checker-input-cwl.json"
+            "data": "https://raw.githubusercontent.com/dockstore-testing/md5sum-checker/develop/checker-input-cwl.json", 
+            "run_log": {
+                "status": "COMPLETE", 
+                "elapsed_time": "0h:0m:6s", 
+                "start_time": "Thu Aug 30 20:40:15 2018", 
+                "run_id": "50412cf649cd4416a7b052f352eae013"
+            }
         }
     }
 }

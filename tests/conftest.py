@@ -2,12 +2,15 @@ import logging
 import pytest
 import mock
 import yaml
+import datetime as dt
 
 from bravado.client import SwaggerClient, ResourceDecorator
 
-
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+mock_start_time = dt.datetime.now()
+
 
 @pytest.fixture()
 def mock_queue_config():
@@ -133,19 +136,21 @@ def mock_submission(request):
             'status': '',
             'data': 'mock_json_url',
             'wes_id': 'mock_wes',
-            'run': {}
+            'run_log': {'run_id': 'mock_run',
+                        'status': '',
+                        'start_time': mock_start_time}
         }
     }
     yield mock_submission
 
+
 @pytest.fixture()
-def mock_submission_log(request):
-    mock_submission = {
-        'mock_sub': {
-            'status': '',
-            'data': 'mock_json_url',
-            'wes_id': 'mock_wes',
-            'run': {}
-        }
+def mock_queue_log(request):
+    mock_queue_log = {
+        'mock_sub': {'run_id': 'mock_run',
+                     'status': 'RUNNING',
+                     'start_time': mock_start_time,
+                     'elapsed_time': 0,
+                     'wes_id': 'mock_wes'}
     }
-    yield mock_submission
+    yield mock_queue_log

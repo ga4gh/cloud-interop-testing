@@ -33,10 +33,14 @@ def create_submission(queue_id, submission_data, wes_id=None):
     return submission_id
 
 
-def get_submissions(wes_id, status='RECEIVED'):
+def get_submissions(queue_id, status='RECEIVED'):
     """Return all ids with the requested status."""
     submissions = get_json(submission_queue)
-    return [id for id, bundle in submissions[wes_id].items() if bundle['status'] == status]
+    try:
+        return [id for id, bundle in submissions[queue_id].items() 
+                if bundle['status'] == status]
+    except KeyError:
+        return []
 
 
 def get_submission_bundle(wes_id, submission_id):
