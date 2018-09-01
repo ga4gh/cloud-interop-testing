@@ -23,7 +23,8 @@ def mock_queue_config():
             'workflow_url': None,
             'workflow_attachments': None,
             'wes_default': 'local',
-            'wes_opts': ['local']
+            'wes_opts': ['local'],
+            'target_queue': None
         },
         'mock_queue_2': {
             'trs_id': 'mock_trs',
@@ -33,7 +34,8 @@ def mock_queue_config():
             'workflow_url': None,
             'workflow_attachments': None,
             'wes_default': 'local',
-            'wes_opts': ['local']
+            'wes_opts': ['local'],
+            'target_queue': None
         }
     }
     yield mock_queue_config

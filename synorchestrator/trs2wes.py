@@ -33,4 +33,22 @@ def fetch_queue_workflow(queue_id):
     set_yaml('queues', queue_id, wf_config)
     return wf_config
 
-    
+
+def store_verification(queue_id, wes_id):
+    """
+    Record checker status for selected workflow and environment.
+    """
+    wf_config = queue_config()[queue_id]
+    wf_config.setdefault('wes_verified', []).append(wes_id)
+    set_yaml('queues', queue_id, wf_config)
+
+
+# def post_verification(self, id, version_id, type, relative_path, requests):
+#     """
+#     Annotate test JSON with information on whether it ran successfully on particular platforms plus metadata
+#     """
+#     id = _format_workflow_id(id)
+#     endpoint ='extended/{}/versions/{}/{}/tests/{}'.format(
+#         id, version_id, type, relative_path
+#     )
+#     return _post_to_endpoint(self, endpoint, requests)

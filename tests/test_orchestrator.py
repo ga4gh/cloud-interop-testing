@@ -144,15 +144,15 @@ def test_monitor_queue(mock_submission, mock_queue_log, mock_wes, monkeypatch):
     assert test_queue_log == mock_queue_log
 
 
-def test_monitor(mock_queue_config, mock_queue_log, monkeypatch):
-    monkeypatch.setattr('synorchestrator.orchestrator.queue_config', 
-                        lambda: mock_queue_config)
-    mock_queue_log['mock_sub']['status'] = 'COMPLETE'
-    monkeypatch.setattr('synorchestrator.orchestrator.monitor_queue', 
-                        lambda x: mock_queue_log)
+# def test_monitor(mock_queue_config, mock_queue_log, monkeypatch):
+#     monkeypatch.setattr('synorchestrator.orchestrator.queue_config', 
+#                         lambda: mock_queue_config)
+#     mock_queue_log['mock_sub']['status'] = 'COMPLETE'
+#     monkeypatch.setattr('synorchestrator.orchestrator.monitor_queue', 
+#                         lambda x: mock_queue_log)
 
-    test_statuses = monitor()
-    assert test_statuses == [mock_queue_log, mock_queue_log]
+#     test_statuses = monitor()
+#     assert test_statuses == [mock_queue_log, mock_queue_log]
 
 
 

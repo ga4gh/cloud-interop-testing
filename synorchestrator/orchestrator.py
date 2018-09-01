@@ -19,7 +19,8 @@ from IPython.display import display, clear_output
 from synorchestrator.config import queue_config
 from synorchestrator.util import get_json, ctime2datetime, convert_timedelta
 from synorchestrator.wes.wrapper import WES
-from trs2wes import fetch_queue_workflow
+from synorchestrator.trs2wes import fetch_queue_workflow
+from synorchestrator.trs2wes import store_verification
 from synorchestrator.queue import get_submission_bundle
 from synorchestrator.queue import get_submissions
 from synorchestrator.queue import update_submission
@@ -129,6 +130,8 @@ def monitor_queue(queue_id):
         update_submission(queue_id, sub_id, 'run_log', run_log)
         
         if run_log['status'] == 'COMPLETE':
+            wf_config = queue_config()[queue_id]
+            store_verification(wf_config['target_queue'], submission['wes_id'])
             update_submission(queue_id, sub_id, 'status', 'VALIDATED')
 
         run_log['wes_id'] = submission['wes_id']
