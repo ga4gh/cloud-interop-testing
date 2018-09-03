@@ -20,10 +20,12 @@ def test_run_job(mock_queue_config, mock_submission, mock_wes, monkeypatch):
                         lambda: mock_queue_config)
     monkeypatch.setattr('synorchestrator.orchestrator.fetch_queue_workflow', 
                         lambda x: mock_queue_config[x])
-    monkeypatch.setattr('synorchestrator.orchestrator.get_submission_bundle', 
-                        lambda x,y: mock_submission['mock_sub'])
+    monkeypatch.setattr('synorchestrator.testbed.create_submission', 
+                        lambda **kwargs: None)
     monkeypatch.setattr('synorchestrator.orchestrator.WES', 
                         lambda wes_id: mock_wes)
+    monkeypatch.setattr('synorchestrator.orchestrator.update_submission', 
+                        lambda w,x,y,z: None)
 
     mock_request = {'workflow_url': None,
                     'workflow_params': mock_submission['mock_sub']['data'],
@@ -143,16 +145,6 @@ def test_monitor_queue(mock_submission, mock_queue_log, mock_wes, monkeypatch):
     test_queue_log = monitor_queue('mock_queue_1')
     assert test_queue_log == mock_queue_log
 
-
-# def test_monitor(mock_queue_config, mock_queue_log, monkeypatch):
-#     monkeypatch.setattr('synorchestrator.orchestrator.queue_config', 
-#                         lambda: mock_queue_config)
-#     mock_queue_log['mock_sub']['status'] = 'COMPLETE'
-#     monkeypatch.setattr('synorchestrator.orchestrator.monitor_queue', 
-#                         lambda x: mock_queue_log)
-
-#     test_statuses = monitor()
-#     assert test_statuses == [mock_queue_log, mock_queue_log]
 
 
 

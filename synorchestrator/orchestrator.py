@@ -23,6 +23,7 @@ from synorchestrator.trs2wes import fetch_queue_workflow
 from synorchestrator.trs2wes import store_verification
 from synorchestrator.queue import get_submission_bundle
 from synorchestrator.queue import get_submissions
+from synorchestrator.queue import create_submission
 from synorchestrator.queue import update_submission
 from synorchestrator.queue import submission_queue
 
@@ -42,6 +43,9 @@ def run_job(queue_id, wes_id, wf_jsonyaml, add_attachments=None):
         wf_attachments += add_attachments
         wf_attachments = list(set(wf_attachments))
 
+    submission_id = create_submission(queue_id=queue_id, 
+                                      submission_data=wf_jsonyaml, 
+                                      wes_id=wes_id)
     wes_instance = WES(wes_id)
     request = {'workflow_url': wf_config['workflow_url'],
                'workflow_params': wf_jsonyaml,
@@ -50,6 +54,9 @@ def run_job(queue_id, wes_id, wf_jsonyaml, add_attachments=None):
     run_log['start_time'] = dt.datetime.now().ctime()
     run_status = wes_instance.get_run_status(run_log['run_id'])['state']
     run_log['status'] = run_status
+
+    update_submission(queue_id, submission_id, 'run_log', run_log)
+    update_submission(queue_id, submission_id, 'status', 'SUBMITTED')
     return run_log
 
 
@@ -131,8 +138,12 @@ def monitor_queue(queue_id):
         
         if run_log['status'] == 'COMPLETE':
             wf_config = queue_config()[queue_id]
-            store_verification(wf_config['target_queue'], submission['wes_id'])
-            update_submission(queue_id, sub_id, 'status', 'VALIDATED')
+            sub_status = run_log['status']
+            if 'target_queue' in wf_config:
+                store_verification(wf_config['target_queue'], 
+                                   submission['wes_id'])
+                sub_status = 'VALIDATED'
+            update_submission(queue_id, sub_id, 'status', sub_status)
 
         run_log['wes_id'] = submission['wes_id']
         queue_log[sub_id] = run_log
