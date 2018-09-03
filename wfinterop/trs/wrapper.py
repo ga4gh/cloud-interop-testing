@@ -2,8 +2,8 @@ import logging
 import urllib
 import re
 
-from synorchestrator.trs.client import load_trs_client
-from synorchestrator.util import response_handler
+from wfinterop.trs.client import load_trs_client
+from wfinterop.util import response_handler
 
 logger = logging.getLogger(__name__)
 

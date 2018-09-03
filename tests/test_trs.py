@@ -5,14 +5,14 @@ from bravado.requests_client import RequestsClient
 from bravado.client import SwaggerClient, ResourceDecorator
 from bravado.testing.response_mocks import BravadoResponseMock
 
-from synorchestrator.trs.client import _get_trs_opts
-from synorchestrator.trs.client import _init_http_client
-from synorchestrator.trs.client import load_trs_client
-from synorchestrator.trs.wrapper import TRS
+from wfinterop.trs.client import _get_trs_opts
+from wfinterop.trs.client import _init_http_client
+from wfinterop.trs.client import load_trs_client
+from wfinterop.trs.wrapper import TRS
 
 
 def test__get_trs_opts(mock_trs_config, monkeypatch):
-    monkeypatch.setattr('synorchestrator.trs.client.trs_config', 
+    monkeypatch.setattr('wfinterop.trs.client.trs_config', 
                         lambda: mock_trs_config)
     test_trs_opts = _get_trs_opts('mock_trs')
 
@@ -29,7 +29,7 @@ def test__init_http_client(mock_trs_config):
 
 
 def test_load_trs_client_from_spec(mock_trs_config, monkeypatch):
-    monkeypatch.setattr('synorchestrator.trs.client._get_trs_opts', 
+    monkeypatch.setattr('wfinterop.trs.client._get_trs_opts', 
                         lambda x: mock_trs_config['mock_trs'])
     mock_http_client = RequestsClient()
     test_trs_client = load_trs_client(service_id='mock_trs',

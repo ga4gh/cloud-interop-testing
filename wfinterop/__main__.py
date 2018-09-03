@@ -4,7 +4,7 @@ import sys
 import argparse
 import pkg_resources  # part of setuptools
 import logging
-from synorchestrator.orchestrator import monitor
+from wfinterop.orchestrator import monitor
 
 logging.basicConfig(level=logging.INFO)
 

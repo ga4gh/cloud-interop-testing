@@ -3,7 +3,7 @@ import pytest
 import mock
 import yaml
 
-from synorchestrator.trs2wes import fetch_queue_workflow
+from wfinterop.trs2wes import fetch_queue_workflow
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -13,11 +13,11 @@ def test_fetch_queue_workflow(mock_orchestratorconfig,
                               mock_queue_config, 
                               mock_trs, 
                               monkeypatch):
-    monkeypatch.setattr('synorchestrator.config.config_path', 
+    monkeypatch.setattr('wfinterop.config.config_path', 
                         str(mock_orchestratorconfig))
-    monkeypatch.setattr('synorchestrator.trs2wes.queue_config', 
+    monkeypatch.setattr('wfinterop.trs2wes.queue_config', 
                         lambda: mock_queue_config)
-    monkeypatch.setattr('synorchestrator.trs2wes.TRS', 
+    monkeypatch.setattr('wfinterop.trs2wes.TRS', 
                         lambda trs_id: mock_trs)
     
     mock_trs.get_workflow_descriptor.return_value = {'url': 'mock_wf_url'}

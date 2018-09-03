@@ -1,5 +1,4 @@
 wes-service
-synapseclient
 pandas
 IPython==5.8.0
 future

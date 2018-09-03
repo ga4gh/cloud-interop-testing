@@ -3,7 +3,7 @@ import pytest
 import yaml
 import textwrap
 from datetime import datetime
-from synorchestrator import util
+from wfinterop import util
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

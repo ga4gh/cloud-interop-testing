@@ -1,7 +1,7 @@
-from synorchestrator.config import config_path
-from synorchestrator.config import queue_config
-from synorchestrator.config import set_yaml
-from synorchestrator.trs.wrapper import TRS
+from wfinterop.config import config_path
+from wfinterop.config import queue_config
+from wfinterop.config import set_yaml
+from wfinterop.trs.wrapper import TRS
 
 
 def fetch_queue_workflow(queue_id):

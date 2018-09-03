@@ -7,15 +7,15 @@ from bravado.client import SwaggerClient, ResourceDecorator
 from bravado.testing.response_mocks import BravadoResponseMock
 from wes_client.util import WESClient
 
-from synorchestrator.wes.client import _get_wes_opts
-from synorchestrator.wes.client import _init_http_client
-from synorchestrator.wes.client import WESAdapter
-from synorchestrator.wes.client import load_wes_client
-from synorchestrator.wes.wrapper import WES
+from wfinterop.wes.client import _get_wes_opts
+from wfinterop.wes.client import _init_http_client
+from wfinterop.wes.client import WESAdapter
+from wfinterop.wes.client import load_wes_client
+from wfinterop.wes.wrapper import WES
 
 
 def test__get_wes_opts(mock_wes_config, monkeypatch):
-    monkeypatch.setattr('synorchestrator.wes.client.wes_config', 
+    monkeypatch.setattr('wfinterop.wes.client.wes_config', 
                         lambda: mock_wes_config)
     test_wes_opts = _get_wes_opts('mock_wes')
 
@@ -32,7 +32,7 @@ def test__init_http_client(mock_wes_config):
 
 
 def test_load_wes_client_from_spec(mock_wes_config, monkeypatch):
-    monkeypatch.setattr('synorchestrator.wes.client._get_wes_opts', 
+    monkeypatch.setattr('wfinterop.wes.client._get_wes_opts', 
                         lambda x: mock_wes_config['mock_wes'])
 
     mock_http_client = RequestsClient()
@@ -136,7 +136,7 @@ class TestWESAdapter:
 
 
 def test_load_wes_client_from_lib(mock_wes_config, monkeypatch):
-    monkeypatch.setattr('synorchestrator.wes.client._get_wes_opts', 
+    monkeypatch.setattr('wfinterop.wes.client._get_wes_opts', 
                         lambda x: mock_wes_config['mock_wes'])
     
     mock_http_client = RequestsClient()

@@ -6,7 +6,7 @@ This provides functions to save and get values into these three sections in the 
 import logging
 import os
 
-from synorchestrator.util import get_yaml, save_yaml, heredoc
+from wfinterop.util import get_yaml, save_yaml, heredoc
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

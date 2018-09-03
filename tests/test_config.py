@@ -3,14 +3,14 @@ import mock
 import pytest
 import yaml
 
-from synorchestrator.config import queue_config
-from synorchestrator.config import trs_config
-from synorchestrator.config import wes_config
-from synorchestrator.config import add_queue
-from synorchestrator.config import add_toolregistry
-from synorchestrator.config import add_workflowservice
-from synorchestrator.config import set_yaml
-from synorchestrator.config import show
+from wfinterop.config import queue_config
+from wfinterop.config import trs_config
+from wfinterop.config import wes_config
+from wfinterop.config import add_queue
+from wfinterop.config import add_toolregistry
+from wfinterop.config import add_workflowservice
+from wfinterop.config import set_yaml
+from wfinterop.config import show
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def test_queue_config(mock_orchestratorconfig, mock_queue_config, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr('synorchestrator.config.config_path', 
+    monkeypatch.setattr('wfinterop.config.config_path', 
                         str(mock_orchestratorconfig))
 
     # WHEN the configuration data in the file is loaded
@@ -30,7 +30,7 @@ def test_queue_config(mock_orchestratorconfig, mock_queue_config, monkeypatch):
 
 def test_trs_config(mock_orchestratorconfig, mock_trs_config, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr('synorchestrator.config.config_path', 
+    monkeypatch.setattr('wfinterop.config.config_path', 
                         str(mock_orchestratorconfig))
     
     # WHEN the configuration data in the file is loaded
@@ -42,7 +42,7 @@ def test_trs_config(mock_orchestratorconfig, mock_trs_config, monkeypatch):
 
 def test_wes_config(mock_orchestratorconfig, mock_wes_config, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr('synorchestrator.config.config_path', 
+    monkeypatch.setattr('wfinterop.config.config_path', 
                         str(mock_orchestratorconfig))
     
     # WHEN the configuration data in the file is loaded
@@ -54,7 +54,7 @@ def test_wes_config(mock_orchestratorconfig, mock_wes_config, monkeypatch):
 
 def test_add_queue(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr('synorchestrator.config.config_path', 
+    monkeypatch.setattr('wfinterop.config.config_path', 
                         str(mock_orchestratorconfig))
     
     # WHEN an evaluation queue is added to the configuration of the
@@ -86,7 +86,7 @@ def test_add_queue(mock_orchestratorconfig, monkeypatch):
 
 def test_add_toolregistry(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr('synorchestrator.config.config_path', 
+    monkeypatch.setattr('wfinterop.config.config_path', 
                         str(mock_orchestratorconfig))
 
     # WHEN a TRS endpoint is added to the configuration of the
@@ -114,7 +114,7 @@ def test_add_toolregistry(mock_orchestratorconfig, monkeypatch):
 
 def test_add_workflowservice(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr('synorchestrator.config.config_path', 
+    monkeypatch.setattr('wfinterop.config.config_path', 
                         str(mock_orchestratorconfig))
     
     # WHEN a WES endpoint is added to the configuration of the
@@ -142,7 +142,7 @@ def test_add_workflowservice(mock_orchestratorconfig, monkeypatch):
 
 def test_set_yaml(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr('synorchestrator.config.config_path', 
+    monkeypatch.setattr('wfinterop.config.config_path', 
                         str(mock_orchestratorconfig))
     
     # WHEN the config is set for a given section and service

@@ -16,16 +16,16 @@ import re
 from requests.exceptions import ConnectionError
 from IPython.display import display, clear_output
 
-from synorchestrator.config import queue_config
-from synorchestrator.util import get_json, ctime2datetime, convert_timedelta
-from synorchestrator.wes.wrapper import WES
-from synorchestrator.trs2wes import fetch_queue_workflow
-from synorchestrator.trs2wes import store_verification
-from synorchestrator.queue import get_submission_bundle
-from synorchestrator.queue import get_submissions
-from synorchestrator.queue import create_submission
-from synorchestrator.queue import update_submission
-from synorchestrator.queue import submission_queue
+from wfinterop.config import queue_config
+from wfinterop.util import get_json, ctime2datetime, convert_timedelta
+from wfinterop.wes.wrapper import WES
+from wfinterop.trs2wes import fetch_queue_workflow
+from wfinterop.trs2wes import store_verification
+from wfinterop.queue import get_submission_bundle
+from wfinterop.queue import get_submissions
+from wfinterop.queue import create_submission
+from wfinterop.queue import update_submission
+from wfinterop.queue import submission_queue
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
