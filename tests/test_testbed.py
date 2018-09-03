@@ -44,6 +44,8 @@ def test_check_workflow(mock_queue_config,
                         lambda x,y: 'mock_wf_checker')
     monkeypatch.setattr('synorchestrator.testbed.add_queue', 
                         lambda **kwargs: None)
+    monkeypatch.setattr('synorchestrator.testbed.create_submission', 
+                        lambda **kwargs: None)
     mock_trs.get_workflow_tests.return_value = [{'content': '', 'url': ''}]
 
     mock_submission_log = {

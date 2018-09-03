@@ -11,6 +11,7 @@ from synorchestrator.config import add_queue
 from synorchestrator.config import queue_config
 from synorchestrator.config import trs_config
 from synorchestrator.config import wes_config
+from synorchestrator.config import set_yaml
 from synorchestrator.trs.wrapper import TRS
 from synorchestrator.wes.wrapper import WES
 from synorchestrator.queue import create_submission
@@ -80,7 +81,8 @@ def check_workflow(queue_id, wes_id):
               wf_id=checker_id,
               version_id=wf_config['version_id'],
               wes_default=wf_config['wes_default'],
-              wes_opts=wf_config['wes_opts'])
+              wes_opts=wf_config['wes_opts'],
+              target_queue=queue_id)
 
     checker_job = trs_instance.get_workflow_tests(id=checker_id,
                                                   version_id=wf_config['version_id'],
@@ -103,12 +105,3 @@ def check_all(workflow_wes_map):
     return submission_logs
 
 
-# def post_verification(self, id, version_id, type, relative_path, requests):
-#     """
-#     Annotate test JSON with information on whether it ran successfully on particular platforms plus metadata
-#     """
-#     id = _format_workflow_id(id)
-#     endpoint ='extended/{}/versions/{}/{}/tests/{}'.format(
-#         id, version_id, type, relative_path
-#     )
-#     return _post_to_endpoint(self, endpoint, requests)

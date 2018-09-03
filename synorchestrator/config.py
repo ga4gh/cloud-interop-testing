@@ -69,7 +69,8 @@ def add_queue(queue_id,
               wf_url=None,
               wf_attachments=None,
               wes_default='local',
-              wes_opts=None):
+              wes_opts=None,
+              target_queue=None):
     """
     Register a workflow evaluation queue to the orchestrator's
     scope of work.
@@ -86,7 +87,8 @@ def add_queue(queue_id,
               'workflow_url': wf_url,
               'workflow_attachments': wf_attachments,
               'wes_default': wes_default,
-              'wes_opts': wes_opts}
+              'wes_opts': wes_opts,
+              'target_queue': target_queue}
     set_yaml('queues', queue_id, config)
 
 

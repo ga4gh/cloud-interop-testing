@@ -24,7 +24,7 @@ def _init_http_client(service_id=None, opts=None):
     """
     auth_header = {'token': 'Authorization',
                    'api_key': 'X-API-KEY',
-                   '': ''} 
+                   None: ''} 
     if service_id:
         opts = _get_trs_opts(service_id)
 

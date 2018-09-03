@@ -73,7 +73,8 @@ def test_add_queue(mock_orchestratorconfig, monkeypatch):
                    'workflow_url': None,
                    'workflow_attachments': None,
                    'wes_default': 'local',
-                   'wes_opts': ['local']}
+                   'wes_opts': ['local'],
+                   'target_queue': None}
 
     # THEN the evaluation queue config should be stored in the config file
     with open(str(mock_orchestratorconfig), 'r') as f:

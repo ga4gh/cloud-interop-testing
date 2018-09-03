@@ -34,7 +34,8 @@ def test_fetch_queue_workflow(mock_orchestratorconfig,
                    'workflow_url': 'mock_wf_url',
                    'workflow_attachments': ['mock_file_url'],
                    'wes_default': 'local',
-                   'wes_opts': ['local']}
+                   'wes_opts': ['local'],
+                   'target_queue': None}
 
     with open(str(mock_orchestratorconfig), 'r') as f:
         test_config = yaml.load(f)['queues']
