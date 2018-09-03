@@ -110,7 +110,7 @@ def mock_wes_client(request):
             yield mock_api_client
     else:
         mock_api_client = mock.Mock(name='mock WESAdapter')
-        with mock.patch('synorchestrator.wes.client.WESAdapter', 
+        with mock.patch('wfinterop.wes.client.WESAdapter', 
                         autospec=True):
             yield mock_api_client
 
@@ -118,7 +118,7 @@ def mock_wes_client(request):
 @pytest.fixture()
 def mock_trs(request):
     mock_trs = mock.Mock(name='mock TRS')
-    with mock.patch('synorchestrator.trs.wrapper.TRS', 
+    with mock.patch('wfinterop.trs.wrapper.TRS', 
                     autospec=True, spec_set=True):
         yield mock_trs
 
@@ -126,7 +126,7 @@ def mock_trs(request):
 @pytest.fixture()
 def mock_wes(request):
     mock_wes = mock.Mock(name='mock WES')
-    with mock.patch('synorchestrator.wes.wrapper.WES', 
+    with mock.patch('wfinterop.wes.wrapper.WES', 
                     autospec=True, spec_set=True):
         yield mock_wes
 

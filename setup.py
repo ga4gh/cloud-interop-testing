@@ -21,17 +21,17 @@ with open('requirements.txt') as requirements_file:
         install_requires.append(pinned_version)
 
 setup(
-    name='synapse-orchestrator',
-    description='Synapse-based orchestrator for GA4GH workflows',
-    packages=['synorchestrator'],
+    name='workflow-interop',
+    description='Interoperable execution of workflows using GA4GH APIs',
+    packages=['wfinterop'],
     package_data={
-        'synorchestrator': ['workflow_execution_service.swagger.yaml']
+        'wfinterop': [
+            'workflow_execution_service.swagger.yaml',
+            'ga4gh-tool-discovery.yaml'
+        ]
     },
-    url='https://github.com/Sage-Bionetworks/synapse-orchestrator',
-    download_url='https://github.com/Sage-Bionetworks/synapse-orchestrator',
-    entry_points={
-        'console_scripts': 'orchestrate=synorchestrator.__main__:main'
-    },
+    url='https://github.com/Sage-Bionetworks/workflow-interop',
+    download_url='https://github.com/Sage-Bionetworks/workflow-interop',
     long_description=long_description,
     install_requires=install_requires,
     setup_requires=['pytest-runner'],
@@ -40,5 +40,5 @@ setup(
     zip_safe=False,
     author='Sage Bionetworks CompOnc Team',
     author_email='james.a.eddy@gmail.com',
-    version='0.1.1'
+    version='0.2.0'
 )

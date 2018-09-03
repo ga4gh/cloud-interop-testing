@@ -1,21 +1,21 @@
 import mock
 import pytest
 
-from synorchestrator.testbed import poll_services
-from synorchestrator.testbed import get_checker_id
-from synorchestrator.testbed import check_workflow
-from synorchestrator.testbed import check_all
+from wfinterop.testbed import poll_services
+from wfinterop.testbed import get_checker_id
+from wfinterop.testbed import check_workflow
+from wfinterop.testbed import check_all
 
 
 def test_poll_services(mock_queue_config, 
                        mock_trs,
                        mock_wes,
                        monkeypatch):
-    monkeypatch.setattr('synorchestrator.testbed.queue_config', 
+    monkeypatch.setattr('wfinterop.testbed.queue_config', 
                         lambda: mock_queue_config)
-    monkeypatch.setattr('synorchestrator.testbed.TRS', 
+    monkeypatch.setattr('wfinterop.testbed.TRS', 
                         lambda trs_id: mock_trs) 
-    monkeypatch.setattr('synorchestrator.testbed.WES', 
+    monkeypatch.setattr('wfinterop.testbed.WES', 
                         lambda wes_id: mock_wes)  
 
     test_service_status = poll_services()
@@ -36,15 +36,15 @@ def test_get_checker_id(mock_trs,  monkeypatch):
 def test_check_workflow(mock_queue_config, 
                         mock_trs, 
                         monkeypatch):
-    monkeypatch.setattr('synorchestrator.testbed.queue_config', 
+    monkeypatch.setattr('wfinterop.testbed.queue_config', 
                         lambda: mock_queue_config)
-    monkeypatch.setattr('synorchestrator.testbed.TRS', 
+    monkeypatch.setattr('wfinterop.testbed.TRS', 
                         lambda trs_id: mock_trs)                        
-    monkeypatch.setattr('synorchestrator.testbed.get_checker_id', 
+    monkeypatch.setattr('wfinterop.testbed.get_checker_id', 
                         lambda x,y: 'mock_wf_checker')
-    monkeypatch.setattr('synorchestrator.testbed.add_queue', 
+    monkeypatch.setattr('wfinterop.testbed.add_queue', 
                         lambda **kwargs: None)
-    monkeypatch.setattr('synorchestrator.testbed.create_submission', 
+    monkeypatch.setattr('wfinterop.testbed.create_submission', 
                         lambda **kwargs: None)
     mock_trs.get_workflow_tests.return_value = [{'content': '', 'url': ''}]
 
@@ -60,7 +60,7 @@ def test_check_workflow(mock_queue_config,
             }
         }
     }
-    monkeypatch.setattr('synorchestrator.testbed.run_queue', 
+    monkeypatch.setattr('wfinterop.testbed.run_queue', 
                         lambda x: mock_submission_log)
 
     test_submission_log = check_workflow(queue_id='mock_queue_1', 
@@ -70,7 +70,7 @@ def test_check_workflow(mock_queue_config,
 
 
 def test_check_all(mock_queue_config, monkeypatch):
-    monkeypatch.setattr('synorchestrator.testbed.queue_config', 
+    monkeypatch.setattr('wfinterop.testbed.queue_config', 
                         lambda: mock_queue_config)
 
     mock_submission_logs = {
@@ -99,7 +99,7 @@ def test_check_all(mock_queue_config, monkeypatch):
             }
         }
     }
-    monkeypatch.setattr('synorchestrator.testbed.check_workflow', 
+    monkeypatch.setattr('wfinterop.testbed.check_workflow', 
                         lambda x,y: mock_submission_logs[y])
 
     mock_workflow_wes_map = {

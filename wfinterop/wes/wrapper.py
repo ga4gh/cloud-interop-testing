@@ -1,7 +1,7 @@
 import logging
 
-from synorchestrator.wes.client import load_wes_client
-from synorchestrator.util import response_handler
+from wfinterop.wes.client import load_wes_client
+from wfinterop.util import response_handler
 
 logger = logging.getLogger(__name__)
 
