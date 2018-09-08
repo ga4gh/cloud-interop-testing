@@ -18,7 +18,8 @@ def _default_config():
     """
     config = {
         'queues': {
-            'queue_1': {
+            'test_cwl_queue': {
+                'target_queue': None,
                 'trs_id': None,
                 'version_id': None,
                 'wes_default': 'local',
@@ -28,7 +29,17 @@ def _default_config():
                     'file://tests/testdata/dockstore-tool-md5sum.cwl'],
                 'workflow_id': None,
                 'workflow_type': 'CWL',
-                'workflow_url': 'file://tests/testdata/md5sum.cwl'}},
+                'workflow_url': 'file://tests/testdata/md5sum.cwl'},
+            'test_wdl_queue': {
+                'target_queue': None,
+                'trs_id': None,
+                'version_id': None,
+                'wes_default': 'local',
+                'wes_opts': ['local'],
+                'workflow_attachments': ['file://tests/testdata/md5sum.input'],
+                'workflow_id': None,
+                'workflow_type': 'WDL',
+                'workflow_url': 'file://tests/testdata/md5sum.wdl'}},
         'toolregistries': {
             'dockstore': {
                 'auth': None,
@@ -146,22 +157,41 @@ def show():
     Show current application configuration.
     """
     orchestrator_config = get_yaml(config_path)
-    queues = '\n'.join(
-        ('{}: {} ({})\n'
-         '  > workflow URL: {}\n'
-         '  > workflow type: {}\n'
-         '  > from TRS: {}\n'
-         '  > WES options: {}').format(
-            k,
-            orchestrator_config['queues'][k]['workflow_id'],
-            orchestrator_config['queues'][k]['version_id'],
-            orchestrator_config['queues'][k]['workflow_url'],
-            orchestrator_config['queues'][k]['workflow_type'],
-            orchestrator_config['queues'][k]['trs_id'],
-            orchestrator_config['queues'][k]['wes_opts']
+    queue_lines = []
+    for queue_id in orchestrator_config['queues']:
+        wf_config = orchestrator_config['queues'][queue_id] 
+        wf_id = wf_config['workflow_id']
+        version_id = wf_config['version_id']
+        wf_url = wf_config['workflow_url']
+        queue_attach = wf_config['workflow_attachments']
+        if queue_attach:
+            wf_attachments = '\n    - {}'.format(
+                '\n    - '.join(queue_attach)
+            )
+        else:
+            wf_attachments = queue_attach
+        wf_type = wf_config['workflow_type']
+        wf_trs = wf_config['trs_id']
+        wf_wes_opts = wf_config['wes_opts']
+        queue_lines.append(
+            ('{}: {} ({})\n'
+             '  > workflow URL: {}\n'
+             '  > workflow attachments: {}\n'
+             '  > workflow type: {}\n'
+             '  > from TRS: {}\n'
+             '  > WES options: {}').format(
+                 queue_id,
+                 wf_id,
+                 version_id,
+                 wf_url,
+                 wf_attachments,
+                 wf_type,
+                 wf_trs,
+                 wf_wes_opts
+             )
         )
-        for k in orchestrator_config['queues']
-    )
+
+    queues = '\n'.join(queue_lines)
     trs = '\n'.join('{}: {}'.format(
         k,
         orchestrator_config['toolregistries'][k]['host'])
