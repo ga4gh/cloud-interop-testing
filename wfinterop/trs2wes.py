@@ -1,7 +1,7 @@
 from wfinterop.config import config_path
 from wfinterop.config import queue_config
 from wfinterop.config import set_yaml
-from wfinterop.trs.wrapper import TRS
+from wfinterop.trs import TRS
 
 
 def fetch_queue_workflow(queue_id):

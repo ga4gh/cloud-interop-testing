@@ -12,8 +12,8 @@ from wfinterop.config import queue_config
 from wfinterop.config import trs_config
 from wfinterop.config import wes_config
 from wfinterop.config import set_yaml
-from wfinterop.trs.wrapper import TRS
-from wfinterop.wes.wrapper import WES
+from wfinterop.trs import TRS
+from wfinterop.wes import WES
 from wfinterop.queue import create_submission
 from wfinterop.orchestrator import run_queue
 

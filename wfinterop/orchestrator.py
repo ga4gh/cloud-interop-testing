@@ -18,7 +18,7 @@ from IPython.display import display, clear_output
 
 from wfinterop.config import queue_config
 from wfinterop.util import get_json, ctime2datetime, convert_timedelta
-from wfinterop.wes.wrapper import WES
+from wfinterop.wes import WES
 from wfinterop.trs2wes import fetch_queue_workflow
 from wfinterop.trs2wes import store_verification
 from wfinterop.queue import get_submission_bundle
