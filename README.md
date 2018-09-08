@@ -24,16 +24,29 @@ Additionally, the application supports the following operations:
 
 ## Installation
 
-*Coming soon...*
+```console
+git clone https://github.com/Sage-Bionetworks/workflow-interop
+pip install .
+```
 
 
 ## Usage
 
+*Note: CLI should be available soon.*
+
+### Load modules
+
+These modules should cover most of the current use cases:
+
+```python
+from wfinterop import config
+from wfinterop import orchestrator
+from wfinterop import testbed
+```
+
 ### Default settings
 
 ```python
-from synorchestrator import config
-
 config.show()
 ```
 
@@ -43,8 +56,18 @@ Orchestrator options:
 Workflow Evaluation Queues
 (queue ID: workflow ID [version])
 ---------------------------------------------------------------------------
-queue_1: None (None)
+test_wdl_queue: None (None)
+  > workflow URL: file://tests/testdata/md5sum.wdl
+  > workflow attachments:
+    - file://tests/testdata/md5sum.input
+  > workflow type: CWL
+  > from TRS: None
+  > WES options: ['local']
+test_cwl_queue: None (None)
   > workflow URL: file://tests/testdata/md5sum.cwl
+  > workflow attachments:
+    - file://tests/testdata/md5sum.input
+    - file://tests/testdata/dockstore-tool-md5sum.cwl
   > workflow type: CWL
   > from TRS: None
   > WES options: ['local']
@@ -66,7 +89,8 @@ local: 0.0.0.0:8080
 
 ```yaml
 queues:
-  queue_1:
+  test_cwl_queue:
+    target_queue: null
     trs_id: null
     version_id: null
     wes_default: local
@@ -78,6 +102,18 @@ queues:
     workflow_id: null
     workflow_type: CWL
     workflow_url: file://tests/testdata/md5sum.cwl
+  test_wdl_queue:
+    target_queue: null
+    trs_id: null
+    version_id: null
+    wes_default: local
+    wes_opts:
+    - local
+    workflow_attachments:
+    - file://tests/testdata/md5sum.input
+    workflow_id: null
+    workflow_type: CWL
+    workflow_url: file://tests/testdata/md5sum.wdl
 toolregistries:
   dockstore:
     auth: null
@@ -97,7 +133,7 @@ workflowservices:
 ### Add a workflow
 
 ```python
-config.add_queue(queue_id='queue_2',
+config.add_queue(queue_id='demo_queue',
                  wf_type='CWL',
                  wf_id='github.com/dockstore-testing/md5sum-checker',
                  version_id='develop',
@@ -108,15 +144,20 @@ config.add_queue(queue_id='queue_2',
 Workflow Evaluation Queues
 (queue ID: workflow ID [version])
 ---------------------------------------------------------------------------
-queue_2: github.com/dockstore-testing/md5sum-checker (develop)
-  > workflow URL: None
+test_wdl_queue: None (None)
+  > workflow URL: file://tests/testdata/md5sum.wdl
   > workflow type: CWL
-  > from TRS: dockstore
+  > from TRS: None
   > WES options: ['local']
-queue_1: None (None)
+test_cwl_queue: None (None)
   > workflow URL: file://tests/testdata/md5sum.cwl
   > workflow type: CWL
   > from TRS: None
+  > WES options: ['local']
+demo_queue: github.com/dockstore-testing/md5sum-checker (develop)
+  > workflow URL: None
+  > workflow type: CWL
+  > from TRS: dockstore
   > WES options: ['local']
 
 ...
@@ -127,7 +168,8 @@ queue_1: None (None)
 <summary>View YAML</summary>
 
 ```yaml
-queue_2:
+demo_queue:
+  target_queue: null
   trs_id: dockstore
   version_id: develop
   wes_default: local
@@ -162,7 +204,7 @@ local: 0.0.0.0:8080
 #### Connect a WES endpoint to a workflow queue
 
 ```python
-config.add_wes_opt(queue_ids='queue_2', wes_ids='arvados-wes')
+config.add_wes_opt(queue_ids='demo_queue', wes_ids='arvados-wes')
 ```
 
 ```console
@@ -181,18 +223,20 @@ queue_2: github.com/dockstore-testing/md5sum-checker (develop)
 In a seperate terminal window or notebook, you can start a `monitor` process to keep track of any active workflow jobs.
 
 ```python
-from synorchestrator import orchestrator
-
 orchestrator.monitor()
 ```
 #### Check a workflow
 
-To check a workflow in the testbed...
+To check a workflow in the testbed in a single environment...
 
 ```python
-from synorchestrator import testbed
+testbed.check_workflow(queue_id='demo_queue', wes_id='local')
+```
 
-testbed.check_workflow(queue_id='queue_2', wes_id='local')
+To check combinations of workflows and environments...
+
+```python
+testbed.check_all({'demo_queue': ['local', 'arvados-wes']})
 ```
 
 #### Run a workflow job
@@ -200,9 +244,7 @@ testbed.check_workflow(queue_id='queue_2', wes_id='local')
 To run a workflow using a given set of parameters...
 
 ```python
-from synorchestrator import orchestrator
-
-orchestrator.run_job(queue_id='queue_1',
+orchestrator.run_job(queue_id='test_cwl_queue',
                      wes_id='local',
                      wf_jsonyaml='file://tests/testdata/md5sum.cwl.json')
 ```
