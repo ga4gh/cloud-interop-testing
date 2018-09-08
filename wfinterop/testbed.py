@@ -65,6 +65,10 @@ def check_workflow(queue_id, wes_id):
     Run checker workflow in a single environment.
     """
     wf_config = queue_config()[queue_id]
+    if wes_id in wf_config.get('wes_verified', []):
+        logger.info("Workflow for '{}' already verified on '{}'"
+                    .format(queue_id, wes_id))
+        return
     logger.info("Preparing checker workflow run request for '{}' from  '{}'"
                 .format(wf_config['workflow_id'], wf_config['trs_id']))
 
