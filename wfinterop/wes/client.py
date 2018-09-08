@@ -1,5 +1,4 @@
 import logging
-import urlparse
 import os
 
 from bravado.requests_client import RequestsClient
@@ -24,43 +23,41 @@ def _init_http_client(service_id=None, opts=None):
     """
     auth_header = {'token': 'Authorization',
                    'api_key': 'X-API-KEY',
-                   None: ''} 
+                   None: ''}
     if service_id:
         opts = _get_wes_opts(service_id)
 
     http_client = RequestsClient()
-    split = urlparse.urlsplit('{}://{}/'.format(opts['proto'], opts['host']))
-
     http_client.set_api_key(host=opts['host'],
                             api_key=opts['auth'],
                             param_name=auth_header[opts['auth_type']],
                             param_in='header')
     return http_client
-    
+
 
 class WESInterface:
     def GetServiceInfo(self):
         pass
-    
+
     def ListRuns(self):
         pass
 
     def RunWorkflow(self):
         pass
-    
+
     def CancelRun(self):
         pass
-    
+
     def GetRunStatus(self):
         pass
 
     def GetRunLog(self):
         pass
-    
+
 
 class WESAdapter(WESInterface):
     """
-    Adapter class for the WES client functionality from the 
+    Adapter class for the WES client functionality from the
     workflow-service library.
     """
     _wes_client = None
@@ -70,21 +67,21 @@ class WESAdapter(WESInterface):
 
     def GetServiceInfo(self):
         return self._wes_client.get_service_info()
-    
+
     def ListRuns(self):
         return self._wes_client.list_runs()
-    
+
     def RunWorkflow(self, request):
         return self._wes_client.run(wf=request['workflow_url'],
                                     jsonyaml=request['workflow_params'],
                                     attachments=request['attachment'])
-    
+
     def CancelRun(self, run_id):
         return self._wes_client.cancel(run_id=run_id)
-    
+
     def GetRunStatus(self, run_id):
         return self._wes_client.get_run_status(run_id=run_id)
-    
+
     def GetRunLog(self, run_id):
         return self._wes_client.get_run_log(run_id=run_id)
 
@@ -100,20 +97,20 @@ def load_wes_client(service_id, http_client=None, client_library=None):
         from wes_client.util import WESClient
         wes_client = WESClient(service=_get_wes_opts(service_id))
         return WESAdapter(wes_client)
-    
-    spec_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 
+
+    spec_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                              'workflow_execution_service.swagger.yaml')
     spec_path = os.path.abspath(spec_path)
 
     opts = _get_wes_opts(service_id)
     api_url = '{}://{}'.format(opts['proto'], opts['host'])
-    
+
     loader = Loader(http_client, request_headers=None)
-    spec_dict = loader.load_spec('file:///{}'.format(spec_path), 
+    spec_dict = loader.load_spec('file:///{}'.format(spec_path),
                                  base_url=api_url)
-    spec_client = SwaggerClient.from_spec(spec_dict, 
-                                          origin_url=api_url, 
+    spec_client = SwaggerClient.from_spec(spec_dict,
+                                          origin_url=api_url,
                                           http_client=http_client,
                                           config={'use_models': False})
-    
+
     return spec_client.WorkflowExecutionService

@@ -1,7 +1,8 @@
 """
 The orchestrator config file has three sections: queues, trs, and wes.
 
-This provides functions to save and get values into these three sections in the file.
+This provides functions to save and get values into these three sections
+in the file.
 """
 import logging
 import os
@@ -117,7 +118,11 @@ def add_toolregistry(service, auth, auth_type, host, proto):
     set_yaml('toolregistries', service, config)
 
 
-def add_workflowservice(service, host, auth=None, auth_type=None, proto='https'):
+def add_workflowservice(service,
+                        host,
+                        auth=None,
+                        auth_type=None,
+                        proto='https'):
     """
     Register a Workflow Execution Service endpoint to the
     orchestrator's available environment options.
@@ -159,7 +164,7 @@ def show():
     orchestrator_config = get_yaml(config_path)
     queue_lines = []
     for queue_id in orchestrator_config['queues']:
-        wf_config = orchestrator_config['queues'][queue_id] 
+        wf_config = orchestrator_config['queues'][queue_id]
         wf_id = wf_config['workflow_id']
         version_id = wf_config['version_id']
         wf_url = wf_config['workflow_url']
@@ -188,7 +193,7 @@ def show():
                  wf_type,
                  wf_trs,
                  wf_wes_opts
-             )
+            )
         )
 
     queues = '\n'.join(queue_lines)
@@ -223,6 +228,3 @@ def show():
               'trs': trs,
               'wes': wes})
     print(display)
-
-
-

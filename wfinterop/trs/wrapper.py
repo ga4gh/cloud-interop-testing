@@ -66,10 +66,10 @@ class TRS(object):
         )
         return response_handler(res)
 
-    def get_workflow_descriptor_relative(self, 
-                                         id, 
-                                         version_id, 
-                                         type, 
+    def get_workflow_descriptor_relative(self,
+                                         id,
+                                         version_id,
+                                         type,
                                          relative_path):
         """
         Return an additional tool descriptor file relative to the main file.
@@ -95,15 +95,6 @@ class TRS(object):
             type=type
         )
         return response_handler(res)
-        # fileid = _format_workflow_id(fileid)
-        # endpoint = 'tools/{}/versions/{}/{}/tests'.format(fileid, version_id, filetype)
-        # tests = _get_endpoint(self, endpoint)
-        # if fix_url:
-        #     descriptor = self.get_workflow_descriptor(fileid, version_id, filetype)
-        #     for test in tests:
-        #         if test['url'].startswith('/'):
-        #             test['url'] = os.path.join(os.path.dirname(descriptor['url']), os.path.basename(tests[0]['url']))
-        # return tests
 
     def get_workflow_files(self, id, version_id, type):
         """

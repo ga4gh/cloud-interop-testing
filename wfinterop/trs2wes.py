@@ -1,4 +1,3 @@
-from wfinterop.config import config_path
 from wfinterop.config import queue_config
 from wfinterop.config import set_yaml
 from wfinterop.trs import TRS
@@ -8,8 +7,8 @@ def fetch_queue_workflow(queue_id):
     wf_config = queue_config()[queue_id]
     trs_instance = TRS(wf_config['trs_id'])
     wf_descriptor = trs_instance.get_workflow_descriptor(
-        id=wf_config['workflow_id'],    
-        version_id=wf_config['version_id'], 
+        id=wf_config['workflow_id'],
+        version_id=wf_config['version_id'],
         type=wf_config['workflow_type']
     )
     wf_files = trs_instance.get_workflow_files(
@@ -19,7 +18,7 @@ def fetch_queue_workflow(queue_id):
     )
     wf_config['workflow_url'] = wf_descriptor['url']
     attachment_paths = [wf_file['path'] for wf_file in wf_files
-                       if wf_file['file_type'] == 'SECONDARY_DESCRIPTOR']
+                        if wf_file['file_type'] == 'SECONDARY_DESCRIPTOR']
     wf_attachments = []
     for attachment in attachment_paths:
         attachment_file = trs_instance.get_workflow_descriptor_relative(
@@ -45,7 +44,8 @@ def store_verification(queue_id, wes_id):
 
 # def post_verification(self, id, version_id, type, relative_path, requests):
 #     """
-#     Annotate test JSON with information on whether it ran successfully on particular platforms plus metadata
+#     Annotate test JSON with information on whether it ran successfully on
+#     particular platforms plus metadata.
 #     """
 #     id = _format_workflow_id(id)
 #     endpoint ='extended/{}/versions/{}/{}/tests/{}'.format(

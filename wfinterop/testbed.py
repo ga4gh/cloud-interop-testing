@@ -9,9 +9,6 @@ from requests.exceptions import ConnectionError
 
 from wfinterop.config import add_queue
 from wfinterop.config import queue_config
-from wfinterop.config import trs_config
-from wfinterop.config import wes_config
-from wfinterop.config import set_yaml
 from wfinterop.trs import TRS
 from wfinterop.wes import WES
 from wfinterop.queue import create_submission
@@ -30,7 +27,7 @@ def poll_services():
     for wf_config in queue_config().values():
         trs_opts.append(wf_config['trs_id'])
         wes_opts += wf_config['wes_opts']
-    
+
     trs_status = {}
     for trs_id in list(set(trs_opts)):
         trs_instance = TRS(trs_id=trs_id)
@@ -39,7 +36,7 @@ def poll_services():
             trs_instance.get_metadata()
         except ConnectionError:
             trs_status[trs_id] = False
-    
+
     wes_status = {}
     for wes_id in list(set(wes_opts)):
         wes_instance = WES(wes_id=wes_id)
@@ -70,10 +67,10 @@ def check_workflow(queue_id, wes_id):
     wf_config = queue_config()[queue_id]
     logger.info("Preparing checker workflow run request for '{}' from  '{}'"
                 .format(wf_config['workflow_id'], wf_config['trs_id']))
-    
+
     trs_instance = TRS(wf_config['trs_id'])
     checker_id = get_checker_id(trs_instance, wf_config['workflow_id'])
-    
+
     checker_queue_id = '{}_checker'.format(queue_id)
     add_queue(queue_id=checker_queue_id,
               wf_type=wf_config['workflow_type'],
@@ -84,13 +81,18 @@ def check_workflow(queue_id, wes_id):
               wes_opts=wf_config['wes_opts'],
               target_queue=queue_id)
 
-    checker_job = trs_instance.get_workflow_tests(id=checker_id,
-                                                  version_id=wf_config['version_id'],
-                                                  type=wf_config['workflow_type'])[0]
+    checker_tests = trs_instance.get_workflow_tests(
+        id=checker_id,
+        version_id=wf_config['version_id'],
+        type=wf_config['workflow_type']
+    )
+    checker_job = checker_tests[0]
 
-    submission_id = create_submission(queue_id=checker_queue_id, 
-                                      submission_data=checker_job['url'], 
+    submission_id = create_submission(queue_id=checker_queue_id,
+                                      submission_data=checker_job['url'],
                                       wes_id=wes_id)
+    logger.info("Created submission '{}' for queue '{}'; running in '{}'"
+                .format(submission_id, checker_queue_id, wes_id))
     return run_queue(checker_queue_id)
 
 
@@ -103,5 +105,3 @@ def check_all(workflow_wes_map):
                        for workflow_id in workflow_wes_map
                        for wes_id in workflow_wes_map[workflow_id]]
     return submission_logs
-
-
