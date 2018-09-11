@@ -32,7 +32,7 @@ pip install .
 
 ## Usage
 
-*Note: CLI should be available soon.*
+*CLI should be available soon.*
 
 ### Load modules
 
@@ -116,14 +116,14 @@ queues:
     workflow_url: file://tests/testdata/md5sum.wdl
 toolregistries:
   dockstore:
-    auth: null
-    auth_type: null
+    auth:
+      Authorization: ''
     host: dockstore.org:8443
     proto: https
 workflowservices:
   local:
-    auth: null
-    auth_type: null
+    auth:
+      Authorization: ''
     host: 0.0.0.0:8080
     proto: http
 ```
@@ -188,8 +188,7 @@ demo_queue:
 ```python
 config.add_workflowservice(service='arvados-wes',
                            host='wes.qr1hi.arvadosapi.com',
-                           auth='<my-api-token>',
-                           auth_type='token',
+                           auth={'Authorization': 'Bearer <my-api-token>'},
                            proto='https')
 ```
 
@@ -219,6 +218,37 @@ queue_2: github.com/dockstore-testing/md5sum-checker (develop)
 ```
 
 ### Running workflows
+
+#### Setting up a local WES service
+
+This package uses (and installs as a dependency) the [**workflow-service** package](https://github.com/common-workflow-language/workflow-service), which provides both client and server implementations of the WES API.
+
+You can start service running `cwltool` by running this command in the terminal:
+
+```console
+wes-server
+```
+
+You should see a message that looks something like this:
+
+```console
+INFO:root:Using config:
+INFO:root:  opt: None
+INFO:root:  debug: False
+INFO:root:  version: False
+INFO:root:  port: 8080
+INFO:root:  backend: wes_service.cwl_runner
+ * Serving Flask app "wes_service.wes_service_main" (lazy loading)
+ * Environment: production
+   WARNING: Do not use the development server in a production environment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+INFO:werkzeug: * Running on http://0.0.0.0:8080/ (Press CTRL+C to quit)
+```
+
+> Note: running WDL workflows using a local service has not been fully tested.
+
+#### Monitoring orchestrator activity
 
 In a seperate terminal window or notebook, you can start a `monitor` process to keep track of any active workflow jobs.
 
