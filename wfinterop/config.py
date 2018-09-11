@@ -43,14 +43,12 @@ def _default_config():
                 'workflow_url': 'file://tests/testdata/md5sum.wdl'}},
         'toolregistries': {
             'dockstore': {
-                'auth': None,
-                'auth_type': None,
+                'auth': {'Authorization': ''},
                 'host': 'dockstore.org:8443',
                 'proto': 'https'}},
         'workflowservices': {
             'local': {
-                'auth': None,
-                'auth_type': None,
+                'auth': {'Authorization': ''},
                 'host': '0.0.0.0:8080',
                 'proto': 'http'}}}
     save_yaml(config_path, config)
@@ -104,7 +102,10 @@ def add_queue(queue_id,
     set_yaml('queues', queue_id, config)
 
 
-def add_toolregistry(service, auth, auth_type, host, proto):
+def add_toolregistry(service,
+                     host,
+                     auth={'Authorization': ''},
+                     proto='https'):
     """
     Register a Tool Registry Service endpoint to the orchestrator's
     search space for workflows.
@@ -112,7 +113,6 @@ def add_toolregistry(service, auth, auth_type, host, proto):
     :param trs_id: string ID of TRS endpoint (e.g., 'dockstore')
     """
     config = {'auth': auth,
-              'auth_type': auth,
               'host': host,
               'proto': proto}
     set_yaml('toolregistries', service, config)
@@ -120,8 +120,7 @@ def add_toolregistry(service, auth, auth_type, host, proto):
 
 def add_workflowservice(service,
                         host,
-                        auth=None,
-                        auth_type=None,
+                        auth={'Authorization': ''},
                         proto='https'):
     """
     Register a Workflow Execution Service endpoint to the
@@ -130,7 +129,6 @@ def add_workflowservice(service,
     :param wes_id: string ID of WES endpoint (e.g., 'local')
     """
     config = {'auth': auth,
-              'auth_type': auth_type,
               'host': host,
               'proto': proto}
     set_yaml('workflowservices', service, config)

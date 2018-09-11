@@ -30,7 +30,7 @@ def _init_http_client(service_id=None, opts=None):
     http_client = RequestsClient()
     http_client.set_api_key(host=opts['host'],
                             api_key=opts['auth'],
-                            param_name=auth_header[opts['auth_type']],
+                            # param_name=auth_header[opts['auth_type']],
                             param_in='header')
     return http_client
 
