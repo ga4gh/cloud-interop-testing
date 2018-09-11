@@ -54,7 +54,7 @@ def test_run_submission(mock_submission,
                     'start_time': '',
                     'status': 'QUEUED'}
     monkeypatch.setattr('wfinterop.orchestrator.run_job', 
-                        lambda x,y,z: mock_run_log)
+                        lambda **kwargs: mock_run_log)
     mock_request = mock_submission['mock_sub']['data']
 
     test_run_log = run_submission(queue_id='mock_queue',
@@ -125,7 +125,7 @@ def test_run_all(mock_queue_config, monkeypatch):
 
 def test_monitor_queue(mock_submission, mock_queue_log, mock_wes, monkeypatch):
     monkeypatch.setattr('wfinterop.orchestrator.get_submissions', 
-                        lambda x,status: ['mock_sub'])
+                        lambda **kwargs: ['mock_sub'])
     monkeypatch.setattr('wfinterop.orchestrator.get_submission_bundle', 
                         lambda x,y: mock_submission['mock_sub'])
     monkeypatch.setattr('wfinterop.orchestrator.WES', 

@@ -1,7 +1,8 @@
 """
 The orchestrator config file has three sections: queues, trs, and wes.
 
-This provides functions to save and get values into these three sections in the file.
+This provides functions to save and get values into these three sections
+in the file.
 """
 import logging
 import os
@@ -18,7 +19,8 @@ def _default_config():
     """
     config = {
         'queues': {
-            'queue_1': {
+            'test_cwl_queue': {
+                'target_queue': None,
                 'trs_id': None,
                 'version_id': None,
                 'wes_default': 'local',
@@ -28,17 +30,25 @@ def _default_config():
                     'file://tests/testdata/dockstore-tool-md5sum.cwl'],
                 'workflow_id': None,
                 'workflow_type': 'CWL',
-                'workflow_url': 'file://tests/testdata/md5sum.cwl'}},
+                'workflow_url': 'file://tests/testdata/md5sum.cwl'},
+            'test_wdl_queue': {
+                'target_queue': None,
+                'trs_id': None,
+                'version_id': None,
+                'wes_default': 'local',
+                'wes_opts': ['local'],
+                'workflow_attachments': ['file://tests/testdata/md5sum.input'],
+                'workflow_id': None,
+                'workflow_type': 'WDL',
+                'workflow_url': 'file://tests/testdata/md5sum.wdl'}},
         'toolregistries': {
             'dockstore': {
-                'auth': None,
-                'auth_type': None,
+                'auth': {'Authorization': ''},
                 'host': 'dockstore.org:8443',
                 'proto': 'https'}},
         'workflowservices': {
             'local': {
-                'auth': None,
-                'auth_type': None,
+                'auth': {'Authorization': ''},
                 'host': '0.0.0.0:8080',
                 'proto': 'http'}}}
     save_yaml(config_path, config)
@@ -92,7 +102,10 @@ def add_queue(queue_id,
     set_yaml('queues', queue_id, config)
 
 
-def add_toolregistry(service, auth, auth_type, host, proto):
+def add_toolregistry(service,
+                     host,
+                     auth={'Authorization': ''},
+                     proto='https'):
     """
     Register a Tool Registry Service endpoint to the orchestrator's
     search space for workflows.
@@ -100,13 +113,15 @@ def add_toolregistry(service, auth, auth_type, host, proto):
     :param trs_id: string ID of TRS endpoint (e.g., 'dockstore')
     """
     config = {'auth': auth,
-              'auth_type': auth,
               'host': host,
               'proto': proto}
     set_yaml('toolregistries', service, config)
 
 
-def add_workflowservice(service, host, auth=None, auth_type=None, proto='https'):
+def add_workflowservice(service,
+                        host,
+                        auth={'Authorization': ''},
+                        proto='https'):
     """
     Register a Workflow Execution Service endpoint to the
     orchestrator's available environment options.
@@ -114,7 +129,6 @@ def add_workflowservice(service, host, auth=None, auth_type=None, proto='https')
     :param wes_id: string ID of WES endpoint (e.g., 'local')
     """
     config = {'auth': auth,
-              'auth_type': auth_type,
               'host': host,
               'proto': proto}
     set_yaml('workflowservices', service, config)
@@ -146,22 +160,41 @@ def show():
     Show current application configuration.
     """
     orchestrator_config = get_yaml(config_path)
-    queues = '\n'.join(
-        ('{}: {} ({})\n'
-         '  > workflow URL: {}\n'
-         '  > workflow type: {}\n'
-         '  > from TRS: {}\n'
-         '  > WES options: {}').format(
-            k,
-            orchestrator_config['queues'][k]['workflow_id'],
-            orchestrator_config['queues'][k]['version_id'],
-            orchestrator_config['queues'][k]['workflow_url'],
-            orchestrator_config['queues'][k]['workflow_type'],
-            orchestrator_config['queues'][k]['trs_id'],
-            orchestrator_config['queues'][k]['wes_opts']
+    queue_lines = []
+    for queue_id in orchestrator_config['queues']:
+        wf_config = orchestrator_config['queues'][queue_id]
+        wf_id = wf_config['workflow_id']
+        version_id = wf_config['version_id']
+        wf_url = wf_config['workflow_url']
+        queue_attach = wf_config['workflow_attachments']
+        if queue_attach:
+            wf_attachments = '\n    - {}'.format(
+                '\n    - '.join(queue_attach)
+            )
+        else:
+            wf_attachments = queue_attach
+        wf_type = wf_config['workflow_type']
+        wf_trs = wf_config['trs_id']
+        wf_wes_opts = wf_config['wes_opts']
+        queue_lines.append(
+            ('{}: {} ({})\n'
+             '  > workflow URL: {}\n'
+             '  > workflow attachments: {}\n'
+             '  > workflow type: {}\n'
+             '  > from TRS: {}\n'
+             '  > WES options: {}').format(
+                 queue_id,
+                 wf_id,
+                 version_id,
+                 wf_url,
+                 wf_attachments,
+                 wf_type,
+                 wf_trs,
+                 wf_wes_opts
+            )
         )
-        for k in orchestrator_config['queues']
-    )
+
+    queues = '\n'.join(queue_lines)
     trs = '\n'.join('{}: {}'.format(
         k,
         orchestrator_config['toolregistries'][k]['host'])
@@ -193,6 +226,3 @@ def show():
               'trs': trs,
               'wes': wes})
     print(display)
-
-
-

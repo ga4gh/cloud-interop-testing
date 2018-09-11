@@ -45,8 +45,7 @@ def mock_queue_config():
 def mock_trs_config():
     mock_trs_config = {
         'mock_trs': {
-            'auth': 'auth_token',
-            'auth_type': 'token',
+            'auth': {'Authorization': 'Bearer auth_token'},
             'host': '0.0.0.0:8080',
             'proto': 'https'
         }
@@ -58,8 +57,7 @@ def mock_trs_config():
 def mock_wes_config():
     mock_wes_config = {
         'mock_wes': {
-            'auth': 'auth_token',
-            'auth_type': 'token',
+            'auth': {'Authorization': 'Bearer auth_token'},
             'host': '0.0.0.0:8080',
             'proto': 'https'
         }

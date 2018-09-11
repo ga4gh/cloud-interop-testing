@@ -1,0 +1,6 @@
+{
+  "input_file": {
+        "class": "File",
+        "path": "https://raw.githubusercontent.com/dockstore-testing/md5sum-checker/master/md5sum.input"
+    }
+}

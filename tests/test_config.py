@@ -94,13 +94,11 @@ def test_add_toolregistry(mock_orchestratorconfig, monkeypatch):
     add_toolregistry(
         service='mock_trs',
         auth='',
-        auth_type='',
         host='',
         proto=''
     )
 
     mock_config = {'auth': '',
-                   'auth_type': '',
                    'host': '',
                    'proto': ''}
 
@@ -122,13 +120,11 @@ def test_add_workflowservice(mock_orchestratorconfig, monkeypatch):
     add_workflowservice(
         service='mock_wes',
         auth='',
-        auth_type='',
         host='',
         proto=''
     )
 
     mock_config = {'auth': '',
-                   'auth_type': '',
                    'host': '',
                    'proto': ''}
 

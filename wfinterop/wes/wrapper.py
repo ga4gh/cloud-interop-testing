@@ -15,7 +15,7 @@ class WES(object):
     """
     def __init__(self, wes_id, api_client=None):
         if api_client is None:
-            api_client = load_wes_client(service_id=wes_id, 
+            api_client = load_wes_client(service_id=wes_id,
                                          client_library=wes_client)
         self.api_client = api_client
 

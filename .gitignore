@@ -115,4 +115,7 @@ ENV/
 *config.yaml
 *submission_queue.json
 
+# workflow cache
+workflows
+
 .DS_Store
