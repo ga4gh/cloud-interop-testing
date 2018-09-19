@@ -52,6 +52,7 @@ def run_job(queue_id,
     request = {'workflow_url': wf_config['workflow_url'],
                'workflow_params': wf_jsonyaml,
                'attachment': wf_attachments}
+
     run_log = wes_instance.run_workflow(request)
     run_log['start_time'] = dt.datetime.now().ctime()
     run_status = wes_instance.get_run_status(run_log['run_id'])['state']
@@ -126,9 +127,10 @@ def monitor_queue(queue_id):
                                   exclude_status='RECEIVED'):
         submission = get_submission_bundle(queue_id, sub_id)
         run_log = submission['run_log']
+        run_log['wes_id'] = submission['wes_id']
         if run_log['status'] in ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']:
             queue_log[sub_id] = run_log
-            next
+            continue
         wes_instance = WES(submission['wes_id'])
         run_status = wes_instance.get_run_status(run_log['run_id'])
 
@@ -155,7 +157,6 @@ def monitor_queue(queue_id):
                 sub_status = 'VALIDATED'
             update_submission(queue_id, sub_id, 'status', sub_status)
 
-        run_log['wes_id'] = submission['wes_id']
         queue_log[sub_id] = run_log
 
     return queue_log
@@ -177,25 +178,26 @@ def monitor():
             clear_output(wait=True)
 
             for queue_id in queue_config():
-                statuses.append(monitor_queue(queue_id))
+                queue_status = monitor_queue(queue_id)
+                if len(queue_status):
+                    statuses.append(queue_status)
+                    print("\nWorkflow queue: {}".format(queue_id))
+                    status_tracker = pd.DataFrame.from_dict(
+                        queue_status,
+                        orient='index')
+
+                    display(status_tracker)
+
             terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
-
-            status_tracker = pd.DataFrame.from_dict(
-                {i: status[i]
-                 for status in statuses
-                 for i in status},
-                orient='index')
-
-            os.system('clear')
-            display(status_tracker)
             if all([sub['status'] in terminal_statuses
                     for queue in statuses
                     for sub in queue.values()]):
                 print("\nNo jobs running...")
             print("\n(Press CTRL+C to quit)")
+            time.sleep(2)
+            os.system('clear')
             sys.stdout.flush()
 
-            time.sleep(1)
     except KeyboardInterrupt:
         print("\nDone")
         return
