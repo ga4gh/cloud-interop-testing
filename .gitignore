@@ -117,5 +117,6 @@ ENV/
 
 # workflow cache
 workflows
+logs
 
 .DS_Store
