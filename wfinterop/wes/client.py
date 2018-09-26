@@ -21,9 +21,9 @@ def _init_http_client(service_id=None, opts=None):
     """
     Initialize and configure HTTP requests client for selected service.
     """
-    auth_header = {'token': 'Authorization',
-                   'api_key': 'X-API-KEY',
-                   None: ''}
+    # auth_header = {'token': 'Authorization',
+    #                'api_key': 'X-API-KEY',
+    #                None: ''}
     if service_id:
         opts = _get_wes_opts(service_id)
 
@@ -71,10 +71,11 @@ class WESAdapter(WESInterface):
     def ListRuns(self):
         return self._wes_client.list_runs()
 
-    def RunWorkflow(self, request):
+    def RunWorkflow(self, request, parts=None):
         return self._wes_client.run(wf=request['workflow_url'],
                                     jsonyaml=request['workflow_params'],
-                                    attachments=request['attachment'])
+                                    attachments=request['attachment'],
+                                    parts=parts)
 
     def CancelRun(self, run_id):
         return self._wes_client.cancel(run_id=run_id)
