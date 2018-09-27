@@ -5,6 +5,7 @@ import os
 import logging
 import urllib
 import re
+import time
 
 from itertools import combinations_with_replacement
 from requests.exceptions import ConnectionError
@@ -111,10 +112,10 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
         logger.info("Created submission '{}' for queue '{}'; running in '{}'"
                     "with options: {}"
                     .format(submission_id, checker_queue_id, wes_id, opt))
-        testbed_status.setdefault(queue_id, {}).setdefault(wes_id, {})[submission_id] = opt
+        testbed_status.setdefault(checker_queue_id, {}).setdefault(wes_id, {})[submission_id] = opt
         save_json(testbed_log, testbed_status)
         run_log = run_submission(checker_queue_id, submission_id, opts=opt)
-        testbed_status[queue_id][wes_id][submission_id]['run_id'] = run_log['run_id']
+        testbed_status[checker_queue_id][wes_id][submission_id]['run_id'] = run_log['run_id']
         save_json(testbed_log, testbed_status)
     
     return testbed_status
@@ -145,20 +146,34 @@ def check_all(workflow_wes_map, permute_opts=False, force=False):
                                      opts=opts_list,
                                      force=force)
                       for workflow_id in workflow_wes_map
-                      for wes_id in workflow_wes_map[workflow_id]]
+                      for wes_id in workflow_wes_map[workflow_id]][-1]
+    logger.info("tbs: {}".format(testbed_status))
     while True:
         terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
-        testbed_statuses = [sub_log['status'] for sub_log in wes_log.values()
+        testbed_statuses = [sub_log['status'] 
+                            if 'status' in sub_log else 'PENDING'
+                            for queue_log in testbed_status.values()
                             for wes_log in queue_log.values()
-                            for queue_log in testbed_log.values()
-                            if 'status' in sub_log]
-        if any([status in terminal_statuses for status in testbed_statuses]):
-            break        
+                            for sub_log in wes_log.values()]
+        if (len(testbed_statuses) and 
+            all([status in terminal_statuses 
+                 for status in testbed_statuses])):
+            break
+
         for queue_id in testbed_status:
             queue_logs = monitor_queue(queue_id)
             queue_statuses = map(lambda x: x['status'], queue_logs.values())
             sub_statuses = dict(zip(queue_logs.keys(), queue_statuses))
-            for wes_id, sub_id in testbed_status[queue_id].items():
-                testbed_status[queue_id][wes_id][sub_id]['status'] = sub_statuses['sub_id']
-            
+            for wes_id in testbed_status[queue_id]:
+                for sub_id in testbed_status[queue_id][wes_id]:
+                    testbed_status[queue_id][wes_id][sub_id]['status'] = sub_statuses[sub_id]
+        save_json(testbed_log, testbed_status)
+        time.sleep(2)
+    
     return testbed_status
+
+# testbed_dict = {queue_id: testbed_status[queue_id][wes_id][sub_id] 
+#                 for queue_id in testbed_status 
+#                 for wes_id in testbed_status[queue_id] 
+#                 for sub_id in testbed_status[queue_id][wes_id]}
+# pd.DataFrame.from_dict(testbed_dict, orient='index')
