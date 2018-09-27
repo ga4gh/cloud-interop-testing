@@ -67,15 +67,22 @@ def run_job(queue_id,
         parts = None
 
     run_log = wes_instance.run_workflow(request, parts=parts)
-    logger.info("Job received by WES '{}', run ID: {}"
-                .format(wes_id, run_log['run_id']))
-    run_log['start_time'] = dt.datetime.now().ctime()
-    run_status = wes_instance.get_run_status(run_log['run_id'])['state']
+    if run_log['run_id'] == 'failed':
+        logger.info("Job submission failed for WES '{}'"
+                    .format(wes_id))
+        run_status = 'FAILED'
+        sub_status = 'FAILED'
+    else:
+        logger.info("Job received by WES '{}', run ID: {}"
+                    .format(wes_id, run_log['run_id']))
+        run_log['start_time'] = dt.datetime.now().ctime()
+        run_status = wes_instance.get_run_status(run_log['run_id'])['state']
+        sub_status = 'SUBMITTED'
     run_log['status'] = run_status
 
     if not submission:
         update_submission(queue_id, submission_id, 'run_log', run_log)
-        update_submission(queue_id, submission_id, 'status', 'SUBMITTED')
+        update_submission(queue_id, submission_id, 'status', sub_status)
     return run_log
 
 
@@ -145,6 +152,9 @@ def monitor_queue(queue_id):
             queue_log[sub_id] = {'status': 'PENDING'}
             continue
         run_log = submission['run_log']
+        if run_log['run_id'] == 'failed':
+            queue_log[sub_id] = {'status': 'FAILED'}
+            continue
         run_log['wes_id'] = submission['wes_id']
         if run_log['status'] in ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']:
             queue_log[sub_id] = run_log
@@ -206,7 +216,7 @@ def monitor():
 
                     display(status_tracker)
 
-            terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
+            terminal_statuses = ['FAILED', 'COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
             if all([sub['status'] in terminal_statuses
                     for queue in statuses
                     for sub in queue.values()]):
