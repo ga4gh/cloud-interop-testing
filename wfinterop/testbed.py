@@ -8,6 +8,7 @@ import re
 import time
 import shutil
 
+from IPython.display import display, clear_output
 from itertools import combinations_with_replacement
 from requests.exceptions import ConnectionError
 
@@ -25,6 +26,8 @@ logger = logging.getLogger(__name__)
 
 testbed_log = os.path.join(os.path.dirname(__file__),
                            'testbed_log.json')
+if not os.path.exists(testbed_log):
+    save_json(testbed_log, {})
 
 
 def poll_services():
@@ -162,7 +165,7 @@ def check_all(testbed_plan, permute_opts=False, force=False):
                       for workflow_id in testbed_plan
                       for wes_id in testbed_plan[workflow_id]][-1]
     while True:
-        terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
+        terminal_statuses = ['FAILED', 'COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
         testbed_statuses = [sub_log['status'] 
                             if 'status' in sub_log else 'PENDING'
                             for queue_log in testbed_status.values()
@@ -186,8 +189,22 @@ def check_all(testbed_plan, permute_opts=False, force=False):
     
     return testbed_status
 
-# testbed_dict = {queue_id: testbed_status[queue_id][wes_id][sub_id] 
-#                 for queue_id in testbed_status 
-#                 for wes_id in testbed_status[queue_id] 
-#                 for sub_id in testbed_status[queue_id][wes_id]}
-# pd.DataFrame.from_dict(testbed_dict, orient='index')
+
+def testbed_report():
+    import pandas as pd
+    pd.set_option('display.width', 1000)
+    pd.set_option('display.max_columns', 10)
+    pd.set_option('display.max_rows', 250)
+    pd.set_option('display.expand_frame_repr', False)
+
+    testbed_status = get_json(testbed_log)
+    testbed_dict = {}
+    for queue_id in testbed_status:
+        for wes_id in testbed_status[queue_id]:
+            for sub_id in testbed_status[queue_id][wes_id]:
+                testbed_record = testbed_status[queue_id][wes_id][sub_id]
+                testbed_record.update({'wes_id': wes_id})
+                testbed_dict[(queue_id, sub_id)] = testbed_record
+    pd.DataFrame.from_dict(testbed_dict, orient='index')
+
+    display(pd.DataFrame.from_dict(testbed_dict, orient='index'))
