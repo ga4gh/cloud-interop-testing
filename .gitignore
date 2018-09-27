@@ -114,6 +114,7 @@ ENV/
 *.evals
 *config.yaml
 *submission_queue.json
+*testbed_log.json
 
 # workflow cache
 workflows
