@@ -6,6 +6,7 @@ import logging
 import urllib
 import re
 import time
+import shutil
 
 from itertools import combinations_with_replacement
 from requests.exceptions import ConnectionError
@@ -75,11 +76,12 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
     if not isinstance(opts, list):
         opts = [opts]
     wf_config = queue_config()[queue_id]
+    testbed_status = get_json(testbed_log)
 
     if wes_id in wf_config.get('wes_verified', []) and not force:
         logger.info("Workflow for '{}' already verified on '{}'"
                     .format(queue_id, wes_id))
-        return
+        return testbed_status
     logger.info("Preparing checker workflow run request for '{}' from  '{}'"
                 .format(wf_config['workflow_id'], wf_config['trs_id']))
     trs_instance = TRS(wf_config['trs_id'])
@@ -102,7 +104,6 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
     )
     checker_job = checker_tests[0]
 
-    testbed_status = get_json(testbed_log)
     for opt in opts:
         if 'run_id' in opt:
             opt.pop('run_id')
@@ -135,7 +136,20 @@ def get_opts(permute=False):
         return [dict(zip(opts, state)) for state in states]
 
 
-def check_all(workflow_wes_map, permute_opts=False, force=False):
+def collect_logs(testbed_status):
+    for queue_id in testbed_status:
+        for wes_id in testbed_status[queue_id]:
+            log_dir = os.path.join('logs', queue_id, wes_id)
+            if not os.path.exists(log_dir):
+                os.makedirs(log_dir)
+            for sub_id in testbed_status[queue_id][wes_id]:
+                run_id = testbed_status[queue_id][wes_id][sub_id]['run_id']
+                log_src = os.path.join('logs', '{}.request'.format(run_id))
+                log_dest = os.path.join(log_dir, os.path.basename(log_src))
+                shutil.move(log_src, log_dest)
+
+
+def check_all(testbed_plan, permute_opts=False, force=False):
     """
     Check workflows for multiple workflows in multiple environments
     (cross product of workflows, workflow service endpoints).
@@ -145,9 +159,8 @@ def check_all(workflow_wes_map, permute_opts=False, force=False):
                                      wes_id, 
                                      opts=opts_list,
                                      force=force)
-                      for workflow_id in workflow_wes_map
-                      for wes_id in workflow_wes_map[workflow_id]][-1]
-    logger.info("tbs: {}".format(testbed_status))
+                      for workflow_id in testbed_plan
+                      for wes_id in testbed_plan[workflow_id]][-1]
     while True:
         terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
         testbed_statuses = [sub_log['status'] 
@@ -158,6 +171,7 @@ def check_all(workflow_wes_map, permute_opts=False, force=False):
         if (len(testbed_statuses) and 
             all([status in terminal_statuses 
                  for status in testbed_statuses])):
+            collect_logs(testbed_status)
             break
 
         for queue_id in testbed_status:
