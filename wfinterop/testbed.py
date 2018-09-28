@@ -76,6 +76,8 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
     """
     Run checker workflow in a single environment.
     """
+    if opts is None:
+        opts = get_opts()
     if not isinstance(opts, list):
         opts = [opts]
     wf_config = queue_config()[queue_id]
@@ -152,20 +154,10 @@ def collect_logs(testbed_status):
                 shutil.move(log_src, log_dest)
 
 
-def check_all(testbed_plan, permute_opts=False, force=False):
-    """
-    Check workflows for multiple workflows in multiple environments
-    (cross product of workflows, workflow service endpoints).
-    """
-    opts_list = get_opts(permute_opts)
-    testbed_status = [check_workflow(workflow_id, 
-                                     wes_id, 
-                                     opts=opts_list,
-                                     force=force)
-                      for workflow_id in testbed_plan
-                      for wes_id in testbed_plan[workflow_id]][-1]
+def monitor_testbed():
+    testbed_status = get_json(testbed_log)
     while True:
-        terminal_statuses = ['FAILED', 'COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
+        terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
         testbed_statuses = [sub_log['status'] 
                             if 'status' in sub_log else 'PENDING'
                             for queue_log in testbed_status.values()
@@ -186,7 +178,22 @@ def check_all(testbed_plan, permute_opts=False, force=False):
                     testbed_status[queue_id][wes_id][sub_id]['status'] = sub_statuses[sub_id]
         save_json(testbed_log, testbed_status)
         time.sleep(2)
-    
+    return testbed_status
+
+
+def check_all(testbed_plan, permute_opts=False, force=False):
+    """
+    Check workflows for multiple workflows in multiple environments
+    (cross product of workflows, workflow service endpoints).
+    """
+    opts_list = get_opts(permute_opts)
+    testbed_status = [check_workflow(workflow_id, 
+                                     wes_id, 
+                                     opts=opts_list,
+                                     force=force)
+                      for workflow_id in testbed_plan
+                      for wes_id in testbed_plan[workflow_id]][-1]
+    testbed_status = monitor_testbed()
     return testbed_status
 
 
