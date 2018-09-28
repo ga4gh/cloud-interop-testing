@@ -10,12 +10,13 @@ import logging
 import sys
 import time
 import os
+import json
 import datetime as dt
 
 from IPython.display import display, clear_output
 from pprint import pprint
 
-from wfinterop.config import queue_config
+from wfinterop.config import queue_config, wes_config
 from wfinterop.util import ctime2datetime, convert_timedelta
 from wfinterop.wes import WES
 from wfinterop.trs2wes import store_verification
@@ -52,10 +53,12 @@ def run_job(queue_id,
                                           submission_data=wf_jsonyaml,
                                           wes_id=wes_id)
     wes_instance = WES(wes_id)
+    service_config = wes_config()[wes_id]
     request = {'workflow_url': wf_config['workflow_url'],
                'workflow_params': wf_jsonyaml,
                'attachment': wf_attachments}
 
+    parts = []
     if opts is not None:
         parts = build_wes_request(
             workflow_file=request['workflow_url'],
@@ -63,8 +66,11 @@ def run_job(queue_id,
             attachments=request['attachment'],
             **opts
         )
-    else:
-        parts = None
+    if 'workflow_engine_parameters' in service_config:
+        parts.append(('workflow_engine_parameters', 
+                      json.dumps(service_config['workflow_engine_parameters'])))
+    parts = parts if len(parts) else None
+    pprint(parts)
 
     run_log = wes_instance.run_workflow(request, parts=parts)
     if run_log['run_id'] == 'failed':
