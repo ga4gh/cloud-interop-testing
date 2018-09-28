@@ -122,6 +122,8 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
                     .format(submission_id, checker_queue_id, wes_id, opt))
         testbed_status.setdefault(checker_queue_id, {}).setdefault(wes_id, {})[submission_id] = opt
         save_json(testbed_log, testbed_status)
+        logger.info("Requesting new workflow run for '{}' in '{}'"
+                    .format(checker_queue_id, wes_id))
         run_log = run_submission(checker_queue_id, submission_id, opts=opt)
         testbed_status[checker_queue_id][wes_id][submission_id]['run_id'] = run_log['run_id']
         save_json(testbed_log, testbed_status)

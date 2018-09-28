@@ -1,3 +1,4 @@
+import logging
 import os
 import yaml
 import urllib
@@ -17,9 +18,14 @@ from wfinterop.config import queue_config
 from wfinterop.config import set_yaml
 from wfinterop.trs import TRS
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 def fetch_queue_workflow(queue_id):
     wf_config = queue_config()[queue_id]
+    logger.info("Retrieving details for workflow '{}' (queue: '{}')"
+                .format(wf_config['workflow_id'], queue_id))
     trs_instance = TRS(wf_config['trs_id'])
     wf_descriptor = trs_instance.get_workflow_descriptor(
         id=wf_config['workflow_id'],
@@ -44,6 +50,8 @@ def fetch_queue_workflow(queue_id):
         )
         wf_attachments.append(attachment_file['url'])
     wf_config['workflow_attachments'] = wf_attachments
+    logger.debug("Found the following data for workflow '{}':\n{}"
+                 .format(wf_config['workflow_id'], wf_attachments))
     set_yaml('queues', queue_id, wf_config)
     return wf_config
 
@@ -116,6 +124,7 @@ def get_packed_cwl(workflow_url):
     """
     Create 'packed' version of CWL workflow descriptor.
     """
+    logger.debug("Packing descriptors for '{}'".format(workflow_url))
     return subprocess32.check_output(['cwltool', '--pack', workflow_url])
 
 
@@ -172,6 +181,8 @@ def modify_jsonyaml_paths(jsonyaml_file, path_keys=None):
 
     :param jsonyaml_file: Path to a json/yaml file.
     """
+    logger.debug("Resolving paths in parameters file '{}'"
+                 .format(jsonyaml_file))
     resolve_keys = {
         "path": {"@type": "@id"},
         'location': {"@type": "@id"}
@@ -279,7 +290,8 @@ def get_wf_attachments(workflow_file, attachments, parts=None):
         elif attachment.startswith("http"):
             attach_f = urlopen(attachment)
 
-        parts.append(("workflow_attachment", (re.sub(base_path+'/', '', attachment), attach_f)))
+        parts.append(("workflow_attachment", 
+                     (re.sub(base_path+'/', '', attachment), attach_f)))
     return parts
 
 
@@ -319,8 +331,11 @@ def build_wes_request(workflow_file,
 
     if pack_descriptor:
         if wf_type == 'WDL':
+            logger.debug("Descriptor packing not applicable for WDL workflows.")
             pack_descriptor = False
         else:
+            logger.debug("Packed descriptors much be attached; "
+                         "no need to attach imports")
             attach_descriptor = True
             attach_imports = False
     parts = get_wf_descriptor(workflow_file, 
