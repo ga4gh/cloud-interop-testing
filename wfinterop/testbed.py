@@ -143,7 +143,10 @@ def get_opts(permute=False):
         return [dict(zip(opts, [False]*n))]
     else:
         states = set(combinations_with_replacement([True, False]*(n-1), n))
-        return [dict(zip(opts, state)) for state in states]
+        return filter(lambda x: not (x['pack_descriptor'] 
+                                     and (x['attach_imports'] 
+                                          or not x['attach_descriptor'])),
+                      [dict(zip(opts, state)) for state in states])
 
 
 def collect_logs(testbed_status):
