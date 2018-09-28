@@ -90,17 +90,19 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
     logger.info("Preparing checker workflow run request for '{}' from  '{}'"
                 .format(wf_config['workflow_id'], wf_config['trs_id']))
     trs_instance = TRS(wf_config['trs_id'])
-    checker_id = get_checker_id(trs_instance, wf_config['workflow_id'])
-
     checker_queue_id = '{}_checker'.format(queue_id)
-    add_queue(queue_id=checker_queue_id,
-              wf_type=wf_config['workflow_type'],
-              trs_id=wf_config['trs_id'],
-              wf_id=checker_id,
-              version_id=wf_config['version_id'],
-              wes_default=wf_config['wes_default'],
-              wes_opts=wf_config['wes_opts'],
-              target_queue=queue_id)
+    if checker_queue_id in queue_config():
+        checker_id = queue_config()[checker_queue_id]['workflow_id']
+    else:
+        checker_id = get_checker_id(trs_instance, wf_config['workflow_id'])
+        add_queue(queue_id=checker_queue_id,
+                  wf_type=wf_config['workflow_type'],
+                  trs_id=wf_config['trs_id'],
+                  wf_id=checker_id,
+                  version_id=wf_config['version_id'],
+                  wes_default=wf_config['wes_default'],
+                  wes_opts=wf_config['wes_opts'],
+                  target_queue=queue_id)
 
     checker_tests = trs_instance.get_workflow_tests(
         id=checker_id,
