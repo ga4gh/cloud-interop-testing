@@ -133,7 +133,8 @@ def get_opts(permute=False):
     opts = [
         "attach_descriptor",
         "resolve_params" ,
-        "attach_imports"
+        "attach_imports",
+        "pack_descriptor"
     ]
     n = len(opts)
     if not permute:
