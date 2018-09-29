@@ -3,3 +3,4 @@ pandas
 IPython==5.8.0
 future
 bravado
+toil
