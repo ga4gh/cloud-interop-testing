@@ -1,7 +1,9 @@
 import logging
+import requests
 
 from wfinterop.wes.client import load_wes_client
 from wfinterop.util import response_handler
+from wfinterop.config import wes_config
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +16,7 @@ class WES(object):
     the GA4GH Worflow Execution Service RESTful API.
     """
     def __init__(self, wes_id, api_client=None):
+        self.id = wes_id
         if api_client is None:
             api_client = load_wes_client(service_id=wes_id,
                                          client_library=wes_client)
@@ -61,3 +64,21 @@ class WES(object):
         """
         res = self.api_client.GetRunStatus(id)
         return response_handler(res)
+
+    def get_run_stderr(self, id):
+        """
+        Get stderr from workflow run log.
+        """
+        stderr_url = self.get_run(id)['run_log']['stderr']
+        auth = wes_config()[self.id]['auth']
+        res = requests.get(stderr_url, headers=auth)
+        return res.text
+    
+    def get_run_stdout(self, id):
+        """
+        Get stdout from workflow run log.
+        """
+        stdout_url = self.get_run(id)['run_log']['stdout']
+        auth = wes_config()[self.id]['auth']
+        res = requests.get(stdout_url, headers=auth)
+        return res.text
