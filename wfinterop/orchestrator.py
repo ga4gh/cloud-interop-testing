@@ -70,7 +70,6 @@ def run_job(queue_id,
         parts.append(('workflow_engine_parameters', 
                       json.dumps(service_config['workflow_engine_parameters'])))
     parts = parts if len(parts) else None
-    pprint(parts)
 
     run_log = wes_instance.run_workflow(request, parts=parts)
     if run_log['run_id'] == 'failed':
@@ -82,6 +81,7 @@ def run_job(queue_id,
         logger.info("Job received by WES '{}', run ID: {}"
                     .format(wes_id, run_log['run_id']))
         run_log['start_time'] = dt.datetime.now().ctime()
+        time.sleep(10)
         run_status = wes_instance.get_run_status(run_log['run_id'])['state']
         sub_status = 'SUBMITTED'
     run_log['status'] = run_status
