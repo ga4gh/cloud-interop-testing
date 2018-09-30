@@ -14,9 +14,12 @@ def _replace_env_var(match):
     # from https://github.com/zhouxiaoxiang/oriole/blob/master/oriole/yml.py
     env_var, default = match.groups()
     if env_var == 'GCLOUD_TOKEN':
-        return subprocess32.check_output(
-            ['gcloud', 'auth', 'print-access-token']
-            ).rstrip()
+        try:
+            return subprocess32.check_output(
+                ['gcloud', 'auth', 'print-access-token']
+                ).rstrip()
+        except OSError:
+            return '!! gcloud not installed !!'
     else:
         return os.environ.get(env_var, default)
 
