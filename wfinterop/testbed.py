@@ -165,23 +165,29 @@ def collect_logs(testbed_status):
 def monitor_testbed():
     testbed_status = get_json(testbed_log)
     while True:
-        terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
-        testbed_statuses = [sub_log['status'] 
-                            if 'status' in sub_log else 'PENDING'
-                            for queue_log in testbed_status.values()
-                            for wes_log in queue_log.values()
-                            for sub_log in wes_log.values()]
-        if (len(testbed_statuses) and 
-            all([status in terminal_statuses 
-                 for status in testbed_statuses])):
+        terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR',
+                             'SYSTEM_ERROR', 'FAILED', 'Failed']
+        queue_statuses = [(queue_id, sub_log['status'])
+                          if 'status' in sub_log else (queue_id, 'PENDING')
+                          for queue_id in testbed_status
+                          for wes_log in testbed_status[queue_id].values()
+                          for sub_log in wes_log.values()]
+        testbed_statuses = filter(lambda x: x[1] not in terminal_statuses, queue_statuses)
+        if not len(testbed_statuses): 
             collect_logs(testbed_status)
             break
 
-        for queue_id in testbed_status:
+        for queue_id in set([x[0] for x in testbed_statuses]):
+            logger.info("Checking status of runs in queue '{}'"
+                        .format(queue_id))
             queue_logs = monitor_queue(queue_id)
             queue_statuses = map(lambda x: x['status'], queue_logs.values())
+            live_statuses = [s for s in queue_statuses if s not in terminal_statuses]
+            logger.info("... {} jobs still remaining".format(len(live_statuses)))
             sub_statuses = dict(zip(queue_logs.keys(), queue_statuses))
             for wes_id in testbed_status[queue_id]:
+                logger.debug("Recording statuses for queue '{}'\n > '{}'"
+                             .format(queue_id, wes_id))
                 for sub_id in testbed_status[queue_id][wes_id]:
                     testbed_status[queue_id][wes_id][sub_id]['status'] = sub_statuses[sub_id]
         save_json(testbed_log, testbed_status)
@@ -220,6 +226,7 @@ def testbed_report():
                 testbed_record = testbed_status[queue_id][wes_id][sub_id]
                 testbed_record.update({'wes_id': wes_id})
                 testbed_dict[(queue_id, sub_id)] = testbed_record
-    pd.DataFrame.from_dict(testbed_dict, orient='index')
+    status_report = pd.DataFrame.from_dict(testbed_dict, orient='index')
 
-    display(pd.DataFrame.from_dict(testbed_dict, orient='index'))
+    display(status_report)
+    return status_report
