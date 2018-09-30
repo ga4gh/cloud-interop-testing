@@ -3,6 +3,7 @@ import re
 import json
 import yaml
 import logging
+import subprocess32
 import datetime as dt
 
 logging.basicConfig(level=logging.INFO)
@@ -10,17 +11,25 @@ logger = logging.getLogger(__name__)
 
 
 def _replace_env_var(match):
+    # from https://github.com/zhouxiaoxiang/oriole/blob/master/oriole/yml.py
     env_var, default = match.groups()
-    return os.environ.get(env_var, default)
+    if env_var == 'GCLOUD_TOKEN':
+        return subprocess32.check_output(
+            ['gcloud', 'auth', 'print-access-token']
+            ).rstrip()
+    else:
+        return os.environ.get(env_var, default)
 
 
 def _env_var_constructor(loader, node):
+    # from https://github.com/zhouxiaoxiang/oriole/blob/master/oriole/yml.py
     var = re.compile(r"\$\{([^}:\s]+):?([^}]+)?\}", re.VERBOSE)
     value = loader.construct_scalar(node)
     return var.sub(_replace_env_var, value)
 
 
 def setup_yaml_parser():
+    # from https://github.com/zhouxiaoxiang/oriole/blob/master/oriole/yml.py
     var = re.compile(r".*\$\{.*\}.*", re.VERBOSE)
     yaml.add_constructor('!env_var', _env_var_constructor)
     yaml.add_implicit_resolver('!env_var', var)
