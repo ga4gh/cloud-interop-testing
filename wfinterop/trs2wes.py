@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 """
+For a workflow registered in a given TRS implementation
+(e.g., Dockstore), retrieve details and prepare the workflow 
+run request. Optionally, retrieve, format, or attach (as a
+file) workflow descriptors, parameters, and inputs to include
+with request.
 """
 import logging
 import os
@@ -89,13 +94,20 @@ def store_verification(queue_id, wes_id):
 
 
 def get_version(extension, workflow_file):
-    '''Determines the version of a .py, .wdl, or .cwl file.'''
+    """
+    Determines the version of a .py, .wdl, or .cwl file.
+
+    :param str extension:
+    :param str workflow_file:
+    """
     if extension == 'cwl':
         return yaml.load(open(workflow_file))['cwlVersion']
-    else:  # Must be a wdl file.
+    else:  
+        # Must be a wdl file.
         # Borrowed from https://github.com/Sage-Bionetworks/synapse-orchestrator/blob/develop/synorchestrator/util.py#L142
         try:
-            return [l.lstrip('version') for l in workflow_file.splitlines() if 'version' in l.split(' ')][0]
+            return [l.lstrip('version') for l in workflow_file.splitlines() 
+                    if 'version' in l.split(' ')][0]
         except IndexError:
             return 'draft-2'
 
@@ -104,36 +116,54 @@ def get_wf_info(workflow_path):
     """
     Returns the version of the file and the file extension.
 
-    Assumes that the file path is to the file directly ie, ends with a valid file extension.Supports checking local
-    files as well as files at http:// and https:// locations. Files at these remote locations are recreated locally to
-    enable our approach to version checking, then removed after version is extracted.
+    Assumes that the file path is to the file directly - i.e.,
+    ends with a valid file extension. Supports checking local
+    files as well as files at http:// and https:// locations. 
+    Files at these remote locations are recreated locally to
+    enable our approach to version checking, then removed after 
+    version is extracted.
+
+    :param str workflow_path:
     """
 
     supported_formats = ['py', 'wdl', 'cwl']
-    file_type = workflow_path.lower().split('.')[-1]  # Grab the file extension
-    workflow_path = workflow_path if ':' in workflow_path else 'file://' + workflow_path
+    # Grab the file extension
+    file_type = workflow_path.lower().split('.')[-1]  
+    workflow_path = (workflow_path if ':' in workflow_path 
+                     else 'file://' + workflow_path)
 
     if file_type in supported_formats:
         if workflow_path.startswith('file://'):
             version = get_version(file_type, workflow_path[7:])
-        elif workflow_path.startswith('https://') or workflow_path.startswith('http://'):
+        elif (workflow_path.startswith('https://') 
+              or workflow_path.startswith('http://')):
             # If file not local go fetch it.
             html = urlopen(workflow_path).read()
-            local_loc = os.path.join(os.getcwd(), 'fetchedFromRemote.' + file_type)
+            local_loc = os.path.join(os.getcwd(), 
+                                     'fetchedFromRemote.' + file_type)
             with open(local_loc, 'w') as f:
                 f.write(html)
-            version = get_wf_info('file://' + local_loc)[0]  # Don't take the file_type here, found it above.
-            os.remove(local_loc)  # TODO: Find a way to avoid recreating file before version determination.
+            # Don't take the file_type here, found it above.
+            version = get_wf_info('file://' + local_loc)[0]  
+            # TODO: Find a way to avoid recreating file before version 
+            # determination.
+            os.remove(local_loc)  
         else:
-            raise NotImplementedError('Unsupported workflow file location: {}. Must be local or HTTP(S).'.format(workflow_path))
+            raise NotImplementedError("Unsupported workflow file location: "
+                                      "{}. Must be local or HTTP(S)."
+                                      .format(workflow_path))
     else:
-        raise TypeError('Unsupported workflow type: .{}. Must be {}.'.format(file_type, '.py, .cwl, or .wdl'))
+        raise TypeError("Unsupported workflow type: "
+                        ".{}. Must be {}."
+                        .format(file_type, supported_formats))
     return version, file_type.upper()
 
 
 def get_packed_cwl(workflow_url):
     """
     Create 'packed' version of CWL workflow descriptor.
+
+    :param str workflow_url:
     """
     logger.debug("Packing descriptors for '{}'".format(workflow_url))
     return subprocess32.check_output(['cwltool', '--pack', workflow_url])
@@ -259,11 +289,50 @@ def get_wf_descriptor(workflow_file,
     return parts
 
 
+def get_wf_inputs(workflow_file, wf_params, parts=None):
+    """
+    Download and attach input files listed in the workflow 
+    parameters. Only files hosted in public GitHub repositories
+    are currently supported for attaching.
+
+    :param str workflow_file:
+    :param str wf_params:
+    :param list parts:
+    """
+    print(parts)
+    if parts is None:
+        parts = []
+    wf_params = json.loads(wf_params)
+    base_path = os.path.dirname(workflow_file)
+    for param in wf_params.values():
+        if isinstance(param, str) or isinstance(param, unicode):
+            if param.startswith('https://raw.githubusercontent.com'):
+                attach_f = urlopen(param)
+                parts.append(("workflow_attachment", 
+                        (re.sub(base_path+'/', '', param), attach_f)))
+                return parts
+        elif isinstance(param, dict):
+            return get_wf_inputs(workflow_file, 
+                                 wf_params=json.dumps({'url': param['location']}),
+                                 parts=parts)
+
+
 def get_wf_params(workflow_file, 
                   workflow_type, 
                   jsonyaml, 
                   parts=None, 
-                  fix_paths=False):
+                  fix_paths=False,
+                  attach_inputs=False):
+    """
+    Retrieve and format workflow parameters for execution.
+
+    :param str workflow_file:
+    :param str workflow_type:
+    :param str jsonyaml:
+    :param list parts:
+    :param bool fix_paths:
+    :param bool attach_inputs:
+    """
     if parts is None:
         parts = []
 
@@ -278,7 +347,13 @@ def get_wf_params(workflow_file,
                 res = urllib.urlopen(workflow_file)
                 workflow_descriptor = res.read()
                 input_keys = get_wdl_inputs(workflow_descriptor)['File']
-            wf_params = modify_jsonyaml_paths(jsonyaml, path_keys=input_keys)
+            wf_params_fixed = modify_jsonyaml_paths(jsonyaml, 
+                                                    path_keys=input_keys)
+            if attach_inputs:
+                parts = get_wf_inputs(workflow_file, wf_params_fixed, parts)
+                wf_params = json.dumps(json.loads(urllib.urlopen(jsonyaml).read()))
+            else:
+                wf_params = wf_params_fixed
         else:
             wf_params = json.dumps(json.loads(urllib.urlopen(jsonyaml).read()))
     else:
@@ -287,9 +362,20 @@ def get_wf_params(workflow_file,
 
     parts.append(("workflow_params", wf_params))
     return parts
-
+    
 
 def get_wf_attachments(workflow_file, attachments, parts=None):
+    """
+    Retrieve and attach any additional files needed to run 
+    the workflow. Attachments should nominally be hosted in the
+    same remote repository as the primary workflow descriptor
+    and specified using the full URL. Local file attachments
+    are supported but discouraged.
+
+    :param str workflow_file:
+    :param list attachments:
+    :param list parts:
+    """
     if parts is None:
         parts = []
 
@@ -326,13 +412,26 @@ def build_wes_request(workflow_file,
                       attach_descriptor=False,
                       pack_descriptor=False,
                       attach_imports=False,
-                      resolve_params=False):
+                      resolve_params=False,
+                      attach_inputs=False):
     """
-    :param str workflow_file: Path to cwl/wdl file.  Can be http/https/file.
-    :param jsonyaml: Path to accompanying JSON or YAML file.
-    :param attachments: Any other files needing to be uploaded to the server.
+    Construct and format Workflow Execution Service POST request to
+    create a new workflow run. Named parts (primitive types or files)
+    are submitted as 'multipart/form-data'.
 
-    :return: A list of tuples formatted to be sent in a post to the wes-server (Swagger API).
+    :param str workflow_file: Path to CWL/WDL file. 
+        Can be http/https/file.
+    :param jsonyaml: Path to accompanying JSON or YAML file.
+    :param attachments: Any other files needing to be uploaded 
+        to the server.
+    :param bool attach_descriptor:
+    :param bool pack_descriptor:
+    :param bool attach_imports:
+    :param bool resolve_params:
+    :param bool attach_inputs:
+
+    :return: A list of tuples formatted to be sent in a POST to 
+        the WES server (Swagger API).
     """
     workflow_file = "file://" + workflow_file if ":" not in workflow_file else workflow_file
     wf_version, wf_type = get_wf_info(workflow_file)
@@ -342,13 +441,20 @@ def build_wes_request(workflow_file,
 
     if pack_descriptor:
         if wf_type == 'WDL':
-            logger.debug("Descriptor packing not applicable for WDL workflows.")
+            logger.debug("Descriptor packing not applicable for WDL "
+                         "workflows; imports must be attached or specified "
+                         "as full URLs.")
             pack_descriptor = False
         else:
             logger.debug("Packed descriptors much be attached; "
                          "no need to attach imports")
             attach_descriptor = True
             attach_imports = False
+    if attach_inputs:
+        logger.debug("Attachment only supported for input files hosted "
+                     "on GitHub; parameter paths will be resolved to "
+                     "full URLs.")
+        resolve_params = True
     parts = get_wf_descriptor(workflow_file, 
                               parts, 
                               attach_descriptor,
@@ -357,7 +463,8 @@ def build_wes_request(workflow_file,
                           wf_type, 
                           jsonyaml, 
                           parts, 
-                          fix_paths=resolve_params)
+                          fix_paths=resolve_params,
+                          attach_inputs=attach_inputs)
 
     if not attach_imports:
         ext_re = re.compile('{}$'.format(wf_type.lower()))
