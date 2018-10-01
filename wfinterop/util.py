@@ -1,9 +1,13 @@
+#!/usr/bin/env python
+"""
+"""
+import logging
 import os
 import re
 import json
 import yaml
-import logging
 import subprocess32
+
 import datetime as dt
 
 logging.basicConfig(level=logging.INFO)
@@ -11,6 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 def _replace_env_var(match):
+    """
+    :param match:
+    """
     # from https://github.com/zhouxiaoxiang/oriole/blob/master/oriole/yml.py
     env_var, default = match.groups()
     if env_var == 'GCLOUD_TOKEN':
@@ -25,6 +32,10 @@ def _replace_env_var(match):
 
 
 def _env_var_constructor(loader, node):
+    """
+    :param loader:
+    :param node:
+    """
     # from https://github.com/zhouxiaoxiang/oriole/blob/master/oriole/yml.py
     var = re.compile(r"\$\{([^}:\s]+):?([^}]+)?\}", re.VERBOSE)
     value = loader.construct_scalar(node)
@@ -32,6 +43,8 @@ def _env_var_constructor(loader, node):
 
 
 def setup_yaml_parser():
+    """
+    """
     # from https://github.com/zhouxiaoxiang/oriole/blob/master/oriole/yml.py
     var = re.compile(r".*\$\{.*\}.*", re.VERBOSE)
     yaml.add_constructor('!env_var', _env_var_constructor)
@@ -42,12 +55,19 @@ setup_yaml_parser()
 
 
 def heredoc(s, inputs_dict):
+    """
+    :param str s:
+    :param dict inputs_dict:
+    """
     import textwrap
     s = textwrap.dedent(s).format(**inputs_dict)
     return s[1:] if s.startswith('\n') else s
 
 
 def get_yaml(filepath):
+    """
+    :param str filepath:
+    """
     try:
         with open(filepath, 'r') as f:
             return yaml.load(f)
@@ -56,11 +76,18 @@ def get_yaml(filepath):
 
 
 def save_yaml(filepath, app_config):
+    """
+    :param str filepath:
+    :param dict app_config:
+    """
     with open(filepath, 'w') as f:
         yaml.dump(app_config, f, default_flow_style=False)
 
 
 def get_json(filepath):
+    """
+    :param str filepath:
+    """
     try:
         with open(filepath, 'r') as f:
             return json.load(f)
@@ -69,11 +96,18 @@ def get_json(filepath):
 
 
 def save_json(filepath, app_config):
+    """
+    :param str filepath:
+    :param dict app_config:
+    """
     with open(filepath, 'w') as f:
         json.dump(app_config, f, indent=4)
 
 
 def response_handler(response):
+    """
+    :param response:
+    """
     try:
         return response.response().result
     except:
@@ -81,10 +115,16 @@ def response_handler(response):
 
 
 def ctime2datetime(time_str):
+    """
+    :param str time_str:
+    """
     return dt.datetime.strptime(time_str, '%a %b %d %H:%M:%S %Y')
 
 
 def convert_timedelta(duration):
+    """
+    :param duration:
+    """
     days, seconds = duration.days, duration.seconds  # noqa
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60

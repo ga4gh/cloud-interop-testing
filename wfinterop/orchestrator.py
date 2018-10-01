@@ -39,6 +39,13 @@ def run_job(queue_id,
             submission=False):
     """
     Put a workflow in the queue and immmediately run it.
+
+    :param str queue_id: String identifying the workflow queue.
+    :param str wes_id:
+    :param str wf_jsonyaml:
+    :param dict opts:
+    :param list add_attachments:
+    :param bool submission:
     """
     wf_config = queue_config()[queue_id]
     if wf_config['workflow_url'] is None:
@@ -96,6 +103,11 @@ def run_submission(queue_id, submission_id, wes_id=None, opts=None):
     """
     For a single submission to a single evaluation queue, run
     the workflow in a single environment.
+
+    :param str queue_id: String identifying the workflow queue.
+    :param str submission_id:
+    :param str wes_id:
+    :param dict opts:
     """
     submission = get_submission_bundle(queue_id, submission_id)
     if submission['wes_id'] is not None:
@@ -121,6 +133,10 @@ def run_submission(queue_id, submission_id, wes_id=None, opts=None):
 def run_queue(queue_id, wes_id=None, opts=None):
     """
     Run all submissions in a queue in a single environment.
+
+    :param str queue_id: String identifying the workflow queue.
+    :param str wes_id:
+    :param dict opts:
     """
     queue_log = {}
     for submission_id in get_submissions(queue_id, status='RECEIVED'):
@@ -149,6 +165,8 @@ def run_all():
 def monitor_queue(queue_id):
     """
     Update the status of all submissions for a queue.
+
+    :param str queue_id: String identifying the workflow queue.
     """
     current = dt.datetime.now()
     queue_log = {}

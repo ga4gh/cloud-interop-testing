@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+"""
+"""
 import logging
 import os
 import yaml
@@ -5,8 +8,8 @@ import urllib
 import json
 import re
 import glob
-# import schema_salad
 import subprocess32
+
 import schema_salad.ref_resolver
 
 from urllib import urlopen
@@ -23,6 +26,12 @@ logger = logging.getLogger(__name__)
 
 
 def fetch_queue_workflow(queue_id):
+    """
+    Collect details for the workflow associated with a queue from the
+    specified TRS repository.
+
+    :param str queue_id: String identifying the workflow queue.
+    """
     wf_config = queue_config()[queue_id]
     logger.info("Retrieving details for workflow '{}' (queue: '{}')"
                 .format(wf_config['workflow_id'], queue_id))
@@ -59,6 +68,8 @@ def fetch_queue_workflow(queue_id):
 def store_verification(queue_id, wes_id):
     """
     Record checker status for selected workflow and environment.
+
+    :param str queue_id: String identifying the workflow queue.
     """
     wf_config = queue_config()[queue_id]
     wf_config.setdefault('wes_verified', []).append(wes_id)

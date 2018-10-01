@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 The orchestrator config file has three sections: queues, trs, and wes.
 
@@ -60,14 +61,20 @@ if not os.path.exists(config_path):
 
 
 def queue_config():
+    """
+    """
     return get_yaml(config_path)['queues']
 
 
 def trs_config():
+    """
+    """
     return get_yaml(config_path)['toolregistries']
 
 
 def wes_config():
+    """
+    """
     return get_yaml(config_path)['workflowservices']
 
 
@@ -84,6 +91,16 @@ def add_queue(queue_id,
     """
     Register a workflow evaluation queue to the orchestrator's
     scope of work.
+
+    :param str queue_id: String identifying the workflow queue.
+    :param str wf_type:
+    :param str wf_id:
+    :param str version_id:
+    :param str wf_url:
+    :param list wf_attachments:
+    :param str wes_default:
+    :param list wes_opts:
+    :param str target_queue:
     """
     if not wf_id and not wf_url:
         raise ValueError(
@@ -110,7 +127,10 @@ def add_toolregistry(service,
     Register a Tool Registry Service endpoint to the orchestrator's
     search space for workflows.
 
-    :param trs_id: string ID of TRS endpoint (e.g., 'dockstore')
+    :param service: string ID of TRS endpoint (e.g., 'dockstore')
+    :param str host:
+    :param dict auth:
+    :param str proto:
     """
     config = {'auth': auth,
               'host': host,
@@ -126,7 +146,10 @@ def add_workflowservice(service,
     Register a Workflow Execution Service endpoint to the
     orchestrator's available environment options.
 
-    :param wes_id: string ID of WES endpoint (e.g., 'local')
+    :param str service: string ID of WES endpoint (e.g., 'local')
+    :param str host:
+    :param dict auth:
+    :param str proto:
     """
     config = {'auth': auth,
               'host': host,
@@ -138,6 +161,10 @@ def add_wes_opt(queue_ids, wes_id, make_default=False):
     """
     Add a WES endpoint to the execution options of the specified
     workflow queues.
+
+    :param str queue_id: String identifying the workflow queue.
+    :param str wes_id:
+    :param bool make_default:
     """
     if not isinstance(queue_ids, list):
         queue_ids = [queue_ids]
@@ -150,6 +177,11 @@ def add_wes_opt(queue_ids, wes_id, make_default=False):
 
 
 def set_yaml(section, service, var2add):
+    """
+    :param str section:
+    :param str service:
+    :param dict var2add:
+    """
     orchestrator_config = get_yaml(config_path)
     orchestrator_config.setdefault(section, {})[service] = var2add
     save_yaml(config_path, orchestrator_config)

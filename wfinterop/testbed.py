@@ -13,7 +13,7 @@ from itertools import combinations_with_replacement
 from requests.exceptions import ConnectionError
 
 from wfinterop.config import add_queue
-from wfinterop.config import queue_config
+from wfinterop.config import queue_config, set_yaml
 from wfinterop.trs import TRS
 from wfinterop.wes import WES
 from wfinterop.queue import create_submission
@@ -64,6 +64,9 @@ def poll_services():
 def get_checker_id(trs, workflow_id):
     """
     Return entry for the specified workflow's "checker workflow."
+
+    :param trs:
+    :param str workflow_id:
     """
     target_workflow = trs.get_workflow(id=workflow_id)
     checker_url = urllib.unquote(target_workflow['checker_url'])
@@ -75,6 +78,11 @@ def get_checker_id(trs, workflow_id):
 def check_workflow(queue_id, wes_id, opts=None, force=False):
     """
     Run checker workflow in a single environment.
+
+    :param str queue_id: String identifying the workflow queue.
+    :param str wes_id:
+    :param dict opts:
+    :param bool force:
     """
     if opts is None:
         opts = get_opts()
@@ -110,7 +118,9 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
         type=wf_config['workflow_type']
     )
     checker_job = checker_tests[0]
-
+    checker_config = queue_config()[checker_queue_id]
+    checker_config['test'] = checker_job['url']
+    set_yaml('queues', checker_queue_id, checker_config)
     for opt in opts:
         if 'run_id' in opt:
             opt.pop('run_id')
@@ -132,6 +142,9 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
 
 
 def get_opts(permute=False):
+    """
+    :param bool permute:
+    """
     opts = [
         "attach_descriptor",
         "resolve_params" ,
@@ -150,6 +163,9 @@ def get_opts(permute=False):
 
 
 def collect_logs(testbed_status):
+    """
+    :param dict testbed_status:
+    """
     for queue_id in testbed_status:
         for wes_id in testbed_status[queue_id]:
             log_dir = os.path.join('logs', queue_id, wes_id)
@@ -163,6 +179,8 @@ def collect_logs(testbed_status):
 
 
 def monitor_testbed():
+    """
+    """
     testbed_status = get_json(testbed_log)
     while True:
         terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR',
@@ -199,6 +217,10 @@ def check_all(testbed_plan, permute_opts=False, force=False):
     """
     Check workflows for multiple workflows in multiple environments
     (cross product of workflows, workflow service endpoints).
+
+    :param dict testbed_plan:
+    :param bool permute_opts:
+    :param bool force:
     """
     opts_list = get_opts(permute_opts)
     testbed_status = [check_workflow(workflow_id, 
@@ -212,6 +234,8 @@ def check_all(testbed_plan, permute_opts=False, force=False):
 
 
 def testbed_report():
+    """
+    """
     import pandas as pd
     pd.set_option('display.width', 1000)
     pd.set_option('display.max_columns', 10)
