@@ -14,34 +14,39 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def _default_queues():
+    queues = {
+        'test_cwl_queue': {
+            'target_queue': None,
+            'trs_id': None,
+            'version_id': None,
+            'wes_default': 'local',
+            'wes_opts': ['local'],
+            'workflow_attachments': [
+                'file://tests/testdata/md5sum.input',
+                'file://tests/testdata/dockstore-tool-md5sum.cwl'],
+            'workflow_id': None,
+            'workflow_type': 'CWL',
+            'workflow_url': 'file://tests/testdata/md5sum.cwl'},
+        'test_wdl_queue': {
+            'target_queue': None,
+            'trs_id': None,
+            'version_id': None,
+            'wes_default': 'local',
+            'wes_opts': ['local'],
+            'workflow_attachments': ['file://tests/testdata/md5sum.input'],
+            'workflow_id': None,
+            'workflow_type': 'WDL',
+            'workflow_url': 'file://tests/testdata/md5sum.wdl'}
+    }
+    save_yaml(queues_path, queues)
+
+
 def _default_config():
     """
     Create default app config, if not existing.
     """
     config = {
-        'queues': {
-            'test_cwl_queue': {
-                'target_queue': None,
-                'trs_id': None,
-                'version_id': None,
-                'wes_default': 'local',
-                'wes_opts': ['local'],
-                'workflow_attachments': [
-                    'file://tests/testdata/md5sum.input',
-                    'file://tests/testdata/dockstore-tool-md5sum.cwl'],
-                'workflow_id': None,
-                'workflow_type': 'CWL',
-                'workflow_url': 'file://tests/testdata/md5sum.cwl'},
-            'test_wdl_queue': {
-                'target_queue': None,
-                'trs_id': None,
-                'version_id': None,
-                'wes_default': 'local',
-                'wes_opts': ['local'],
-                'workflow_attachments': ['file://tests/testdata/md5sum.input'],
-                'workflow_id': None,
-                'workflow_type': 'WDL',
-                'workflow_url': 'file://tests/testdata/md5sum.wdl'}},
         'toolregistries': {
             'dockstore': {
                 'auth': {'Authorization': ''},
@@ -59,11 +64,15 @@ config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
 if not os.path.exists(config_path):
     _default_config()
 
+queues_path = os.path.join(os.path.dirname(__file__), 'queues.yaml')
+if not os.path.exists(queues_path):
+    _default_queues()
+
 
 def queue_config():
     """
     """
-    return get_yaml(config_path)['queues']
+    return get_yaml(queues_path)
 
 
 def trs_config():
@@ -182,6 +191,10 @@ def set_yaml(section, service, var2add):
     :param str service:
     :param dict var2add:
     """
+    if section == 'queues':
+        orchestrator_queues = get_yaml(config_path)
+        orchestrator_queues[service] = var2add
+        save_yaml(queues_path, orchestrator_queues)
     orchestrator_config = get_yaml(config_path)
     orchestrator_config.setdefault(section, {})[service] = var2add
     save_yaml(config_path, orchestrator_config)
@@ -192,9 +205,10 @@ def show():
     Show current application configuration.
     """
     orchestrator_config = get_yaml(config_path)
+    orchestrator_queues = get_yaml(queues_path)
     queue_lines = []
-    for queue_id in orchestrator_config['queues']:
-        wf_config = orchestrator_config['queues'][queue_id]
+    for queue_id in orchestrator_queues:
+        wf_config = orchestrator_queues[queue_id]
         wf_id = wf_config['workflow_id']
         version_id = wf_config['version_id']
         wf_url = wf_config['workflow_url']

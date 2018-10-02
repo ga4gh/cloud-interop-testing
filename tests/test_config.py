@@ -16,10 +16,10 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-def test_queue_config(mock_orchestratorconfig, mock_queue_config, monkeypatch):
+def test_queue_config(mock_orchestratorqueues, mock_queue_config, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr('wfinterop.config.config_path', 
-                        str(mock_orchestratorconfig))
+    monkeypatch.setattr('wfinterop.config.queues_path', 
+                        str(mock_orchestratorqueues))
 
     # WHEN the configuration data in the file is loaded
     test_config = queue_config()
@@ -52,10 +52,10 @@ def test_wes_config(mock_orchestratorconfig, mock_wes_config, monkeypatch):
     assert(test_config == mock_wes_config)
 
 
-def test_add_queue(mock_orchestratorconfig, monkeypatch):
+def test_add_queue(mock_orchestratorqueues, monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr('wfinterop.config.config_path', 
-                        str(mock_orchestratorconfig))
+    monkeypatch.setattr('wfinterop.config.queues_path', 
+                        str(mock_orchestratorqueues))
     
     # WHEN an evaluation queue is added to the configuration of the
     # workflow orchestrator app
@@ -77,8 +77,8 @@ def test_add_queue(mock_orchestratorconfig, monkeypatch):
                    'target_queue': None}
 
     # THEN the evaluation queue config should be stored in the config file
-    with open(str(mock_orchestratorconfig), 'r') as f:
-        test_config = yaml.load(f)['queues']
+    with open(str(mock_orchestratorqueues), 'r') as f:
+        test_config = yaml.load(f)
 
     assert('mock_queue' in test_config)
     assert(test_config['mock_queue'] == mock_config)

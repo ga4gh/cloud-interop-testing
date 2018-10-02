@@ -66,15 +66,28 @@ def mock_wes_config():
 
 
 @pytest.fixture(scope='function')
+def mock_orchestratorqueues(tmpdir, 
+                            mock_queue_config):
+    # a mocked config file for a the orchestrator app
+    logger.info("[setup] mock orchestrator queues file, create local file")
+
+    mock_queues = mock_queue_config
+
+    mock_queues_file = tmpdir.join('queues.yaml')
+    logger.debug("writing queues file: {}".format(str(mock_queues_file)))
+    mock_queues_file.write(yaml.dump(mock_queues, default_flow_style=False))
+
+    yield mock_queues_file
+
+
+@pytest.fixture(scope='function')
 def mock_orchestratorconfig(tmpdir, 
-                            mock_queue_config, 
                             mock_trs_config, 
                             mock_wes_config):
     # a mocked config file for a the orchestrator app
     logger.info("[setup] mock orchestrator config file, create local file")
 
-    mock_config = {'queues': mock_queue_config,
-                   'toolregistries': mock_trs_config,
+    mock_config = {'toolregistries': mock_trs_config,
                    'workflowservices': mock_wes_config}
     mock_config_file = tmpdir.join('config.yaml')
     logger.debug("writing config file: {}".format(str(mock_config_file)))
