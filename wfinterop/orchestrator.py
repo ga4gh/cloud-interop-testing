@@ -204,8 +204,8 @@ def monitor_queue(queue_id):
             wf_config = queue_config()[queue_id]
             sub_status = run_log['status']
             if wf_config['target_queue']:
-                store_verification(wf_config['target_queue'],
-                                   submission['wes_id'])
+                # store_verification(wf_config['target_queue'],
+                #                    submission['wes_id'])
                 sub_status = 'VALIDATED'
             update_submission(queue_id, sub_id, 'status', sub_status)
 

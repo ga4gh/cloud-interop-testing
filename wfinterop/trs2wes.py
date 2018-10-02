@@ -169,6 +169,19 @@ def get_packed_cwl(workflow_url):
     return subprocess32.check_output(['cwltool', '--pack', workflow_url])
 
 
+def get_flattened_descriptor(workflow_file):
+    wf_lines = urlopen(workflow_file).readlines()
+    import_lines = [line_num for line_num, line in enumerate(wf_lines) 
+                    if 'import' in line]
+    for l in import_lines:
+        match = re.search('http.*(?=")', wf_lines[l])
+        if match is not None:
+            path = match.group()
+            filename = os.path.basename(path)
+            wf_lines[l] =re.sub(path, filename, wf_lines[l]) 
+    return ''.join(wf_lines)
+
+
 def find_asts(ast_root, name):
         """
         Finds an AST node with the given name and the entire subtree under it.
