@@ -192,12 +192,13 @@ def set_yaml(section, service, var2add):
     :param dict var2add:
     """
     if section == 'queues':
-        orchestrator_queues = get_yaml(config_path)
+        orchestrator_queues = get_yaml(queues_path)
         orchestrator_queues[service] = var2add
         save_yaml(queues_path, orchestrator_queues)
-    orchestrator_config = get_yaml(config_path)
-    orchestrator_config.setdefault(section, {})[service] = var2add
-    save_yaml(config_path, orchestrator_config)
+    else:
+        orchestrator_config = get_yaml(config_path)
+        orchestrator_config.setdefault(section, {})[service] = var2add
+        save_yaml(config_path, orchestrator_config)
 
 
 def show():

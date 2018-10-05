@@ -136,10 +136,14 @@ def test_add_workflowservice(mock_orchestratorconfig, monkeypatch):
     assert(test_config['mock_wes'] == mock_config)
 
 
-def test_set_yaml(mock_orchestratorconfig, monkeypatch):
+def test_set_yaml(mock_orchestratorconfig, 
+                  mock_orchestratorqueues,
+                  monkeypatch):
     # GIVEN an orchestrator config file exists
     monkeypatch.setattr('wfinterop.config.config_path', 
                         str(mock_orchestratorconfig))
+    monkeypatch.setattr('wfinterop.config.queues_path', 
+                        str(mock_orchestratorqueues))
     
     # WHEN the config is set for a given section and service
     set_yaml(
