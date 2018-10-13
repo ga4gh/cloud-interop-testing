@@ -3,17 +3,44 @@ import mock
 import pytest
 import yaml
 
+from wfinterop.config import _default_queues
+from wfinterop.config import _default_config
 from wfinterop.config import queue_config
 from wfinterop.config import trs_config
 from wfinterop.config import wes_config
 from wfinterop.config import add_queue
 from wfinterop.config import add_toolregistry
 from wfinterop.config import add_workflowservice
+from wfinterop.config import add_wes_opt
 from wfinterop.config import set_yaml
 from wfinterop.config import show
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+
+def test__default_queues(mock_orchestratorqueues, monkeypatch):
+    monkeypatch.setattr('wfinterop.config.queues_path',
+                        str(mock_orchestratorqueues))
+    
+    _default_queues()
+    
+    with open(str(mock_orchestratorqueues), 'r') as f:
+        test_config = yaml.load(f)
+    
+    assert isinstance(test_config, dict)
+
+
+def test__default_config(mock_orchestratorconfig, monkeypatch):
+    monkeypatch.setattr('wfinterop.config.config_path',
+                        str(mock_orchestratorconfig))
+    
+    _default_config()
+    
+    with open(str(mock_orchestratorconfig), 'r') as f:
+        test_config = yaml.load(f)
+    
+    assert isinstance(test_config, dict)
 
 
 def test_queue_config(mock_orchestratorqueues, mock_queue_config, monkeypatch):
@@ -84,6 +111,21 @@ def test_add_queue(mock_orchestratorqueues, monkeypatch):
     assert(test_config['mock_queue'] == mock_config)
 
 
+def test_add_queue_no_wf_id_or_url(mock_orchestratorqueues, monkeypatch):
+    # GIVEN an orchestrator config file exists
+    monkeypatch.setattr('wfinterop.config.queues_path', 
+                        str(mock_orchestratorqueues))
+    
+    # WHEN an evaluation queue is added to the configuration of the
+    # workflow orchestrator app
+    with pytest.raises(ValueError):
+        add_queue(
+            queue_id='mock_queue',
+            wf_type='',
+            version_id='develop'
+        )
+
+
 def test_add_toolregistry(mock_orchestratorconfig, monkeypatch):
     # GIVEN an orchestrator config file exists
     monkeypatch.setattr('wfinterop.config.config_path', 
@@ -134,6 +176,69 @@ def test_add_workflowservice(mock_orchestratorconfig, monkeypatch):
 
     assert('mock_wes' in test_config)
     assert(test_config['mock_wes'] == mock_config)
+
+
+def test_add_wes_opt(mock_orchestratorqueues, mock_queue_config, monkeypatch):
+    # GIVEN an orchestrator config file exists
+    monkeypatch.setattr('wfinterop.config.queues_path', 
+                        str(mock_orchestratorqueues))
+    monkeypatch.setattr('wfinterop.config.queue_config', 
+                        lambda: mock_queue_config)
+    
+    # WHEN an evaluation queue is added to the configuration of the
+    # workflow orchestrator app
+    add_wes_opt(
+        queue_ids='mock_queue_1',
+        wes_id='mock_wes'
+    )
+
+    mock_config = {'trs_id': 'mock_trs',
+                   'workflow_id': 'mock_wf',
+                   'version_id': 'develop',
+                   'workflow_type': 'CWL',
+                   'workflow_url': None,
+                   'workflow_attachments': None,
+                   'wes_default': 'local',
+                   'wes_opts': ['local', 'mock_wes'],
+                   'target_queue': None}
+
+    # THEN the evaluation queue config should be stored in the config file
+    with open(str(mock_orchestratorqueues), 'r') as f:
+        test_config = yaml.load(f)
+
+    assert(test_config['mock_queue_1'] == mock_config)
+
+
+def test_add_wes_opt_make_default(mock_orchestratorqueues, mock_queue_config, monkeypatch):
+    # GIVEN an orchestrator config file exists
+    monkeypatch.setattr('wfinterop.config.queues_path', 
+                        str(mock_orchestratorqueues))
+    monkeypatch.setattr('wfinterop.config.queue_config', 
+                        lambda: mock_queue_config)
+    
+    # WHEN an evaluation queue is added to the configuration of the
+    # workflow orchestrator app
+    add_wes_opt(
+        queue_ids='mock_queue_1',
+        wes_id='mock_wes',
+        make_default=True
+    )
+
+    mock_config = {'trs_id': 'mock_trs',
+                   'workflow_id': 'mock_wf',
+                   'version_id': 'develop',
+                   'workflow_type': 'CWL',
+                   'workflow_url': None,
+                   'workflow_attachments': None,
+                   'wes_default': 'mock_wes',
+                   'wes_opts': ['local', 'mock_wes'],
+                   'target_queue': None}
+
+    # THEN the evaluation queue config should be stored in the config file
+    with open(str(mock_orchestratorqueues), 'r') as f:
+        test_config = yaml.load(f)
+
+    assert(test_config['mock_queue_1'] == mock_config)
 
 
 def test_set_yaml(mock_orchestratorconfig, 
