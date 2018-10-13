@@ -21,6 +21,7 @@ from StringIO import StringIO
 from toil.wdl import wdl_parser
 from wes_service.util import visit
 
+from wfinterop.util import get_yaml, get_json
 from wfinterop.config import queue_config
 from wfinterop.config import set_yaml
 from wfinterop.trs import TRS
@@ -109,10 +110,9 @@ def get_version(extension, workflow_file):
         str: string indicating workflow type version
     """
     if extension == 'cwl':
-        return yaml.load(open(workflow_file))['cwlVersion']
+        return get_yaml(workflow_file)['cwlVersion']
     else:  
         # Must be a wdl file.
-        # Borrowed from https://github.com/Sage-Bionetworks/synapse-orchestrator/blob/develop/synorchestrator/util.py#L142
         try:
             return [l.lstrip('version') for l in workflow_file.splitlines() 
                     if 'version' in l.split(' ')][0]
@@ -400,8 +400,7 @@ def get_wf_params(workflow_file,
 
     if jsonyaml.startswith("file://"):
         jsonyaml = jsonyaml[7:]
-        with open(jsonyaml) as f:
-            wf_params = json.dumps(json.load(f))
+        wf_params = json.dumps(get_json(json_yaml))
     elif jsonyaml.startswith("http"):
         if fix_paths:
             input_keys = None
@@ -419,8 +418,7 @@ def get_wf_params(workflow_file,
         else:
             wf_params = json.dumps(json.loads(urllib.urlopen(jsonyaml).read()))
     else:
-        with open(jsonyaml) as f:
-            wf_params = json.dumps(json.load(f))
+        wf_params = json.dumps(get_json(json_yaml))
 
     parts.append(("workflow_params", wf_params))
     return parts
