@@ -13,8 +13,21 @@ import subprocess32
 
 import datetime as dt
 
+from contextlib import contextmanager
+from urllib import urlopen
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+@contextmanager
+def open_file(path, mode):
+    if path.startswith('http'):
+        f = urlopen(path)
+    else:
+        f = open(path, mode)
+    yield f
+    f.close()
 
 
 def _replace_env_var(match):
@@ -105,7 +118,7 @@ def get_yaml(filepath):
         dict: dict with loaded/parsed data from the YAML file
     """
     try:
-        with open(filepath, 'r') as f:
+        with open_file(filepath, 'r') as f:
             return yaml.load(f)
     except IOError:
         logger.exception("No file found.  Please create: %s." % filepath)
@@ -119,7 +132,7 @@ def save_yaml(filepath, app_config):
         filepath (str): local filepath of the YAML file
         app_config (dict): dict containing the data to write
     """
-    with open(filepath, 'w') as f:
+    with open_file(filepath, 'w') as f:
         yaml.dump(app_config, f, default_flow_style=False)
 
 
@@ -134,7 +147,7 @@ def get_json(filepath):
         dict: dict with loaded/parsed data from the JSON file
     """
     try:
-        with open(filepath, 'r') as f:
+        with open_file(filepath, 'r') as f:
             return json.load(f)
     except IOError:
         logger.exception("No file found.  Please create: %s." % filepath)
@@ -148,7 +161,7 @@ def save_json(filepath, app_config):
         filepath (str): local filepath of the JSON file
         app_config (dict): dict containing the data to write
     """
-    with open(filepath, 'w') as f:
+    with open_file(filepath, 'w') as f:
         json.dump(app_config, f, indent=4)
 
 
