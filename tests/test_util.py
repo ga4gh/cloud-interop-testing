@@ -9,6 +9,33 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
+def test_open_file_read(tmpdir):
+    mock_contents = 'mock text'
+    mock_file = tmpdir.join('mock.txt')
+    mock_file.write(mock_contents)
+
+    with util.open_file(str(mock_file), 'r') as f:
+        test_contents = f.read()
+    assert test_contents == mock_contents
+
+
+def test_open_file_write(tmpdir):
+    mock_contents = 'mock text'
+    mock_file = tmpdir.join('mock.txt')
+    mock_file.write('')
+
+    with util.open_file(str(mock_file), 'w') as f:
+        f.write(mock_contents)
+    
+    assert mock_file.read() == mock_contents
+
+
+def test_open_file_write_url(tmpdir):
+    with pytest.raises(ValueError):
+        with util.open_file('http://mock.com', 'w') as f:
+            f.write('mock_text')
+
+
 def test_heredoc():
     test_string = util.heredoc(
         '''

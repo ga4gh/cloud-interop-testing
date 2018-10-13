@@ -22,10 +22,13 @@ logger = logging.getLogger(__name__)
 
 @contextmanager
 def open_file(path, mode):
-    if path.startswith('http'):
-        f = urlopen(path)
+    if mode.startswith('w'):
+        if path.startswith('http'):
+            raise ValueError
+        else:
+            f = open(path, mode)
     else:
-        f = open(path, mode)
+        f = urlopen(path)
     yield f
     f.close()
 
