@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 """
-The orchestrator config file has three sections: queues, trs, and wes.
+The orchestrator config has three sections for workflow queues, tool
+registry services (TRS), and workflow execution services (WES). The latter
+two sections are stored in the same file, and individual entries are
+generally unchanged after adding. The former (queues) are stored in a
+separate file.
 
-This provides functions to save and get values into these three sections
-in the file.
+This provides functions to save and get values into these three sections.
 """
 import logging
 import os
@@ -15,6 +18,9 @@ logger = logging.getLogger(__name__)
 
 
 def _default_queues():
+    """
+    Create default queues config file with example workflow data.
+    """
     queues = {
         'test_cwl_queue': {
             'target_queue': None,
@@ -71,18 +77,30 @@ if not os.path.exists(queues_path):
 
 def queue_config():
     """
+    Fetch config data for workflow queues.
+
+    Returns:
+        dict: dict with an entry for each workflow queue
     """
     return get_yaml(queues_path)
 
 
 def trs_config():
     """
+    Fetch config data for tool registry services.
+
+    Returns:
+        dict: dict with an entry for each service
     """
     return get_yaml(config_path)['toolregistries']
 
 
 def wes_config():
     """
+    Fetch config data for workflow execution services.
+
+    Returns:
+        dict: dict with an entry for each service
     """
     return get_yaml(config_path)['workflowservices']
 
@@ -101,15 +119,26 @@ def add_queue(queue_id,
     Register a workflow evaluation queue to the orchestrator's
     scope of work.
 
-    :param str queue_id: String identifying the workflow queue.
-    :param str wf_type:
-    :param str wf_id:
-    :param str version_id:
-    :param str wf_url:
-    :param list wf_attachments:
-    :param str wes_default:
-    :param list wes_opts:
-    :param str target_queue:
+    Args:
+        queue_id (str): string identifying the workflow queue
+        wf_type (str): string indicating the workflow type (e.g.,
+            'CWL' or 'WDL')
+        wf_id (str): string representing the workflow ID as registered
+            in a tool registry service
+        version_id (str): string denoting the version (as listed in the
+            tool registry service) of the workflow to use.
+        wf_url (str): string giving the full URL path to the main
+            workflow descriptor file
+        wf_attachments (:obj:`list` of :obj:`str`): filepaths or URLs to
+            any additional workflow dependencies that should be attached
+            at runtime
+        wes_default (str): string corresponding to a workflow execution
+            service in the app config.
+        wes_opts (:obj:`list` of :obj:`str`): list of compatible workflow
+            execution services to use for running the workflow.
+        target_queue (str): string identifying the queue of the 'parent'
+            workflow, if the current queue is designed to check/validate
+            the parent.
     """
     if not wf_id and not wf_url:
         raise ValueError(
@@ -136,10 +165,12 @@ def add_toolregistry(service,
     Register a Tool Registry Service endpoint to the orchestrator's
     search space for workflows.
 
-    :param service: string ID of TRS endpoint (e.g., 'dockstore')
-    :param str host:
-    :param dict auth:
-    :param str proto:
+    Args:
+        service (str): string ID of TRS endpoint (e.g., 'dockstore')
+        host (str): domain and API path for endpoint
+        auth (dict): dict with headers/tokens to use when authorizing
+            requests to the API endpoint
+        proto (str): protocol used by the API endpoint (e.g., http or https)
     """
     config = {'auth': auth,
               'host': host,
@@ -155,10 +186,12 @@ def add_workflowservice(service,
     Register a Workflow Execution Service endpoint to the
     orchestrator's available environment options.
 
-    :param str service: string ID of WES endpoint (e.g., 'local')
-    :param str host:
-    :param dict auth:
-    :param str proto:
+    Args:
+        service (str): string ID of WES endpoint (e.g., 'local')
+        host (str): domain and API path for endpoint
+        auth (dict): dict with headers/tokens to use when authorizing
+            requests to the API endpoint
+        proto (str): protocol used by the API endpoint (e.g., http or https)
     """
     config = {'auth': auth,
               'host': host,
@@ -171,9 +204,11 @@ def add_wes_opt(queue_ids, wes_id, make_default=False):
     Add a WES endpoint to the execution options of the specified
     workflow queues.
 
-    :param str queue_id: String identifying the workflow queue.
-    :param str wes_id:
-    :param bool make_default:
+    Args:
+        queue_id (str): string identifying the workflow queue
+        wes_id (str): string identifying the workflow execution service
+        make_default (bool): True to make specified WES the new default
+            for the workflow queue(s) or else False
     """
     if not isinstance(queue_ids, list):
         queue_ids = [queue_ids]
@@ -187,9 +222,16 @@ def add_wes_opt(queue_ids, wes_id, make_default=False):
 
 def set_yaml(section, service, var2add):
     """
-    :param str section:
-    :param str service:
-    :param dict var2add:
+    Update data for a particular section or service in local
+    YAML config files.
+
+    Args:
+        section (str): string indicating config type ('queues', 
+            'toolregistries', 'workflowservices')
+        service (str): string identifying the service or queue
+            to update
+        var2add (dict): dict containing latest data for a service
+            or queue (previous config will be overwritten)
     """
     if section == 'queues':
         orchestrator_queues = get_yaml(queues_path)

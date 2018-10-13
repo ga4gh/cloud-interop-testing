@@ -23,12 +23,12 @@ def _replace_env_var(match):
     based on pre-defined mapping.
 
     Args:
-        match (SRE_Match): The :class:`SRE_Match` object returned from
+        match (SRE_Match): :class:`SRE_Match` object returned from
             searching a string for environment variables matching pattern
             '${ENV_VAR}' 
 
     Returns:
-        str: A string with the value of the matched environment variable
+        str: string with the value of the matched environment variable
     """
     env_var, default = match.groups()
     if env_var == 'GCLOUD_TOKEN':
@@ -48,12 +48,12 @@ def _env_var_constructor(loader, node):
     parsing.
     
     Args:
-        loader (Constructor): The YAML :class:`Constructor` to use for
+        loader (Constructor): YAML :class:`Constructor` to use for
             parsing nodes during file loading
         node (Node): The YAML :class:`Node` to parse
     
     Returns:
-        str: A string with matched environment variable replaced with
+        str: string with matched environment variable replaced with
             the corresponding value of the environment variable.
     """
     var = re.compile(r"\$\{([^}:\s]+):?([^}]+)?\}", re.VERBOSE)
@@ -81,12 +81,12 @@ def heredoc(s, inputs_dict):
     Use docstrings to specify a multi-line string literal.
 
     Args:
-        s (str): A docstring with named placeholders for replacement.
-        inputs_dict (dict): A dict with keys corresponding to placeholders
+        s (str): docstring with named placeholders for replacement.
+        inputs_dict (dict): dict with keys corresponding to placeholders
             in docstring `s` and values to insert.
 
     Returns:
-        str: A string with placeholders replaced with corresponding values
+        str: string with placeholders replaced with corresponding values
             and any linebreaks preserved.
     """
     import textwrap
@@ -99,10 +99,10 @@ def get_yaml(filepath):
     Read YAML data from a file into a dict.
 
     Args:
-        filepath (str): The local filepath of the YAML file
+        filepath (str): local filepath of the YAML file
 
     Returns:
-        dict: A dict with loaded/parsed data from the YAML file
+        dict: dict with loaded/parsed data from the YAML file
     """
     try:
         with open(filepath, 'r') as f:
@@ -116,8 +116,8 @@ def save_yaml(filepath, app_config):
     Write YAML data from a dict to a file.
 
     Args:
-        filepath (str): The local filepath of the YAML file
-        app_config (dict): A dict containing the data to write
+        filepath (str): local filepath of the YAML file
+        app_config (dict): dict containing the data to write
     """
     with open(filepath, 'w') as f:
         yaml.dump(app_config, f, default_flow_style=False)
@@ -128,10 +128,10 @@ def get_json(filepath):
     Read JSON data from a file into a dict.
 
     Args:
-        filepath (str): The local filepath of the JSON file
+        filepath (str): local filepath of the JSON file
 
     Returns:
-        dict: A dict with loaded/parsed data from the JSON file
+        dict: dict with loaded/parsed data from the JSON file
     """
     try:
         with open(filepath, 'r') as f:
@@ -145,8 +145,8 @@ def save_json(filepath, app_config):
     Write JSON data from a dict to a file.
 
     Args:
-        filepath (str): The local filepath of the JSON file
-        app_config (dict): A dict containing the data to write
+        filepath (str): local filepath of the JSON file
+        app_config (dict): dict containing the data to write
     """
     with open(filepath, 'w') as f:
         json.dump(app_config, f, indent=4)
@@ -158,7 +158,7 @@ def response_handler(response):
     in common format.
 
     Args:
-        response: The response object from a REST request
+        response: response object from a REST request
     """
     try:
         return response.response().result
@@ -171,10 +171,10 @@ def ctime2datetime(time_str):
     Parse `ctime()` style string into :class:`datetime` object. 
     
     Args:
-        time_str (str): A string with date and time information
+        time_str (str): string with date and time information
     
     Returns:
-        datetime: A :class:`datetime` object
+        datetime: :class:`datetime` object
     """
     return dt.datetime.strptime(time_str, '%a %b %d %H:%M:%S %Y')
 
@@ -184,11 +184,11 @@ def convert_timedelta(duration):
     Return time duration as formatted string.
 
     Args:
-        duration (timedelta): A :class:`timedelta` object representing
+        duration (timedelta): :class:`timedelta` object representing
             the difference between two :class:`datetime` objects
     
     Returns:
-        str: A string representation of the duration
+        str: string representation of the duration
     """
     days, seconds = duration.days, duration.seconds
     hours = seconds // 3600
