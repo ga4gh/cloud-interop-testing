@@ -15,9 +15,15 @@ from wfinterop.orchestrator import monitor_queue
 from wfinterop.orchestrator import monitor
 
 
-def test_run_job(mock_queue_config, mock_submission, mock_wes, monkeypatch):
+def test_run_job(mock_queue_config,
+                 mock_wes_config,
+                 mock_submission, 
+                 mock_wes, 
+                 monkeypatch):
     monkeypatch.setattr('wfinterop.orchestrator.queue_config', 
                         lambda: mock_queue_config)
+    monkeypatch.setattr('wfinterop.orchestrator.wes_config', 
+                        lambda: mock_wes_config)
     monkeypatch.setattr('wfinterop.orchestrator.fetch_queue_workflow', 
                         lambda x: mock_queue_config[x])
     monkeypatch.setattr('wfinterop.testbed.create_submission', 
@@ -38,7 +44,7 @@ def test_run_job(mock_queue_config, mock_submission, mock_wes, monkeypatch):
                            wes_id='mock_wes',
                            wf_jsonyaml=mock_submission['mock_sub']['data'])
 
-    mock_wes.run_workflow.assert_called_once_with(mock_request)
+    mock_wes.run_workflow.assert_called_once_with(mock_request, parts=None)
     assert 'start_time' in test_run_log
 
 
@@ -75,7 +81,7 @@ def test_run_queue(mock_queue_config, mock_submission, monkeypatch):
                     'type': '',
                     'status': 'QUEUED'}
     monkeypatch.setattr('wfinterop.orchestrator.run_submission', 
-                        lambda x,y,z: mock_run_log)
+                        lambda **kwargs: mock_run_log)
 
     test_queue_log = run_queue(queue_id='mock_queue_1', 
                                wes_id='local')
@@ -96,6 +102,16 @@ def test_run_all(mock_queue_config, monkeypatch):
 
     mock_orchestrator_log = {
         'mock_queue_1': {
+            'mock_sub': {
+                'queue_id': 'mock_queue',
+                'job': '',
+                'wes_id': 'local',
+                'run_id': 'mock_run',
+                'status': 'QUEUED',
+                'start_time': ''
+            }
+        },
+        'mock_queue_1_checker': {
             'mock_sub': {
                 'queue_id': 'mock_queue',
                 'job': '',

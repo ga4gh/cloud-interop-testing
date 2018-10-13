@@ -134,7 +134,9 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
         save_json(testbed_log, testbed_status)
         logger.info("Requesting new workflow run for '{}' in '{}'"
                     .format(checker_queue_id, wes_id))
-        run_log = run_submission(checker_queue_id, submission_id, opts=opt)
+        run_log = run_submission(queue_id=checker_queue_id, 
+                                 submission_id=submission_id, 
+                                 opts=opt)
         testbed_status[checker_queue_id][wes_id][submission_id]['run_id'] = run_log['run_id']
         save_json(testbed_log, testbed_status)
     
@@ -223,8 +225,8 @@ def check_all(testbed_plan, permute_opts=False, force=False):
     :param bool force:
     """
     opts_list = get_opts(permute_opts)
-    testbed_status = [check_workflow(workflow_id, 
-                                     wes_id, 
+    testbed_status = [check_workflow(queue_id=workflow_id, 
+                                     wes_id=wes_id, 
                                      opts=opts_list,
                                      force=force)
                       for workflow_id in testbed_plan

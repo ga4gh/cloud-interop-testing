@@ -9,12 +9,12 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-def test_fetch_queue_workflow(mock_orchestratorconfig,
+def test_fetch_queue_workflow(mock_orchestratorqueues,
                               mock_queue_config, 
                               mock_trs, 
                               monkeypatch):
-    monkeypatch.setattr('wfinterop.config.config_path', 
-                        str(mock_orchestratorconfig))
+    monkeypatch.setattr('wfinterop.config.queues_path', 
+                        str(mock_orchestratorqueues))
     monkeypatch.setattr('wfinterop.trs2wes.queue_config', 
                         lambda: mock_queue_config)
     monkeypatch.setattr('wfinterop.trs2wes.TRS', 
@@ -37,7 +37,7 @@ def test_fetch_queue_workflow(mock_orchestratorconfig,
                    'wes_opts': ['local'],
                    'target_queue': None}
 
-    with open(str(mock_orchestratorconfig), 'r') as f:
-        test_config = yaml.load(f)['queues']
+    with open(str(mock_orchestratorqueues), 'r') as f:
+        test_config = yaml.load(f)
 
     assert(test_config['mock_queue_1'] == mock_config)

@@ -2,6 +2,7 @@ import logging
 import pytest
 import mock
 import yaml
+import json
 import datetime as dt
 
 from bravado.client import SwaggerClient, ResourceDecorator
@@ -25,6 +26,17 @@ def mock_queue_config():
             'wes_default': 'local',
             'wes_opts': ['local'],
             'target_queue': None
+        },
+        'mock_queue_1_checker': {
+            'trs_id': 'mock_trs',
+            'workflow_id': 'mock_wf_checker',
+            'version_id': 'develop',
+            'workflow_type': 'CWL',
+            'workflow_url': None,
+            'workflow_attachments': None,
+            'wes_default': 'local',
+            'wes_opts': ['local'],
+            'target_queue': 'mock_queue_1'
         },
         'mock_queue_2': {
             'trs_id': 'mock_trs',
@@ -94,6 +106,18 @@ def mock_orchestratorconfig(tmpdir,
     mock_config_file.write(yaml.dump(mock_config, default_flow_style=False))
 
     yield mock_config_file
+
+
+@pytest.fixture(scope='function')
+def mock_testbedlog(tmpdir):
+    # a mocked config file for a the orchestrator app
+    logger.info("[setup] mock testbed log file, create local file")
+    mock_log = {}
+    mock_log_file = tmpdir.join('testbed_log.json')
+    logger.debug("writing log file: {}".format(str(mock_log_file)))
+    mock_log_file.write(json.dumps(mock_log, indent=4))
+
+    yield mock_log_file
 
 
 @pytest.fixture()

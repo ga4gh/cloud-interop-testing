@@ -143,7 +143,10 @@ def run_queue(queue_id, wes_id=None, opts=None):
         submission = get_submission_bundle(queue_id, submission_id)
         if submission['wes_id'] is not None:
             wes_id = submission['wes_id']
-        run_log = run_submission(queue_id, submission_id, wes_id, opts=opts)
+        run_log = run_submission(queue_id=queue_id, 
+                                 submission_id=submission_id, 
+                                 wes_id=wes_id, 
+                                 opts=opts)
         run_log['wes_id'] = wes_id
         queue_log[submission_id] = run_log
 
