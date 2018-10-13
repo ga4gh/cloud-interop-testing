@@ -135,8 +135,8 @@ def get_wf_info(workflow_path):
     if file_type in supported_formats:
         if workflow_path.startswith('file://'):
             version = get_version(file_type, workflow_path[7:])
-        elif (workflow_path.startswith('https://') 
-              or workflow_path.startswith('http://')):
+        elif (workflow_path.startswith('https://') or 
+              workflow_path.startswith('http://')):
             # If file not local go fetch it.
             html = urlopen(workflow_path).read()
             local_loc = os.path.join(os.getcwd(), 
@@ -213,8 +213,8 @@ def get_wdl_inputs(wdl):
     decs = find_asts(workflow, 'Declaration')
     wdl_inputs = {}
     for dec in decs:
-        if (isinstance(dec.attr('type'), wdl_parser.Ast)
-            and 'name' in dec.attr('type').attributes):
+        if (isinstance(dec.attr('type'), wdl_parser.Ast) and 
+            'name' in dec.attr('type').attributes):
             dec_type = dec.attr('type').attr('name').source_string
             dec_subtype = dec.attr('type').attr('subtype')[0].source_string
             dec_name = '{}.{}'.format(workflow_name,
@@ -322,7 +322,7 @@ def get_wf_inputs(workflow_file, wf_params, parts=None):
             if param.startswith('https://raw.githubusercontent.com'):
                 attach_f = urlopen(param)
                 parts.append(("workflow_attachment", 
-                        (re.sub(base_path+'/', '', param), attach_f)))
+                        (re.sub(base_path + '/', '', param), attach_f)))
                 return parts
         elif isinstance(param, dict):
             return get_wf_inputs(workflow_file, 
@@ -401,7 +401,7 @@ def get_wf_attachments(workflow_file, attachments, parts=None):
             attach_f = urlopen(attachment)
 
         parts.append(("workflow_attachment", 
-                     (re.sub(base_path+'/', '', attachment), attach_f)))
+                     (re.sub(base_path + '/', '', attachment), attach_f)))
     return parts
 
 

@@ -24,7 +24,7 @@ def _replace_env_var(match):
         try:
             return subprocess32.check_output(
                 ['gcloud', 'auth', 'print-access-token']
-                ).rstrip()
+            ).rstrip()
         except OSError:
             return '!! gcloud not installed !!'
     else:
