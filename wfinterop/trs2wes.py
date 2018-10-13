@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 """
-For a workflow registered in a given TRS implementation
-(e.g., Dockstore), retrieve details and prepare the workflow 
-run request. Optionally, retrieve, format, or attach (as a
-file) workflow descriptors, parameters, and inputs to include
-with request.
+For a workflow registered in a given TRS implementation (e.g., 
+Dockstore), retrieve details and prepare the workflow run request.
+Optionally, retrieve, format, or attach (as a file) workflow 
+descriptors, parameters, and inputs to include with request.
 """
 import logging
 import os
@@ -35,7 +34,11 @@ def fetch_queue_workflow(queue_id):
     Collect details for the workflow associated with a queue from the
     specified TRS repository.
 
-    :param str queue_id: String identifying the workflow queue.
+    Args:
+        queue_id (str): string identifying the workflow queue
+    
+    Returns:
+        dict: dict with updated configuration for the workflow queue
     """
     wf_config = queue_config()[queue_id]
     logger.info("Retrieving details for workflow '{}' (queue: '{}')"
@@ -74,7 +77,8 @@ def store_verification(queue_id, wes_id):
     """
     Record checker status for selected workflow and environment.
 
-    :param str queue_id: String identifying the workflow queue.
+    Args:
+        queue_id (str): string identifying the workflow queue
     """
     wf_config = queue_config()[queue_id]
     wf_config.setdefault('wes_verified', []).append(wes_id)
@@ -97,8 +101,12 @@ def get_version(extension, workflow_file):
     """
     Determines the version of a .py, .wdl, or .cwl file.
 
-    :param str extension:
-    :param str workflow_file:
+    Args:
+        extension (str): string with extension of workflow file
+        workflow_file (str): filepath or filename of workflow file
+
+    Returns:
+        str: string indicating workflow type version
     """
     if extension == 'cwl':
         return yaml.load(open(workflow_file))['cwlVersion']
@@ -116,16 +124,22 @@ def get_wf_info(workflow_path):
     """
     Returns the version of the file and the file extension.
 
-    Assumes that the file path is to the file directly - i.e.,
-    ends with a valid file extension. Supports checking local
-    files as well as files at http:// and https:// locations. 
-    Files at these remote locations are recreated locally to
-    enable our approach to version checking, then removed after 
-    version is extracted.
+    Assumes that the file path is to the file directly - i.e., ends 
+    with a valid file extension. Supports checking local files as well
+    as files at http:// and https:// locations. Files at these remote
+    locations are recreated locally to enable our approach to version
+    checking, then removed after version is extracted.
 
-    :param str workflow_path:
+    Args:
+        workflow_path (str): filepath or URL for main workflow
+            descriptor file
+    
+    Returns:
+        tuple: tuple containing:
+
+            str: string indicating workflow type version
+            str: string indicating workflow type (e.g., 'CWL', 'WDL')
     """
-
     supported_formats = ['py', 'wdl', 'cwl']
     # Grab the file extension
     file_type = workflow_path.lower().split('.')[-1]  
@@ -163,7 +177,12 @@ def get_packed_cwl(workflow_url):
     """
     Create 'packed' version of CWL workflow descriptor.
 
-    :param str workflow_url:
+    Args:
+        workflow_url (str): URL for main workflow descriptor file
+    
+    Returns:
+        str: string with main and all secondary workflow descriptors
+            combined CWL workflow
     """
     logger.debug("Packing descriptors for '{}'".format(workflow_url))
     return subprocess32.check_output(['cwltool', '--pack', workflow_url])
@@ -178,18 +197,24 @@ def get_flattened_descriptor(workflow_file):
         if match is not None:
             path = match.group()
             filename = os.path.basename(path)
-            wf_lines[l] =re.sub(path, filename, wf_lines[l]) 
+            wf_lines[l] = re.sub(path, filename, wf_lines[l]) 
     return ''.join(wf_lines)
 
 
 def find_asts(ast_root, name):
         """
-        Finds an AST node with the given name and the entire subtree under it.
-        A function borrowed from scottfrazer.  Thank you Scott Frazer!
-        :param ast_root: The WDL AST.  The whole thing generally, but really
-                         any portion that you wish to search.
-        :param name: The name of the subtree you're looking for, like "Task".
-        :return: nodes representing the AST subtrees matching the "name" given.
+        Finds an AST node with the given name and the entire subtree
+        under it. Function borrowed from scottfrazer.
+
+        Args:
+            ast_root: the WDL AST; the whole thing generally, but 
+                really any portion that you wish to search
+            name (str): the name of the subtree you're looking for,
+                like 'Task'
+        
+        Returns:
+            list: nodes representing the AST subtrees matching the
+            'name' given
         """
         nodes = []
         if isinstance(ast_root, wdl_parser.AstList):
@@ -206,6 +231,13 @@ def find_asts(ast_root, name):
 def get_wdl_inputs(wdl):
     """
     Return inputs specified in WDL descriptor, grouped by type.
+
+    Args:
+        wdl (str): string containing the WDL descriptor
+    
+    Returns:
+        dict: dict containing identified workflow inputs, classified
+            and grouped by type (e.g., 'File')
     """
     wdl_ast = wdl_parser.parse(wdl.encode('utf-8')).ast()
     workflow = find_asts(wdl_ast, 'Workflow')[0]
@@ -230,10 +262,17 @@ def get_wdl_inputs(wdl):
 
 def modify_jsonyaml_paths(jsonyaml_file, path_keys=None):
     """
-    Changes relative paths in a json/yaml file to be relative
-    to where the json/yaml file is located.
+    Changes relative paths in a json/yaml file to be relative to where
+    the JSON/YAML file is located.
 
-    :param jsonyaml_file: Path to a json/yaml file.
+    Args:
+        jsonyaml_file (str): filepath or URL for JSON/YAML file
+            containing workflow parameters
+        path_keys (:obj:`list` of :obj:`str`): list of workflow
+            parameter names to modify
+
+    Returns:
+        str: string contents of JSON/YAML file with modified paths
     """
     logger.debug("Resolving paths in parameters file '{}'"
                  .format(jsonyaml_file))
@@ -270,6 +309,15 @@ def get_wf_descriptor(workflow_file,
                       parts=None, 
                       attach_descriptor=False,
                       pack_descriptor=False):
+    """
+    Retrieve descriptor URL or contents for the workflow.
+
+    Args:
+        workflow_file (str): ...
+        parts (:obj:`list` of :obj:`tuple`): ...
+        attach_descriptor (bool): ...
+        pack_descriptor (bool): ...
+    """
     if parts is None:
         parts = []
 
@@ -308,11 +356,11 @@ def get_wf_inputs(workflow_file, wf_params, parts=None):
     parameters. Only files hosted in public GitHub repositories
     are currently supported for attaching.
 
-    :param str workflow_file:
-    :param str wf_params:
-    :param list parts:
+    Args:
+        workflow_file (str): ...
+        wf_params (str): ...
+        parts (:obj:`list` of :obj:`tuple`): ...
     """
-    print(parts)
     if parts is None:
         parts = []
     wf_params = json.loads(wf_params)
@@ -339,12 +387,13 @@ def get_wf_params(workflow_file,
     """
     Retrieve and format workflow parameters for execution.
 
-    :param str workflow_file:
-    :param str workflow_type:
-    :param str jsonyaml:
-    :param list parts:
-    :param bool fix_paths:
-    :param bool attach_inputs:
+    Args:
+        workflow_file (str): ...
+        workflow_type (str): ...
+        jsonyaml (str): ...
+        parts (:obj:`list` of :obj:`tuple`): ...
+        fix_paths (bool): ...
+        attach_inputs (bool): ...
     """
     if parts is None:
         parts = []
@@ -385,9 +434,10 @@ def get_wf_attachments(workflow_file, attachments, parts=None):
     and specified using the full URL. Local file attachments
     are supported but discouraged.
 
-    :param str workflow_file:
-    :param list attachments:
-    :param list parts:
+    Args:
+        workflow_file (str): ...
+        attachments (:obj:`list` of :obj:`str`): ...
+        parts (:obj:`list` of :obj:`tuple`): ...
     """
     if parts is None:
         parts = []
@@ -432,19 +482,21 @@ def build_wes_request(workflow_file,
     create a new workflow run. Named parts (primitive types or files)
     are submitted as 'multipart/form-data'.
 
-    :param str workflow_file: Path to CWL/WDL file. 
-        Can be http/https/file.
-    :param jsonyaml: Path to accompanying JSON or YAML file.
-    :param attachments: Any other files needing to be uploaded 
-        to the server.
-    :param bool attach_descriptor:
-    :param bool pack_descriptor:
-    :param bool attach_imports:
-    :param bool resolve_params:
-    :param bool attach_inputs:
-
-    :return: A list of tuples formatted to be sent in a POST to 
-        the WES server (Swagger API).
+    Args:
+        workflow_file (str): path to CWL/WDL file; can be 
+            http/https/file path or URL
+        jsonyaml (str): path to accompanying JSON or YAML file
+        attachments (:obj:`list` of :obj:`str`): any other files
+            needing to be uploaded to the server
+        attach_descriptor (bool): ...
+        pack_descriptor (bool): ...
+        attach_imports (bool): ...
+        resolve_params (bool): ...
+        attach_imports (bool): ...
+ 
+    Returns:
+        list: list of tuples formatted to be sent in a POST request to
+            the WES server (Swagger API)
     """
     workflow_file = "file://" + workflow_file if ":" not in workflow_file else workflow_file
     wf_version, wf_type = get_wf_info(workflow_file)
