@@ -15,7 +15,6 @@ import datetime as dt
 
 from contextlib import contextmanager
 from urllib import urlopen
-from bson import json_util
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
