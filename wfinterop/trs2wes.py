@@ -21,7 +21,7 @@ from StringIO import StringIO
 from toil.wdl import wdl_parser
 from wes_service.util import visit
 
-from wfinterop.util import get_yaml, get_json
+from wfinterop.util import open_file, get_yaml, get_json
 from wfinterop.config import queue_config
 from wfinterop.config import set_yaml
 from wfinterop.trs import TRS
@@ -114,7 +114,9 @@ def get_version(extension, workflow_file):
     else:  
         # Must be a wdl file.
         try:
-            return [l.lstrip('version') for l in workflow_file.splitlines() 
+            with open_file(workflow_file, 'r') as f:
+                wf_lines = f.readlines()
+            return [l.lstrip('version') for l in wf_lines 
                     if 'version' in l.split(' ')][0]
         except IndexError:
             return 'draft-2'
@@ -148,24 +150,8 @@ def get_wf_info(workflow_path):
 
     if file_type in supported_formats:
         if workflow_path.startswith('file://'):
-            version = get_version(file_type, workflow_path[7:])
-        elif (workflow_path.startswith('https://') or 
-              workflow_path.startswith('http://')):
-            # If file not local go fetch it.
-            html = urlopen(workflow_path).read()
-            local_loc = os.path.join(os.getcwd(), 
-                                     'fetchedFromRemote.' + file_type)
-            with open(local_loc, 'w') as f:
-                f.write(html)
-            # Don't take the file_type here, found it above.
-            version = get_wf_info('file://' + local_loc)[0]  
-            # TODO: Find a way to avoid recreating file before version 
-            # determination.
-            os.remove(local_loc)  
-        else:
-            raise NotImplementedError("Unsupported workflow file location: "
-                                      "{}. Must be local or HTTP(S)."
-                                      .format(workflow_path))
+            workflow_path = workflow_path[7:]
+        version = get_version(file_type, workflow_path)
     else:
         raise TypeError("Unsupported workflow type: "
                         ".{}. Must be {}."
@@ -189,7 +175,8 @@ def get_packed_cwl(workflow_url):
 
 
 def get_flattened_descriptor(workflow_file):
-    wf_lines = urlopen(workflow_file).readlines()
+    with open_file(workflow_file, 'r') as f:
+        wf_lines = f.readlines()
     import_lines = [line_num for line_num, line in enumerate(wf_lines) 
                     if 'import' in line]
     for l in import_lines:
@@ -281,8 +268,7 @@ def modify_jsonyaml_paths(jsonyaml_file, path_keys=None):
         'location': {"@type": "@id"}
     }
     if path_keys is not None:
-        res = urllib.urlopen(jsonyaml_file)
-        params_json = json.loads(res.read())
+        params_json = get_json(jsonyaml_file)
         for k, v in params_json.items():
             if k in path_keys and not ':' in v[0] and not ':' in v:
                 resolve_keys[k] = {"@type": "@id"}
@@ -322,27 +308,20 @@ def get_wf_descriptor(workflow_file,
         parts = []
 
     if workflow_file.startswith("file://"):
-        parts.append(
-            ("workflow_attachment", 
-                (os.path.basename(workflow_file[7:]), 
-                 open(workflow_file[7:], "rb"))
-            )
-        )
-        parts.append(
-            ("workflow_url", os.path.basename(workflow_file[7:]))
-        )
-    elif workflow_file.startswith("http") and attach_descriptor:
+        workflow_file = workflow_file[7:]
+ 
+    if attach_descriptor:
         if pack_descriptor:
             descriptor_f = StringIO(get_packed_cwl(workflow_file))
         else:
-            descriptor_f = urlopen(workflow_file).read()
+            with open_file(workflow_file, 'rb') as f:
+                descriptor_f = StringIO(f.read())
+        descriptor_n = os.path.basename(workflow_file)
         parts.append(
-            ("workflow_attachment", 
-                (os.path.basename(workflow_file), descriptor_f)
-            )
+            ("workflow_attachment", (descriptor_n, descriptor_f))
         )
         parts.append(
-            ("workflow_url", os.path.basename(workflow_file))
+            ("workflow_url", descriptor_n)
         )
     else:
         parts.append(("workflow_url", workflow_file))
@@ -350,40 +329,11 @@ def get_wf_descriptor(workflow_file,
     return parts
 
 
-def get_wf_inputs(workflow_file, wf_params, parts=None):
-    """
-    Download and attach input files listed in the workflow 
-    parameters. Only files hosted in public GitHub repositories
-    are currently supported for attaching.
-
-    Args:
-        workflow_file (str): ...
-        wf_params (str): ...
-        parts (:obj:`list` of :obj:`tuple`): ...
-    """
-    if parts is None:
-        parts = []
-    wf_params = json.loads(wf_params)
-    base_path = os.path.dirname(workflow_file)
-    for param in wf_params.values():
-        if isinstance(param, str) or isinstance(param, unicode):
-            if param.startswith('https://raw.githubusercontent.com'):
-                attach_f = urlopen(param)
-                parts.append(("workflow_attachment", 
-                        (re.sub(base_path + '/', '', param), attach_f)))
-                return parts
-        elif isinstance(param, dict):
-            return get_wf_inputs(workflow_file, 
-                                 wf_params=json.dumps({'url': param['location']}),
-                                 parts=parts)
-
-
 def get_wf_params(workflow_file, 
                   workflow_type, 
                   jsonyaml, 
                   parts=None, 
-                  fix_paths=False,
-                  attach_inputs=False):
+                  fix_paths=False):
     """
     Retrieve and format workflow parameters for execution.
 
@@ -393,32 +343,23 @@ def get_wf_params(workflow_file,
         jsonyaml (str): ...
         parts (:obj:`list` of :obj:`tuple`): ...
         fix_paths (bool): ...
-        attach_inputs (bool): ...
     """
     if parts is None:
         parts = []
 
     if jsonyaml.startswith("file://"):
         jsonyaml = jsonyaml[7:]
-        wf_params = json.dumps(get_json(json_yaml))
-    elif jsonyaml.startswith("http"):
-        if fix_paths:
-            input_keys = None
-            if workflow_type == 'WDL':
-                res = urllib.urlopen(workflow_file)
-                workflow_descriptor = res.read()
-                input_keys = get_wdl_inputs(workflow_descriptor)['File']
-            wf_params_fixed = modify_jsonyaml_paths(jsonyaml, 
-                                                    path_keys=input_keys)
-            if attach_inputs:
-                parts = get_wf_inputs(workflow_file, wf_params_fixed, parts)
-                wf_params = json.dumps(json.loads(urllib.urlopen(jsonyaml).read()))
-            else:
-                wf_params = wf_params_fixed
-        else:
-            wf_params = json.dumps(json.loads(urllib.urlopen(jsonyaml).read()))
+
+    if fix_paths:
+        input_keys = None
+        if workflow_type == 'WDL':
+            with open_file(workflow_file, 'r') as f:
+                workflow_descriptor = f.read()
+            input_keys = get_wdl_inputs(workflow_descriptor)['File']
+        wf_params = modify_jsonyaml_paths(jsonyaml, 
+                                          path_keys=input_keys)
     else:
-        wf_params = json.dumps(get_json(json_yaml))
+        wf_params = json.dumps(get_json(jsonyaml))
 
     parts.append(("workflow_params", wf_params))
     return parts
@@ -441,15 +382,22 @@ def get_wf_attachments(workflow_file, attachments, parts=None):
         parts = []
 
     base_path = os.path.dirname(workflow_file)
+    path_re = re.compile('.*{}'.format(base_path))
+
     for attachment in attachments:
         if attachment.startswith("file://"):
             attachment = attachment[7:]
-            attach_f = open(attachment, "rb")
-        elif attachment.startswith("http"):
-            attach_f = urlopen(attachment)
 
+        with open_file(attachment, 'rb') as f:
+            attach_f = StringIO(f.read())
+
+        try:
+            attach_path = re.sub(path_re.search(attachment).group() + '/', 
+                                '', attachment)
+        except AttributeError:
+            attach_path = os.path.basename(attachment)
         parts.append(("workflow_attachment", 
-                     (re.sub(base_path + '/', '', attachment), attach_f)))
+                     (attach_path, attach_f)))
     return parts
 
 
@@ -473,8 +421,7 @@ def build_wes_request(workflow_file,
                       attach_descriptor=False,
                       pack_descriptor=False,
                       attach_imports=False,
-                      resolve_params=False,
-                      attach_inputs=False):
+                      resolve_params=False):
     """
     Construct and format Workflow Execution Service POST request to
     create a new workflow run. Named parts (primitive types or files)
@@ -490,7 +437,6 @@ def build_wes_request(workflow_file,
         pack_descriptor (bool): ...
         attach_imports (bool): ...
         resolve_params (bool): ...
-        attach_imports (bool): ...
  
     Returns:
         list: list of tuples formatted to be sent in a POST request to
@@ -513,21 +459,15 @@ def build_wes_request(workflow_file,
                          "no need to attach imports")
             attach_descriptor = True
             attach_imports = False
-    if attach_inputs:
-        logger.debug("Attachment only supported for input files hosted "
-                     "on GitHub; parameter paths will be resolved to "
-                     "full URLs.")
-        resolve_params = True
-    parts = get_wf_descriptor(workflow_file, 
-                              parts, 
-                              attach_descriptor,
-                              pack_descriptor)
-    parts = get_wf_params(workflow_file, 
-                          wf_type, 
-                          jsonyaml, 
-                          parts, 
-                          fix_paths=resolve_params,
-                          attach_inputs=attach_inputs)
+    parts = get_wf_descriptor(workflow_file=workflow_file, 
+                              parts=parts, 
+                              attach_descriptor=attach_descriptor,
+                              pack_descriptor=pack_descriptor)
+    parts = get_wf_params(workflow_file=workflow_file, 
+                          workflow_type=wf_type, 
+                          jsonyaml=jsonyaml, 
+                          parts=parts, 
+                          fix_paths=resolve_params)
 
     if not attach_imports:
         ext_re = re.compile('{}$'.format(wf_type.lower()))
@@ -536,7 +476,9 @@ def build_wes_request(workflow_file,
 
     if attachments:
         attachments = expand_globs(attachments)
-        parts = get_wf_attachments(workflow_file, attachments, parts)
+        parts = get_wf_attachments(workflow_file=workflow_file, 
+                                   attachments=attachments, 
+                                   parts=parts)
 
     return parts
 

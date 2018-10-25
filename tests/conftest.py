@@ -1,4 +1,5 @@
 import logging
+import os
 import pytest
 import mock
 import yaml
@@ -191,3 +192,129 @@ def mock_queue_log(request):
                      'wes_id': 'mock_wes'}
     }
     yield mock_queue_log
+
+
+@pytest.fixture(scope='function',
+                params=['tests/testdata/md5sum.cwl',
+                        'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.cwl'],
+                ids=['local', 'http'])
+def cwl_descriptor(request):
+    yield request.param
+
+
+@pytest.fixture(scope='function',
+                params=['tests/testdata/md5sum.wdl',
+                        'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.wdl'],
+                ids=['local', 'http'])
+def wdl_descriptor(request):
+    yield request.param
+
+
+@pytest.fixture()
+def cwl_wf_attachment():
+    with open('tests/testdata/md5sum.cwl', 'r') as f:
+        cwl_contents = f.read()
+    
+    cwl_attach_parts = {
+        'workflow_url': 'md5sum.cwl',
+        'workflow_attachment': (
+            'md5sum.cwl',
+            cwl_contents
+        )
+    }
+    yield cwl_attach_parts
+
+
+@pytest.fixture()
+def wdl_wf_attachment():
+    with open('tests/testdata/md5sum.wdl', 'r') as f:
+        wdl_contents = f.read()
+    
+    wdl_attach_parts = {
+        'workflow_url': 'md5sum.wdl',
+        'workflow_attachment': (
+            'md5sum.wdl',
+            wdl_contents
+        )
+    }
+    yield wdl_attach_parts
+
+
+@pytest.fixture(params=['tests/testdata/md5sum.cwl.json',
+                        'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.cwl.json'],
+                ids=['local', 'http'])
+def cwl_jsonyaml(request):
+    yield request.param
+
+
+@pytest.fixture()
+def cwl_params():
+    with open('tests/testdata/md5sum.cwl.json', 'r') as f:
+        params = json.load(f)
+    yield json.dumps(params)
+
+
+@pytest.fixture()
+def cwl_modified_params():
+
+    def _loader(jsonyaml):
+        jsonyaml_files = {
+            'tests/testdata/md5sum.cwl.json': 'tests/testdata/md5sum.cwl.json',
+            'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.cwl.json': 'tests/testdata/md5sum.cwl.fixed.json'
+        }
+        with open(jsonyaml_files[jsonyaml], 'r') as f:
+            params = json.load(f)
+        if 'path' in params['input_file']:
+            path = params['input_file'].pop('path')
+            path = 'tests/testdata/{}'.format(path)
+            params['input_file']['location'] = 'file://{}'.format(os.path.abspath(path))
+        return json.dumps(params)
+    
+    return _loader
+    
+
+@pytest.fixture()
+def wdl_modified_params():
+
+    def _loader(jsonyaml):
+        jsonyaml_files = {
+            'tests/testdata/md5sum.wdl.json': 'tests/testdata/md5sum.wdl.json',
+            'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.wdl.json': 'tests/testdata/md5sum.wdl.fixed.json'
+        }
+        with open(jsonyaml_files[jsonyaml], 'r') as f:
+            params = json.load(f)
+        if not params['ga4ghMd5.inputFile'].startswith('http'):
+            path = params['ga4ghMd5.inputFile']
+            path = 'tests/testdata/{}'.format(path)
+            params['ga4ghMd5.inputFile'] = 'file://{}'.format(os.path.abspath(path))
+        return json.dumps(params)
+    
+    return _loader
+
+
+@pytest.fixture(params=['tests/testdata/md5sum.wdl.json',
+                        'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.wdl.json'],
+                ids=['local', 'http'])
+def wdl_jsonyaml(request):
+    yield request.param
+
+
+@pytest.fixture()
+def wdl_params():
+    with open('tests/testdata/md5sum.wdl.json', 'r') as f:
+        params = json.load(f)
+    yield json.dumps(params)
+
+
+@pytest.fixture(params=['tests/testdata/dockstore-tool-md5sum.cwl',
+                        'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/dockstore-tool-md5sum.cwl'],
+                ids=['local', 'http'])
+def cwl_attachments(request):
+    yield [request.param]
+
+
+@pytest.fixture()
+def cwl_import_attachment():
+    with open('tests/testdata/dockstore-tool-md5sum.cwl', 'r') as f:
+        attach_contents = f.read()
+    yield ('dockstore-tool-md5sum.cwl', attach_contents)
