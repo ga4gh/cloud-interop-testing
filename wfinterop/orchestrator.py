@@ -153,18 +153,6 @@ def run_queue(queue_id, wes_id=None, opts=None):
     return queue_log
 
 
-def run_all():
-    """
-    Run all jobs with the status: RECEIVED across all evaluation queues.
-    Check the status of each submission per queue for status: COMPLETE
-    before running the next queued submission.
-    """
-    orchestrator_log = {}
-    for queue_id in queue_config():
-        orchestrator_log[queue_id] = run_queue(queue_id)
-    return orchestrator_log
-
-
 def monitor_queue(queue_id):
     """
     Update the status of all submissions for a queue.
@@ -243,7 +231,10 @@ def monitor():
 
                     display(status_tracker)
 
-            terminal_statuses = ['FAILED', 'COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
+            terminal_statuses = ['FAILED', 
+                                 'COMPLETE', 
+                                 'CANCELED', 
+                                 'EXECUTOR_ERROR']
             if all([sub['status'] in terminal_statuses
                     for queue in statuses
                     for sub in queue.values()]):

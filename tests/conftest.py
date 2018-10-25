@@ -110,8 +110,18 @@ def mock_orchestratorconfig(tmpdir,
 
 
 @pytest.fixture(scope='function')
+def mock_submissionqueue(tmpdir):
+    logger.info("[setup] mock submission queue file, create local file")
+    mock_queue = {}
+    mock_queue_file = tmpdir.join('submission_queue.json')
+    logger.debug("writing queue file: {}".format(str(mock_queue_file)))
+    mock_queue_file.write(json.dumps(mock_queue, indent=4))
+
+    yield mock_queue_file
+
+
+@pytest.fixture(scope='function')
 def mock_testbedlog(tmpdir):
-    # a mocked config file for a the orchestrator app
     logger.info("[setup] mock testbed log file, create local file")
     mock_log = {}
     mock_log_file = tmpdir.join('testbed_log.json')
@@ -180,6 +190,14 @@ def mock_submission(request):
         }
     }
     yield mock_submission
+
+
+@pytest.fixture()
+def mock_run_log():
+    mock_run_log = {'run_id': 'mock_run',
+                    'status': '',
+                    'start_time': mock_start_time}
+    yield mock_run_log
 
 
 @pytest.fixture()
