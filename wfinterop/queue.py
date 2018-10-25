@@ -63,25 +63,25 @@ def get_submissions(queue_id,
         return []
 
 
-def get_submission_bundle(wes_id, submission_id):
+def get_submission_bundle(queue_id, submission_id):
     """
     Return the submission's info.
 
-    :param str wes_id:
+    :param str queue_id:
     :param str submission_id:
     """
-    return get_json(submission_queue)[wes_id][submission_id]
+    return get_json(submission_queue)[queue_id][submission_id]
 
 
-def update_submission(wes_id, submission_id, param, status):
+def update_submission(queue_id, submission_id, param, value):
     """
     Update the status of a submission.
 
-    :param str wes_id:
+    :param str queue_id:
     :param str submission_id:
     :param str param:
-    :param str status:
+    :param str value:
     """
     submissions = get_json(submission_queue)
-    submissions[wes_id][submission_id][param] = status
+    submissions[queue_id][submission_id][param] = value
     save_json(submission_queue, submissions)

@@ -15,6 +15,7 @@ import datetime as dt
 
 from contextlib import contextmanager
 from urllib import urlopen
+from bson import json_util
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -165,7 +166,7 @@ def save_json(filepath, app_config):
         app_config (dict): dict containing the data to write
     """
     with open_file(filepath, 'w') as f:
-        json.dump(app_config, f, indent=4)
+        json.dump(app_config, f, indent=4, default=str)
 
 
 def response_handler(response):
