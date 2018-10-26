@@ -1,9 +1,7 @@
 # GA4GH Workflow Interoperability
 
-| **Service \ Branch** | **master** | **develop** |
-| -: | - | - |
-| CI status | [![Travis-CI Build Status](https://travis-ci.org/Sage-Bionetworks/synapse-orchestrator.svg?branch=master)](https://travis-ci.org/Sage-Bionetworks/synapse-orchestrator) | [![Travis-CI Build Status](https://travis-ci.org/Sage-Bionetworks/synapse-orchestrator.svg?branch=develop)](https://travis-ci.org/Sage-Bionetworks/synapse-orchestrator) |
-| Test coverage | [![Coverage Status](https://coveralls.io/repos/github/Sage-Bionetworks/synapse-orchestrator/badge.svg?branch=master)](https://coveralls.io/Sage-Bionetworks/synapse-orchestrator?branch=master) | [![Coverage Status](https://coveralls.io/repos/github/Sage-Bionetworks/synapse-orchestrator/badge.svg?branch=develop)](https://coveralls.io/Sage-Bionetworks/synapse-orchestrator?branch=develop) |
+[![Travis-CI Build Status](https://travis-ci.org/Sage-Bionetworks/workflow-interop.svg?branch=develop)](https://travis-ci.org/Sage-Bionetworks/workflow-interop.svg?branch=develop) 
+[![Coverage Status](https://coveralls.io/repos/github/Sage-Bionetworks/workflow-interop/badge.svg?branch=develop)](https://coveralls.io/Sage-Bionetworks/workflow-interop?branch=develop)
 
 
 The initial use case for this app will be to act as a workflow orchestrator and bridge between **Tool Registry Service (TRS)** and **Workflow Execution Service (WES)** endpoints for the [**Testbed Interoperability Platform**](https://docs.google.com/document/d/12Mq4v7o5VKF-DkFTQwsUQ-aWZ5aBeIcl_5YrhbaSv7M/edit?usp=sharing), a core deliverable of the GA4GH Cloud Workstream for 2018.
