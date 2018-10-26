@@ -90,7 +90,7 @@ class WES(object):
         auth = wes_config()[self.id]['auth']
         res = requests.get(stderr_url, headers=auth)
         return res.text
-    
+
     def get_run_stdout(self, id):
         """
         Get stdout from workflow run log.

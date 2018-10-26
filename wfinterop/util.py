@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Convenience methods related to handling and manipulating files,
-strings, and dates. Methods are used throughout other modules to 
+strings, and dates. Methods are used throughout other modules to
 streamline common operations.
 """
 import logging
@@ -41,7 +41,7 @@ def _replace_env_var(match):
     Args:
         match (SRE_Match): :class:`SRE_Match` object returned from
             searching a string for environment variables matching pattern
-            '${ENV_VAR}' 
+            '${ENV_VAR}'
 
     Returns:
         str: string with the value of the matched environment variable
@@ -62,12 +62,12 @@ def _env_var_constructor(loader, node):
     """
     Replace a parsed environment variable with the value during YAML
     parsing.
-    
+
     Args:
         loader (Constructor): YAML :class:`Constructor` to use for
             parsing nodes during file loading
         node (Node): The YAML :class:`Node` to parse
-    
+
     Returns:
         str: string with matched environment variable replaced with
             the corresponding value of the environment variable.
@@ -184,11 +184,11 @@ def response_handler(response):
 
 def ctime2datetime(time_str):
     """
-    Parse `ctime()` style string into :class:`datetime` object. 
-    
+    Parse `ctime()` style string into :class:`datetime` object.
+
     Args:
         time_str (str): string with date and time information
-    
+
     Returns:
         datetime: :class:`datetime` object
     """
@@ -202,11 +202,11 @@ def convert_timedelta(duration):
     Args:
         duration (timedelta): :class:`timedelta` object representing
             the difference between two :class:`datetime` objects
-    
+
     Returns:
         str: string representation of the duration
     """
-    days, seconds = duration.days, duration.seconds
+    _, seconds = duration.days, duration.seconds
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     seconds = (seconds % 60)

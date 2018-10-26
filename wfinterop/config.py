@@ -226,7 +226,7 @@ def set_yaml(section, service, var2add):
     YAML config files.
 
     Args:
-        section (str): string indicating config type ('queues', 
+        section (str): string indicating config type ('queues',
             'toolregistries', 'workflowservices')
         service (str): string identifying the service or queue
             to update

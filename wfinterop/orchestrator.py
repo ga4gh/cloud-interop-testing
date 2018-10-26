@@ -14,7 +14,6 @@ import json
 import datetime as dt
 
 from IPython.display import display, clear_output
-from pprint import pprint
 
 from wfinterop.config import queue_config, wes_config
 from wfinterop.util import ctime2datetime, convert_timedelta
@@ -74,7 +73,7 @@ def run_job(queue_id,
             **opts
         )
     if 'workflow_engine_parameters' in service_config:
-        parts.append(('workflow_engine_parameters', 
+        parts.append(('workflow_engine_parameters',
                       json.dumps(service_config['workflow_engine_parameters'])))
     parts = parts if len(parts) else None
 
@@ -143,9 +142,9 @@ def run_queue(queue_id, wes_id=None, opts=None):
         submission = get_submission_bundle(queue_id, submission_id)
         if submission['wes_id'] is not None:
             wes_id = submission['wes_id']
-        run_log = run_submission(queue_id=queue_id, 
-                                 submission_id=submission_id, 
-                                 wes_id=wes_id, 
+        run_log = run_submission(queue_id=queue_id,
+                                 submission_id=submission_id,
+                                 wes_id=wes_id,
                                  opts=opts)
         run_log['wes_id'] = wes_id
         queue_log[submission_id] = run_log
@@ -231,9 +230,9 @@ def monitor():
 
                     display(status_tracker)
 
-            terminal_statuses = ['FAILED', 
-                                 'COMPLETE', 
-                                 'CANCELED', 
+            terminal_statuses = ['FAILED',
+                                 'COMPLETE',
+                                 'CANCELED',
                                  'EXECUTOR_ERROR']
             if all([sub['status'] in terminal_statuses
                     for queue in statuses

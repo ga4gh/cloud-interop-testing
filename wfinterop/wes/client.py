@@ -67,6 +67,7 @@ class WESAdapter(WESInterface):
     :param wes_client:
     """
     _wes_client = None
+
     def __init__(self, wes_client):
         self._wes_client = wes_client
 

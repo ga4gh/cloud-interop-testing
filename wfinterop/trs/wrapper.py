@@ -88,7 +88,7 @@ class TRS(object):
                                          relative_path):
         """
         Return an additional tool descriptor file relative to the main file.
-        
+
         :param str id:
         :param str version_id:
         :param str type:

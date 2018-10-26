@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 """
-For a workflow registered in a given TRS implementation (e.g., 
+For a workflow registered in a given TRS implementation (e.g.,
 Dockstore), retrieve details and prepare the workflow run request.
-Optionally, retrieve, format, or attach (as a file) workflow 
+Optionally, retrieve, format, or attach (as a file) workflow
 descriptors, parameters, and inputs to include with request.
 """
 import logging
 import os
-import yaml
 import urllib
 import json
 import re
@@ -16,7 +15,6 @@ import subprocess32
 
 import schema_salad.ref_resolver
 
-from urllib import urlopen
 from StringIO import StringIO
 from toil.wdl import wdl_parser
 from wes_service.util import visit
@@ -37,7 +35,7 @@ def fetch_queue_workflow(queue_id):
 
     Args:
         queue_id (str): string identifying the workflow queue
-    
+
     Returns:
         dict: dict with updated configuration for the workflow queue
     """
@@ -111,12 +109,12 @@ def get_version(extension, workflow_file):
     """
     if extension == 'cwl':
         return get_yaml(workflow_file)['cwlVersion']
-    else:  
+    else:
         # Must be a wdl file.
         try:
             with open_file(workflow_file, 'r') as f:
                 wf_lines = f.readlines()
-            return [l.lstrip('version') for l in wf_lines 
+            return [l.lstrip('version') for l in wf_lines
                     if 'version' in l.split(' ')][0]
         except IndexError:
             return 'draft-2'
@@ -126,7 +124,7 @@ def get_wf_info(workflow_path):
     """
     Returns the version of the file and the file extension.
 
-    Assumes that the file path is to the file directly - i.e., ends 
+    Assumes that the file path is to the file directly - i.e., ends
     with a valid file extension. Supports checking local files as well
     as files at http:// and https:// locations. Files at these remote
     locations are recreated locally to enable our approach to version
@@ -135,7 +133,7 @@ def get_wf_info(workflow_path):
     Args:
         workflow_path (str): filepath or URL for main workflow
             descriptor file
-    
+
     Returns:
         tuple: tuple containing:
 
@@ -144,8 +142,8 @@ def get_wf_info(workflow_path):
     """
     supported_formats = ['py', 'wdl', 'cwl']
     # Grab the file extension
-    file_type = workflow_path.lower().split('.')[-1]  
-    workflow_path = (workflow_path if ':' in workflow_path 
+    file_type = workflow_path.lower().split('.')[-1]
+    workflow_path = (workflow_path if ':' in workflow_path
                      else 'file://' + workflow_path)
 
     if file_type in supported_formats:
@@ -165,7 +163,7 @@ def get_packed_cwl(workflow_url):
 
     Args:
         workflow_url (str): URL for main workflow descriptor file
-    
+
     Returns:
         str: string with main and all secondary workflow descriptors
             combined CWL workflow
@@ -177,14 +175,14 @@ def get_packed_cwl(workflow_url):
 def get_flattened_descriptor(workflow_file):
     with open_file(workflow_file, 'r') as f:
         wf_lines = f.readlines()
-    import_lines = [line_num for line_num, line in enumerate(wf_lines) 
+    import_lines = [line_num for line_num, line in enumerate(wf_lines)
                     if 'import' in line]
     for l in import_lines:
         match = re.search('http.*(?=")', wf_lines[l])
         if match is not None:
             path = match.group()
             filename = os.path.basename(path)
-            wf_lines[l] = re.sub(path, filename, wf_lines[l]) 
+            wf_lines[l] = re.sub(path, filename, wf_lines[l])
     return ''.join(wf_lines)
 
 
@@ -194,11 +192,11 @@ def find_asts(ast_root, name):
         under it. Function borrowed from scottfrazer.
 
         Args:
-            ast_root: the WDL AST; the whole thing generally, but 
+            ast_root: the WDL AST; the whole thing generally, but
                 really any portion that you wish to search
             name (str): the name of the subtree you're looking for,
                 like 'Task'
-        
+
         Returns:
             list: nodes representing the AST subtrees matching the
             'name' given
@@ -221,7 +219,7 @@ def get_wdl_inputs(wdl):
 
     Args:
         wdl (str): string containing the WDL descriptor
-    
+
     Returns:
         dict: dict containing identified workflow inputs, classified
             and grouped by type (e.g., 'File')
@@ -232,8 +230,8 @@ def get_wdl_inputs(wdl):
     decs = find_asts(workflow, 'Declaration')
     wdl_inputs = {}
     for dec in decs:
-        if (isinstance(dec.attr('type'), wdl_parser.Ast) and 
-            'name' in dec.attr('type').attributes):
+        if (isinstance(dec.attr('type'), wdl_parser.Ast) and
+                'name' in dec.attr('type').attributes):
             dec_type = dec.attr('type').attr('name').source_string
             dec_subtype = dec.attr('type').attr('subtype')[0].source_string
             dec_name = '{}.{}'.format(workflow_name,
@@ -270,7 +268,7 @@ def modify_jsonyaml_paths(jsonyaml_file, path_keys=None):
     if path_keys is not None:
         params_json = get_json(jsonyaml_file)
         for k, v in params_json.items():
-            if k in path_keys and not ':' in v[0] and not ':' in v:
+            if k in path_keys and ':' not in v[0] and ':' not in v:
                 resolve_keys[k] = {"@type": "@id"}
     loader = schema_salad.ref_resolver.Loader(resolve_keys)
     input_dict, _ = loader.resolve_ref(jsonyaml_file, checklinks=False)
@@ -291,8 +289,8 @@ def modify_jsonyaml_paths(jsonyaml_file, path_keys=None):
     return json.dumps(input_dict)
 
 
-def get_wf_descriptor(workflow_file, 
-                      parts=None, 
+def get_wf_descriptor(workflow_file,
+                      parts=None,
                       attach_descriptor=False,
                       pack_descriptor=False):
     """
@@ -309,7 +307,7 @@ def get_wf_descriptor(workflow_file,
 
     if workflow_file.startswith("file://"):
         workflow_file = workflow_file[7:]
- 
+
     if attach_descriptor:
         if pack_descriptor:
             descriptor_f = StringIO(get_packed_cwl(workflow_file))
@@ -329,10 +327,10 @@ def get_wf_descriptor(workflow_file,
     return parts
 
 
-def get_wf_params(workflow_file, 
-                  workflow_type, 
-                  jsonyaml, 
-                  parts=None, 
+def get_wf_params(workflow_file,
+                  workflow_type,
+                  jsonyaml,
+                  parts=None,
                   fix_paths=False):
     """
     Retrieve and format workflow parameters for execution.
@@ -356,18 +354,18 @@ def get_wf_params(workflow_file,
             with open_file(workflow_file, 'r') as f:
                 workflow_descriptor = f.read()
             input_keys = get_wdl_inputs(workflow_descriptor)['File']
-        wf_params = modify_jsonyaml_paths(jsonyaml, 
+        wf_params = modify_jsonyaml_paths(jsonyaml,
                                           path_keys=input_keys)
     else:
         wf_params = json.dumps(get_json(jsonyaml))
 
     parts.append(("workflow_params", wf_params))
     return parts
-    
+
 
 def get_wf_attachments(workflow_file, attachments, parts=None):
     """
-    Retrieve and attach any additional files needed to run 
+    Retrieve and attach any additional files needed to run
     the workflow. Attachments should nominally be hosted in the
     same remote repository as the primary workflow descriptor
     and specified using the full URL. Local file attachments
@@ -392,11 +390,11 @@ def get_wf_attachments(workflow_file, attachments, parts=None):
             attach_f = StringIO(f.read())
 
         try:
-            attach_path = re.sub(path_re.search(attachment).group() + '/', 
-                                '', attachment)
+            attach_path = re.sub(path_re.search(attachment).group() + '/',
+                                 '', attachment)
         except AttributeError:
             attach_path = os.path.basename(attachment)
-        parts.append(("workflow_attachment", 
+        parts.append(("workflow_attachment",
                      (attach_path, attach_f)))
     return parts
 
@@ -428,7 +426,7 @@ def build_wes_request(workflow_file,
     are submitted as 'multipart/form-data'.
 
     Args:
-        workflow_file (str): path to CWL/WDL file; can be 
+        workflow_file (str): path to CWL/WDL file; can be
             http/https/file path or URL
         jsonyaml (str): path to accompanying JSON or YAML file
         attachments (:obj:`list` of :obj:`str`): any other files
@@ -437,14 +435,14 @@ def build_wes_request(workflow_file,
         pack_descriptor (bool): ...
         attach_imports (bool): ...
         resolve_params (bool): ...
- 
+
     Returns:
         list: list of tuples formatted to be sent in a POST request to
             the WES server (Swagger API)
     """
     workflow_file = "file://" + workflow_file if ":" not in workflow_file else workflow_file
     wf_version, wf_type = get_wf_info(workflow_file)
-    
+
     parts = [("workflow_type", wf_type),
              ("workflow_type_version", wf_version)]
 
@@ -459,14 +457,14 @@ def build_wes_request(workflow_file,
                          "no need to attach imports")
             attach_descriptor = True
             attach_imports = False
-    parts = get_wf_descriptor(workflow_file=workflow_file, 
-                              parts=parts, 
+    parts = get_wf_descriptor(workflow_file=workflow_file,
+                              parts=parts,
                               attach_descriptor=attach_descriptor,
                               pack_descriptor=pack_descriptor)
-    parts = get_wf_params(workflow_file=workflow_file, 
-                          workflow_type=wf_type, 
-                          jsonyaml=jsonyaml, 
-                          parts=parts, 
+    parts = get_wf_params(workflow_file=workflow_file,
+                          workflow_type=wf_type,
+                          jsonyaml=jsonyaml,
+                          parts=parts,
                           fix_paths=resolve_params)
 
     if not attach_imports:
@@ -476,10 +474,8 @@ def build_wes_request(workflow_file,
 
     if attachments:
         attachments = expand_globs(attachments)
-        parts = get_wf_attachments(workflow_file=workflow_file, 
-                                   attachments=attachments, 
+        parts = get_wf_attachments(workflow_file=workflow_file,
+                                   attachments=attachments,
                                    parts=parts)
 
     return parts
-
-

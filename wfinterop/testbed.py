@@ -8,7 +8,7 @@ import re
 import time
 import shutil
 
-from IPython.display import display, clear_output
+from IPython.display import display
 from itertools import combinations_with_replacement
 from requests.exceptions import ConnectionError
 
@@ -17,7 +17,7 @@ from wfinterop.config import queue_config, set_yaml
 from wfinterop.trs import TRS
 from wfinterop.wes import WES
 from wfinterop.queue import create_submission
-from wfinterop.orchestrator import run_queue, run_submission, monitor_queue
+from wfinterop.orchestrator import run_submission, monitor_queue
 from wfinterop.util import get_json, save_json
 
 logging.basicConfig(level=logging.DEBUG)
@@ -134,12 +134,12 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
         save_json(testbed_log, testbed_status)
         logger.info("Requesting new workflow run for '{}' in '{}'"
                     .format(checker_queue_id, wes_id))
-        run_log = run_submission(queue_id=checker_queue_id, 
-                                 submission_id=submission_id, 
+        run_log = run_submission(queue_id=checker_queue_id,
+                                 submission_id=submission_id,
                                  opts=opt)
         testbed_status[checker_queue_id][wes_id][submission_id]['run_id'] = run_log['run_id']
         save_json(testbed_log, testbed_status)
-    
+
     return testbed_status
 
 
@@ -149,7 +149,7 @@ def get_opts(permute=False):
     """
     opts = [
         "attach_descriptor",
-        "resolve_params" ,
+        "resolve_params",
         "attach_imports",
         "pack_descriptor"
     ]
@@ -158,8 +158,8 @@ def get_opts(permute=False):
         return [dict(zip(opts, [False] * n))]
     else:
         states = set(combinations_with_replacement([True, False] * (n - 1), n))
-        return filter(lambda x: not (x['pack_descriptor'] and 
-                                     (x['attach_imports'] or not 
+        return filter(lambda x: not (x['pack_descriptor'] and
+                                     (x['attach_imports'] or not
                                       x['attach_descriptor'])),
                       [dict(zip(opts, state)) for state in states])
 
@@ -193,7 +193,7 @@ def monitor_testbed():
                           for wes_log in testbed_status[queue_id].values()
                           for sub_log in wes_log.values()]
         testbed_statuses = filter(lambda x: x[1] not in terminal_statuses, queue_statuses)
-        if not len(testbed_statuses): 
+        if not len(testbed_statuses):
             collect_logs(testbed_status)
             break
 
@@ -225,8 +225,8 @@ def check_all(testbed_plan, permute_opts=False, force=False):
     :param bool force:
     """
     opts_list = get_opts(permute_opts)
-    testbed_status = [check_workflow(queue_id=workflow_id, 
-                                     wes_id=wes_id, 
+    testbed_status = [check_workflow(queue_id=workflow_id,
+                                     wes_id=wes_id,
                                      opts=opts_list,
                                      force=force)
                       for workflow_id in testbed_plan
