@@ -1,4 +1,7 @@
+#!/usr/bin/env python
 """
+Wrapper class around Tool Registry Service (TRS) API client to
+provide consistent Pythonic interface.
 """
 import logging
 import urllib
@@ -14,7 +17,8 @@ def _format_workflow_id(id):
     """
     Add workflow prefix to and quote a tool ID.
 
-    :param str id:
+    Args:
+        id (str): ...
     """
     id = urllib.unquote(id)
     if not re.search('^#workflow', id):
@@ -28,8 +32,9 @@ class TRS(object):
     Build a :class:`TRS` instance for interacting with a server via
     the GA4GH Tool Registry Service RESTful API.
 
-    :param str trs_id:
-    :param api_client:
+    Args:
+        trs_id (str): ...
+        api_client (str): ...
     """
     def __init__(self, trs_id, api_client=None):
         if api_client is None:
@@ -48,7 +53,8 @@ class TRS(object):
         Return one specific tool of class "workflow" (which has
         ToolVersions nested inside it).
 
-        :param str id:
+        Args:
+            id (str): ...
         """
         id = _format_workflow_id(id)
         res = self.api_client.toolsIdGet(id=id)
@@ -58,7 +64,8 @@ class TRS(object):
         """
         Return all versions of the specified workflow.
 
-        :param str id:
+        Args:
+            id (str): ...
         """
         id = _format_workflow_id(id=id)
         res = self.api_client.toolsIdVersionsGet(id=id)
@@ -69,9 +76,10 @@ class TRS(object):
         Return the descriptor for the specified workflow (examples
         include CWL, WDL, or Nextflow documents).
 
-        :param str id:
-        :param str version_id:
-        :param str type:
+        Args:
+            id (str): ...
+            version_id (str): ...
+            type (str): ...
         """
         id = _format_workflow_id(id)
         res = self.api_client.toolsIdVersionsVersionIdTypeDescriptorGet(
@@ -89,10 +97,11 @@ class TRS(object):
         """
         Return an additional tool descriptor file relative to the main file.
 
-        :param str id:
-        :param str version_id:
-        :param str type:
-        :param str relative_path:
+        Args:
+            id (str): ...
+            version_id (str): ...
+            type (str): ...
+            relative_path (str): ...
         """
         id = _format_workflow_id(id)
         res = self.api_client.toolsIdVersionsVersionIdTypeDescriptorRelativePathGet(
@@ -108,9 +117,10 @@ class TRS(object):
         Return a list of test JSONs (these allow you to execute the
         workflow successfully) suitable for use with this descriptor type.
 
-        :param str id:
-        :param str version_id:
-        :param str type:
+        Args:
+            id (str): ...
+            version_id (str): ...
+            type (str): ...
         """
         id = _format_workflow_id(id)
         res = self.api_client.toolsIdVersionsVersionIdTypeTestsGet(
@@ -125,9 +135,10 @@ class TRS(object):
         Return a list of files associated with the workflow based
         on file type.
 
-        :param str id:
-        :param str version_id:
-        :param str type:
+        Args:
+            id (str): ...
+            version_id (str): ...
+            type (str): ...
         """
         id = _format_workflow_id(id)
         res = self.api_client.toolsIdVersionsVersionIdTypeFilesGet(

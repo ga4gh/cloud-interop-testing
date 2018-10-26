@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 """
+Create and manage orchestrator queues for workflow jobs submitted to
+Workflow Execution Service (WES) endpoints.
 """
 import logging
 import os
@@ -26,9 +28,13 @@ def create_submission(queue_id, submission_data, wes_id=None):
 
     Both type and wf_name are optional but could be used with TRS.
 
-    :param str queue_id: String identifying the workflow queue.
-    :param dict submission_data:
-    :param str wes_id:
+    Args:
+        queue_id (str): string identifying the workflow queue
+        submission_data (dict): ...
+        wes_id (str): ...
+    
+    Returns:
+        ...
     """
     submissions = get_json(submission_queue)
     submission_id = dt.datetime.now().strftime('%d%m%d%H%M%S%f')
@@ -49,9 +55,13 @@ def get_submissions(queue_id,
     """
     Return all ids with the requested status.
 
-    :param str queue_id: String identifying the workflow queue.
-    :param list status:
-    :param list exclude_status:
+    Args:
+        queue_id (str): string identifying the workflow queue
+        status (:obj:`list` of :obj:`str`): ...
+        exclude_status (:obj:`list` of :obj:`str`): ...
+
+    Returns:
+        ...
     """
     submissions = get_json(submission_queue)
     if len(exclude_status):
@@ -67,8 +77,12 @@ def get_submission_bundle(queue_id, submission_id):
     """
     Return the submission's info.
 
-    :param str queue_id:
-    :param str submission_id:
+    Args:
+        queue_id (str): ...
+        submission_id (str): ...
+
+    Returns:
+        ...
     """
     return get_json(submission_queue)[queue_id][submission_id]
 
@@ -77,10 +91,14 @@ def update_submission(queue_id, submission_id, param, value):
     """
     Update the status of a submission.
 
-    :param str queue_id:
-    :param str submission_id:
-    :param str param:
-    :param str value:
+    Args:
+        queue_id (str): ...
+        submission_id (str): ...
+        param (str): ...
+        value (str): ...
+    
+    Returns:
+        ...
     """
     submissions = get_json(submission_queue)
     submissions[queue_id][submission_id][param] = value

@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 """
+Test multiple workflows in multiple execution envirionments using
+the GA4GH Tool Registry Service (TRS) and Workflow Execution Service
+(WES) APIs.
 """
 import os
 import logging
@@ -65,8 +68,12 @@ def get_checker_id(trs, workflow_id):
     """
     Return entry for the specified workflow's "checker workflow."
 
-    :param trs:
-    :param str workflow_id:
+    Args:
+        trs (:obj:`TRS`): ...
+        workflow_id (str): ...
+
+    Returns:
+        str: string ID of checker workflow in TRS service
     """
     target_workflow = trs.get_workflow(id=workflow_id)
     checker_url = urllib.unquote(target_workflow['checker_url'])
@@ -79,10 +86,16 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
     """
     Run checker workflow in a single environment.
 
-    :param str queue_id: String identifying the workflow queue.
-    :param str wes_id:
-    :param dict opts:
-    :param bool force:
+    Args:
+        queue_id (str): string identifying the workflow queue
+        wes_id (str): string identifying the workflow execution 
+            service endpoint
+        opts (dict): dict of keyword arguments and values for the
+            `build_wes_request` function
+        force (bool): ...
+
+    Returns:
+        dict: ...
     """
     if opts is None:
         opts = get_opts()
@@ -145,7 +158,11 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
 
 def get_opts(permute=False):
     """
-    :param bool permute:
+    Args:
+        permute (bool): ...
+
+    Returns:
+        ...
     """
     opts = [
         "attach_descriptor",
@@ -166,7 +183,11 @@ def get_opts(permute=False):
 
 def collect_logs(testbed_status):
     """
-    :param dict testbed_status:
+    Args:
+        testbed_status (dict): ...
+
+    Returns:
+        ...
     """
     for queue_id in testbed_status:
         for wes_id in testbed_status[queue_id]:
@@ -182,6 +203,7 @@ def collect_logs(testbed_status):
 
 def monitor_testbed():
     """
+    Update the status of all jobs in the testbed.
     """
     testbed_status = get_json(testbed_log)
     while True:
@@ -220,9 +242,13 @@ def check_all(testbed_plan, permute_opts=False, force=False):
     Check workflows for multiple workflows in multiple environments
     (cross product of workflows, workflow service endpoints).
 
-    :param dict testbed_plan:
-    :param bool permute_opts:
-    :param bool force:
+    Args:
+        testbed_plan (dict):
+        permute_opts (dict):
+        force (bool):
+    
+    Returns:
+        ...
     """
     opts_list = get_opts(permute_opts)
     testbed_status = [check_workflow(queue_id=workflow_id,

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 """
+Wrapper class around Workflow Execution Service (WES) API client to
+provide consistent Pythonic interface.
 """
 import logging
 import requests
@@ -18,8 +20,9 @@ class WES(object):
     Build a :class:`WES` instance for interacting with a server via
     the GA4GH Worflow Execution Service RESTful API.
 
-    :param str wes_id:
-    :param api_client:
+    Args:
+        wes_id (str): ...
+        api_client: ...
     """
     def __init__(self, wes_id, api_client=None):
         self.id = wes_id
@@ -47,8 +50,12 @@ class WES(object):
         Create a new workflow run and retrieve its tracking ID
         to monitor its progress.
 
-        :param dict request:
-        :param list parts:
+        Args:
+            request (dict): ...
+            parts (list): ...
+        
+        Returns:
+            ...
         """
         res = self.api_client.RunWorkflow(request, parts)
         return response_handler(res)
@@ -57,7 +64,11 @@ class WES(object):
         """
         Cancel a running workflow.
 
-        :param str id:
+        Args:
+            id (str): ...
+
+        Returns:
+            ...
         """
         res = self.api_client.CancelRun(id)
         return response_handler(res)
@@ -66,7 +77,11 @@ class WES(object):
         """
         Get detailed info about a workflow run.
 
-        :param str id:
+        Args:
+            id (str): ...
+
+        Returns:
+            ...
         """
         res = self.api_client.GetRunLog(id)
         return response_handler(res)
@@ -75,7 +90,11 @@ class WES(object):
         """
         Get quick status info about a workflow run.
 
-        :param str id:
+        Args:
+            id (str): ...
+
+        Returns:
+            ...
         """
         res = self.api_client.GetRunStatus(id)
         return response_handler(res)
@@ -84,7 +103,11 @@ class WES(object):
         """
         Get stderr from workflow run log.
 
-        :param str id:
+        Args:
+            id (str): ...
+
+        Returns:
+            ...
         """
         stderr_url = self.get_run(id)['run_log']['stderr']
         auth = wes_config()[self.id]['auth']
@@ -95,7 +118,11 @@ class WES(object):
         """
         Get stdout from workflow run log.
 
-        :param str id:
+        Args:
+            id (str): ...
+
+        Returns:
+            ...
         """
         stdout_url = self.get_run(id)['run_log']['stdout']
         auth = wes_config()[self.id]['auth']
