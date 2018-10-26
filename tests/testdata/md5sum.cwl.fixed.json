@@ -1,0 +1,6 @@
+{
+  "input_file": {
+        "class": "File",
+        "location": "https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.input"
+    }
+}

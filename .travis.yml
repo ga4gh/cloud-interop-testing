@@ -10,7 +10,7 @@ before_install:
 
 script:
   - python setup.py test
-  - flake8 --select=E121,E123,E126,E226,E24,E704,W503,W504 --ignore=E501 wfinterop/
+  - flake8 --ignore=E501,E722,F401,F841,W504 wfinterop/
 
 after_success:
   - coveralls

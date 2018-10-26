@@ -1,3 +1,5 @@
+"""
+"""
 import logging
 import os
 
@@ -13,6 +15,8 @@ logger = logging.getLogger(__name__)
 def _get_wes_opts(service_id):
     """
     Look up stored parameters for workflow execution services.
+
+    :param str service_id:
     """
     return wes_config()[service_id]
 
@@ -20,10 +24,10 @@ def _get_wes_opts(service_id):
 def _init_http_client(service_id=None, opts=None):
     """
     Initialize and configure HTTP requests client for selected service.
+
+    :param str service_id:
+    :param dict opts:
     """
-    auth_header = {'token': 'Authorization',
-                   'api_key': 'X-API-KEY',
-                   None: ''}
     if service_id:
         opts = _get_wes_opts(service_id)
 
@@ -59,6 +63,8 @@ class WESAdapter(WESInterface):
     """
     Adapter class for the WES client functionality from the
     workflow-service library.
+
+    :param wes_client:
     """
     _wes_client = None
 
@@ -71,10 +77,11 @@ class WESAdapter(WESInterface):
     def ListRuns(self):
         return self._wes_client.list_runs()
 
-    def RunWorkflow(self, request):
+    def RunWorkflow(self, request, parts=None):
         return self._wes_client.run(wf=request['workflow_url'],
                                     jsonyaml=request['workflow_params'],
-                                    attachments=request['attachment'])
+                                    attachments=request['attachment'],
+                                    parts=parts)
 
     def CancelRun(self, run_id):
         return self._wes_client.cancel(run_id=run_id)

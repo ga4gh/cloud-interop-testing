@@ -93,6 +93,7 @@ class TestWESAdapter:
         wes_adapter = WESAdapter(wes_client=mock_client_lib)
         test_args = {arg: '' for arg in 
                      inspect.getargspec(WESClient.run)[0][1:]}
+        test_args['parts'] = None
         test_response = wes_adapter.RunWorkflow(mock_request)
 
         mock_client_lib.run.assert_called_once_with(**test_args)

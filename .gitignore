@@ -113,9 +113,12 @@ ENV/
 *.config
 *.evals
 *config.yaml
+*queues.yaml
 *submission_queue.json
+*testbed_log.json
 
 # workflow cache
 workflows
+logs
 
 .DS_Store

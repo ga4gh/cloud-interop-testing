@@ -1,8 +1,12 @@
+#!/usr/bin/env python
 """
-The orchestrator config file has three sections: queues, trs, and wes.
+The orchestrator config has three sections for workflow queues, tool
+registry services (TRS), and workflow execution services (WES). The latter
+two sections are stored in the same file, and individual entries are
+generally unchanged after adding. The former (queues) are stored in a
+separate file.
 
-This provides functions to save and get values into these three sections
-in the file.
+This provides functions to save and get values into these three sections.
 """
 import logging
 import os
@@ -13,34 +17,42 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def _default_queues():
+    """
+    Create default queues config file with example workflow data.
+    """
+    queues = {
+        'test_cwl_queue': {
+            'target_queue': None,
+            'trs_id': None,
+            'version_id': None,
+            'wes_default': 'local',
+            'wes_opts': ['local'],
+            'workflow_attachments': [
+                'file://tests/testdata/md5sum.input',
+                'file://tests/testdata/dockstore-tool-md5sum.cwl'],
+            'workflow_id': None,
+            'workflow_type': 'CWL',
+            'workflow_url': 'file://tests/testdata/md5sum.cwl'},
+        'test_wdl_queue': {
+            'target_queue': None,
+            'trs_id': None,
+            'version_id': None,
+            'wes_default': 'local',
+            'wes_opts': ['local'],
+            'workflow_attachments': ['file://tests/testdata/md5sum.input'],
+            'workflow_id': None,
+            'workflow_type': 'WDL',
+            'workflow_url': 'file://tests/testdata/md5sum.wdl'}
+    }
+    save_yaml(queues_path, queues)
+
+
 def _default_config():
     """
     Create default app config, if not existing.
     """
     config = {
-        'queues': {
-            'test_cwl_queue': {
-                'target_queue': None,
-                'trs_id': None,
-                'version_id': None,
-                'wes_default': 'local',
-                'wes_opts': ['local'],
-                'workflow_attachments': [
-                    'file://tests/testdata/md5sum.input',
-                    'file://tests/testdata/dockstore-tool-md5sum.cwl'],
-                'workflow_id': None,
-                'workflow_type': 'CWL',
-                'workflow_url': 'file://tests/testdata/md5sum.cwl'},
-            'test_wdl_queue': {
-                'target_queue': None,
-                'trs_id': None,
-                'version_id': None,
-                'wes_default': 'local',
-                'wes_opts': ['local'],
-                'workflow_attachments': ['file://tests/testdata/md5sum.input'],
-                'workflow_id': None,
-                'workflow_type': 'WDL',
-                'workflow_url': 'file://tests/testdata/md5sum.wdl'}},
         'toolregistries': {
             'dockstore': {
                 'auth': {'Authorization': ''},
@@ -58,16 +70,38 @@ config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
 if not os.path.exists(config_path):
     _default_config()
 
+queues_path = os.path.join(os.path.dirname(__file__), 'queues.yaml')
+if not os.path.exists(queues_path):
+    _default_queues()
+
 
 def queue_config():
-    return get_yaml(config_path)['queues']
+    """
+    Fetch config data for workflow queues.
+
+    Returns:
+        dict: dict with an entry for each workflow queue
+    """
+    return get_yaml(queues_path)
 
 
 def trs_config():
+    """
+    Fetch config data for tool registry services.
+
+    Returns:
+        dict: dict with an entry for each service
+    """
     return get_yaml(config_path)['toolregistries']
 
 
 def wes_config():
+    """
+    Fetch config data for workflow execution services.
+
+    Returns:
+        dict: dict with an entry for each service
+    """
     return get_yaml(config_path)['workflowservices']
 
 
@@ -84,6 +118,27 @@ def add_queue(queue_id,
     """
     Register a workflow evaluation queue to the orchestrator's
     scope of work.
+
+    Args:
+        queue_id (str): string identifying the workflow queue
+        wf_type (str): string indicating the workflow type (e.g.,
+            'CWL' or 'WDL')
+        wf_id (str): string representing the workflow ID as registered
+            in a tool registry service
+        version_id (str): string denoting the version (as listed in the
+            tool registry service) of the workflow to use.
+        wf_url (str): string giving the full URL path to the main
+            workflow descriptor file
+        wf_attachments (:obj:`list` of :obj:`str`): filepaths or URLs to
+            any additional workflow dependencies that should be attached
+            at runtime
+        wes_default (str): string corresponding to a workflow execution
+            service in the app config.
+        wes_opts (:obj:`list` of :obj:`str`): list of compatible workflow
+            execution services to use for running the workflow.
+        target_queue (str): string identifying the queue of the 'parent'
+            workflow, if the current queue is designed to check/validate
+            the parent.
     """
     if not wf_id and not wf_url:
         raise ValueError(
@@ -110,7 +165,12 @@ def add_toolregistry(service,
     Register a Tool Registry Service endpoint to the orchestrator's
     search space for workflows.
 
-    :param trs_id: string ID of TRS endpoint (e.g., 'dockstore')
+    Args:
+        service (str): string ID of TRS endpoint (e.g., 'dockstore')
+        host (str): domain and API path for endpoint
+        auth (dict): dict with headers/tokens to use when authorizing
+            requests to the API endpoint
+        proto (str): protocol used by the API endpoint (e.g., http or https)
     """
     config = {'auth': auth,
               'host': host,
@@ -126,7 +186,12 @@ def add_workflowservice(service,
     Register a Workflow Execution Service endpoint to the
     orchestrator's available environment options.
 
-    :param wes_id: string ID of WES endpoint (e.g., 'local')
+    Args:
+        service (str): string ID of WES endpoint (e.g., 'local')
+        host (str): domain and API path for endpoint
+        auth (dict): dict with headers/tokens to use when authorizing
+            requests to the API endpoint
+        proto (str): protocol used by the API endpoint (e.g., http or https)
     """
     config = {'auth': auth,
               'host': host,
@@ -138,6 +203,12 @@ def add_wes_opt(queue_ids, wes_id, make_default=False):
     """
     Add a WES endpoint to the execution options of the specified
     workflow queues.
+
+    Args:
+        queue_id (str): string identifying the workflow queue
+        wes_id (str): string identifying the workflow execution service
+        make_default (bool): True to make specified WES the new default
+            for the workflow queue(s) or else False
     """
     if not isinstance(queue_ids, list):
         queue_ids = [queue_ids]
@@ -150,9 +221,26 @@ def add_wes_opt(queue_ids, wes_id, make_default=False):
 
 
 def set_yaml(section, service, var2add):
-    orchestrator_config = get_yaml(config_path)
-    orchestrator_config.setdefault(section, {})[service] = var2add
-    save_yaml(config_path, orchestrator_config)
+    """
+    Update data for a particular section or service in local
+    YAML config files.
+
+    Args:
+        section (str): string indicating config type ('queues',
+            'toolregistries', 'workflowservices')
+        service (str): string identifying the service or queue
+            to update
+        var2add (dict): dict containing latest data for a service
+            or queue (previous config will be overwritten)
+    """
+    if section == 'queues':
+        orchestrator_queues = get_yaml(queues_path)
+        orchestrator_queues[service] = var2add
+        save_yaml(queues_path, orchestrator_queues)
+    else:
+        orchestrator_config = get_yaml(config_path)
+        orchestrator_config.setdefault(section, {})[service] = var2add
+        save_yaml(config_path, orchestrator_config)
 
 
 def show():
@@ -160,9 +248,10 @@ def show():
     Show current application configuration.
     """
     orchestrator_config = get_yaml(config_path)
+    orchestrator_queues = get_yaml(queues_path)
     queue_lines = []
-    for queue_id in orchestrator_config['queues']:
-        wf_config = orchestrator_config['queues'][queue_id]
+    for queue_id in orchestrator_queues:
+        wf_config = orchestrator_queues[queue_id]
         wf_id = wf_config['workflow_id']
         version_id = wf_config['version_id']
         wf_url = wf_config['workflow_url']

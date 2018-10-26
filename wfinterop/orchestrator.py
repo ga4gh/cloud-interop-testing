@@ -10,15 +10,17 @@ import logging
 import sys
 import time
 import os
+import json
 import datetime as dt
 
 from IPython.display import display, clear_output
 
-from wfinterop.config import queue_config
+from wfinterop.config import queue_config, wes_config
 from wfinterop.util import ctime2datetime, convert_timedelta
 from wfinterop.wes import WES
-from wfinterop.trs2wes import fetch_queue_workflow
 from wfinterop.trs2wes import store_verification
+from wfinterop.trs2wes import build_wes_request
+from wfinterop.trs2wes import fetch_queue_workflow
 from wfinterop.queue import get_submission_bundle
 from wfinterop.queue import get_submissions
 from wfinterop.queue import create_submission
@@ -31,10 +33,18 @@ logger = logging.getLogger(__name__)
 def run_job(queue_id,
             wes_id,
             wf_jsonyaml,
+            opts=None,
             add_attachments=None,
             submission=False):
     """
     Put a workflow in the queue and immmediately run it.
+
+    :param str queue_id: String identifying the workflow queue.
+    :param str wes_id:
+    :param str wf_jsonyaml:
+    :param dict opts:
+    :param list add_attachments:
+    :param bool submission:
     """
     wf_config = queue_config()[queue_id]
     if wf_config['workflow_url'] is None:
@@ -49,24 +59,54 @@ def run_job(queue_id,
                                           submission_data=wf_jsonyaml,
                                           wes_id=wes_id)
     wes_instance = WES(wes_id)
+    service_config = wes_config()[wes_id]
     request = {'workflow_url': wf_config['workflow_url'],
                'workflow_params': wf_jsonyaml,
                'attachment': wf_attachments}
-    run_log = wes_instance.run_workflow(request)
-    run_log['start_time'] = dt.datetime.now().ctime()
-    run_status = wes_instance.get_run_status(run_log['run_id'])['state']
+
+    parts = []
+    if opts is not None:
+        parts = build_wes_request(
+            workflow_file=request['workflow_url'],
+            jsonyaml=request['workflow_params'],
+            attachments=request['attachment'],
+            **opts
+        )
+    if 'workflow_engine_parameters' in service_config:
+        parts.append(('workflow_engine_parameters',
+                      json.dumps(service_config['workflow_engine_parameters'])))
+    parts = parts if len(parts) else None
+
+    run_log = wes_instance.run_workflow(request, parts=parts)
+    if run_log['run_id'] == 'failed':
+        logger.info("Job submission failed for WES '{}'"
+                    .format(wes_id))
+        run_status = 'FAILED'
+        sub_status = 'FAILED'
+    else:
+        logger.info("Job received by WES '{}', run ID: {}"
+                    .format(wes_id, run_log['run_id']))
+        run_log['start_time'] = dt.datetime.now().ctime()
+        time.sleep(10)
+        run_status = wes_instance.get_run_status(run_log['run_id'])['state']
+        sub_status = 'SUBMITTED'
     run_log['status'] = run_status
 
     if not submission:
         update_submission(queue_id, submission_id, 'run_log', run_log)
-        update_submission(queue_id, submission_id, 'status', 'SUBMITTED')
+        update_submission(queue_id, submission_id, 'status', sub_status)
     return run_log
 
 
-def run_submission(queue_id, submission_id, wes_id=None):
+def run_submission(queue_id, submission_id, wes_id=None, opts=None):
     """
     For a single submission to a single evaluation queue, run
     the workflow in a single environment.
+
+    :param str queue_id: String identifying the workflow queue.
+    :param str submission_id:
+    :param str wes_id:
+    :param dict opts:
     """
     submission = get_submission_bundle(queue_id, submission_id)
     if submission['wes_id'] is not None:
@@ -81,54 +121,58 @@ def run_submission(queue_id, submission_id, wes_id=None):
     run_log = run_job(queue_id=queue_id,
                       wes_id=wes_id,
                       wf_jsonyaml=wf_jsonyaml,
-                      submission=True)
+                      submission=True,
+                      opts=opts)
 
     update_submission(queue_id, submission_id, 'run_log', run_log)
     update_submission(queue_id, submission_id, 'status', 'SUBMITTED')
     return run_log
 
 
-def run_queue(queue_id, wes_id=None):
+def run_queue(queue_id, wes_id=None, opts=None):
     """
     Run all submissions in a queue in a single environment.
+
+    :param str queue_id: String identifying the workflow queue.
+    :param str wes_id:
+    :param dict opts:
     """
     queue_log = {}
     for submission_id in get_submissions(queue_id, status='RECEIVED'):
         submission = get_submission_bundle(queue_id, submission_id)
         if submission['wes_id'] is not None:
             wes_id = submission['wes_id']
-        run_log = run_submission(queue_id, submission_id, wes_id)
+        run_log = run_submission(queue_id=queue_id,
+                                 submission_id=submission_id,
+                                 wes_id=wes_id,
+                                 opts=opts)
         run_log['wes_id'] = wes_id
         queue_log[submission_id] = run_log
 
     return queue_log
 
 
-def run_all():
-    """
-    Run all jobs with the status: RECEIVED across all evaluation queues.
-    Check the status of each submission per queue for status: COMPLETE
-    before running the next queued submission.
-    """
-    orchestrator_log = {}
-    for queue_id in queue_config():
-        orchestrator_log[queue_id] = run_queue(queue_id)
-    return orchestrator_log
-
-
 def monitor_queue(queue_id):
     """
     Update the status of all submissions for a queue.
+
+    :param str queue_id: String identifying the workflow queue.
     """
     current = dt.datetime.now()
     queue_log = {}
-    for sub_id in get_submissions(queue_id=queue_id,
-                                  exclude_status='RECEIVED'):
+    for sub_id in get_submissions(queue_id=queue_id):
         submission = get_submission_bundle(queue_id, sub_id)
+        if submission['status'] == 'RECEIVED':
+            queue_log[sub_id] = {'status': 'PENDING'}
+            continue
         run_log = submission['run_log']
+        if run_log['run_id'] == 'failed':
+            queue_log[sub_id] = {'status': 'FAILED'}
+            continue
+        run_log['wes_id'] = submission['wes_id']
         if run_log['status'] in ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']:
             queue_log[sub_id] = run_log
-            next
+            continue
         wes_instance = WES(submission['wes_id'])
         run_status = wes_instance.get_run_status(run_log['run_id'])
 
@@ -150,12 +194,11 @@ def monitor_queue(queue_id):
             wf_config = queue_config()[queue_id]
             sub_status = run_log['status']
             if wf_config['target_queue']:
-                store_verification(wf_config['target_queue'],
-                                   submission['wes_id'])
+                # store_verification(wf_config['target_queue'],
+                #                    submission['wes_id'])
                 sub_status = 'VALIDATED'
             update_submission(queue_id, sub_id, 'status', sub_status)
 
-        run_log['wes_id'] = submission['wes_id']
         queue_log[sub_id] = run_log
 
     return queue_log
@@ -177,25 +220,29 @@ def monitor():
             clear_output(wait=True)
 
             for queue_id in queue_config():
-                statuses.append(monitor_queue(queue_id))
-            terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']
+                queue_status = monitor_queue(queue_id)
+                if len(queue_status):
+                    statuses.append(queue_status)
+                    print("\nWorkflow queue: {}".format(queue_id))
+                    status_tracker = pd.DataFrame.from_dict(
+                        queue_status,
+                        orient='index')
 
-            status_tracker = pd.DataFrame.from_dict(
-                {i: status[i]
-                 for status in statuses
-                 for i in status},
-                orient='index')
+                    display(status_tracker)
 
-            os.system('clear')
-            display(status_tracker)
+            terminal_statuses = ['FAILED',
+                                 'COMPLETE',
+                                 'CANCELED',
+                                 'EXECUTOR_ERROR']
             if all([sub['status'] in terminal_statuses
                     for queue in statuses
                     for sub in queue.values()]):
                 print("\nNo jobs running...")
             print("\n(Press CTRL+C to quit)")
+            time.sleep(2)
+            os.system('clear')
             sys.stdout.flush()
 
-            time.sleep(1)
     except KeyboardInterrupt:
         print("\nDone")
         return
