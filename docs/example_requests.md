@@ -12,7 +12,9 @@ curl -X POST \
 ```
 
 <details>
- 
+
+<summary>POST request</summary>
+
  ```
  0087: Content-Type: multipart/form-data; boundary=--------------------
 00c7: ----8ca5db76a32b2033
@@ -48,6 +50,61 @@ curl -X POST \
 ```
 
 </details>
+
+
+Response:
+```
+{
+  "run_id": "d97da1c6ef2e4169b179f64bc81dd35c"
+}
+```
+
+GET request
+```
+curl -X GET \
+ http://0.0.0.0:8080/ga4gh/wes/v1/runs/d97da1c6ef2e4169b179f64bc81dd35c
+```
+
+Response:
+```
+{
+  "outputs": {
+    "output_file": {
+      "basename": "md5sum.txt",
+      "checksum": "sha1$5cd16de143136d95a0307bc1db27d88b57b033e9",
+      "class": "File",
+      "format": "http://edamontology.org/data_3671",
+      "location": "file:///Users/jaeddy/code/github/projects/workflow-interop/workflows/d97da1c6ef2e4169b179f64bc81dd35c/outdir/md5sum.txt",
+      "path": "/Users/jaeddy/code/github/projects/workflow-interop/workflows/d97da1c6ef2e4169b179f64bc81dd35c/outdir/md5sum.txt",
+      "size": 33
+    }
+  },
+  "request": {
+    "workflow_params": {
+      "input_file": {
+        "class": "File",
+        "location": "https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.input"
+      }
+    },
+    "workflow_type": "CWL",
+    "workflow_type_version": "v1.0",
+    "workflow_url": "https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.cwl"
+  },
+  "run_id": "d97da1c6ef2e4169b179f64bc81dd35c",
+  "run_log": {
+    "cmd": [
+      ""
+    ],
+    "end_time": "",
+    "exit_code": 0,
+    "start_time": "",
+    "stderr": "/Users/jaeddy/anaconda/envs/wfinterop/bin/cwl-runner 1.0.20180912090223\n[workflow ] start\n[workflow ] starting step md5sum\n[step md5sum] start\n[job md5sum] Skipping Docker software container '--memory' limit despite presence of ResourceRequirement with ramMin and/or ramMax setting. Consider running with --strict-memory-limit for increased portability assurance.\n[job md5sum] /private/tmp/docker_tmpDtL7tT$ docker \\\n    run \\\n    -i \\\n    --volume=/private/tmp/docker_tmpDtL7tT:/VzVkHJ:rw \\\n    --volume=/private/var/folders/xt/2mpzwr2972g3_yqgjz5dbsg40000gq/T/tmp_wuIR7:/tmp:rw \\\n    --volume=/var/folders/xt/2mpzwr2972g3_yqgjz5dbsg40000gq/T/tmpaPymgg:/var/lib/cwl/stg69e4f60a-88bc-4dd2-a50e-0bdb25165ae6/md5sum.input:ro \\\n    --workdir=/VzVkHJ \\\n    --read-only=true \\\n    --user=503:20 \\\n    --rm \\\n    --env=TMPDIR=/tmp \\\n    --env=HOME=/VzVkHJ \\\n    quay.io/briandoconnor/dockstore-tool-md5sum:1.0.4 \\\n    /bin/my_md5sum \\\n    /var/lib/cwl/stg69e4f60a-88bc-4dd2-a50e-0bdb25165ae6/md5sum.input\n[job md5sum] completed success\n[step md5sum] completed success\n[workflow ] completed success\nFinal process status is success\n",
+    "stdout": ""
+  },
+  "state": "COMPLETE",
+  "task_logs": []
+}
+```
 
 ## Testbed examples with Python and `requests`
 
