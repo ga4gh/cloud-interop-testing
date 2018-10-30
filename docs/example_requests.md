@@ -1,4 +1,56 @@
 
+## Basic examples with `curl`
+
+```
+curl -X POST \
+ -F 'workflow_url=https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.cwl' \
+ -F 'workflow_params=@tests/testdata/md5sum.cwl.fixed.json' \
+ -F 'workflow_type=CWL' \
+ -F 'workflow_type_version=v1.0' \
+ --trace-ascii - \
+ http://0.0.0.0:8080/ga4gh/wes/v1/runs
+```
+
+<details>
+ 
+ ```
+ 0087: Content-Type: multipart/form-data; boundary=--------------------
+00c7: ----8ca5db76a32b2033
+00dd:
+<= Recv header, 23 bytes (0x17)
+0000: HTTP/1.1 100 Continue
+=> Send data, 378 bytes (0x17a)
+0000: --------------------------8ca5db76a32b2033
+002c: Content-Disposition: form-data; name="workflow_url"
+0061:
+0063: https://raw.githubusercontent.com/Sage-Bionetworks/workflow-inte
+00a3: rop/develop/tests/testdata/md5sum.cwl
+00ca: --------------------------8ca5db76a32b2033
+00f6: Content-Disposition: form-data; name="workflow_params"; filename
+0136: ="md5sum.cwl.fixed.json"
+0150: Content-Type: application/octet-stream
+0178:
+=> Send data, 179 bytes (0xb3)
+0000: {.  "input_file": {.        "class": "File",.        "location":
+0040:  "https://raw.githubusercontent.com/Sage-Bionetworks/workflow-in
+0080: terop/develop/tests/testdata/md5sum.input".    }.}.
+=> Send data, 267 bytes (0x10b)
+0000:
+0002: --------------------------8ca5db76a32b2033
+002e: Content-Disposition: form-data; name="workflow_type"
+0064:
+0066: CWL
+006b: --------------------------8ca5db76a32b2033
+0097: Content-Disposition: form-data; name="workflow_type_version"
+00d5:
+00d7: v1.0
+00dd: --------------------------8ca5db76a32b2033--
+```
+
+</details>
+
+## Testbed examples with Python and `requests`
+
 | run_id | resolve_params | attach_descriptor | pack_descriptor | attach_imports |
 | --- | --- | --- | ---| --- |
 | e6334deed0db48eca385302fb7234cc1 | True | True | True | False |
