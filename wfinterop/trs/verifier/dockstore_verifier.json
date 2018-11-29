@@ -1,0 +1,154 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This describes the dockstore API, a webservice that manages pairs of Docker images and associated metadata such as CWL documents and Dockerfiles used to build those images",
+    "version": "1.5.1",
+    "title": "Dockstore API",
+    "termsOfService": "TBD",
+    "contact": {
+      "name": "Dockstore@ga4gh",
+      "url": "https://github.com/ga4gh/dockstore",
+      "email": "theglobalalliance@genomicsandhealth.org"
+    },
+    "license": {
+      "name": "Apache License Version 2.0",
+      "url": "https://github.com/ga4gh/dockstore/blob/develop/LICENSE"
+    }
+  },
+  "host": "dockstore.org",
+  "basePath": "/api/",
+  "tags": [
+    {
+      "name": "extendedGA4GH",
+      "description": "Optional experimental extensions of the GA4GH API"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/api/ga4gh/v2/extended/{id}/versions/{version_id}/{type}/tests/{relative_path}": {
+      "post": {
+        "tags": [
+          "extendedGA4GH"
+        ],
+        "summary": "Annotate test JSON with information on whether it ran successfully on particular platforms plus metadata",
+        "description": "Test JSON can be annotated with whether they ran correctly keyed by platform and associated with some metadata ",
+        "operationId": "toolsIdVersionsVersionIdTypeTestsPost",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "description": "The type of the underlying descriptor. Allowable values include \"CWL\", \"WDL\", \"NFL\".",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "A unique identifier of the tool, scoped to this registry, for example `123456`",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "description": "An identifier of the tool version for this particular tool registry, for example `v1`",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "relative_path",
+            "in": "path",
+            "description": "A relative path to the test json as retrieved from the files endpoint or the tests endpoint",
+            "required": true,
+            "type": "string",
+            "pattern": ".+"
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "description": "Platform to report on",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "verified",
+            "in": "query",
+            "description": "Verification status, omit to delete key",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "metadata",
+            "in": "query",
+            "description": "Additional information on the verification (notes, explanation)",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The tool test JSON response.",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          },
+          "401": {
+            "description": "Credentials not provided or incorrect",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The tool test cannot be found to annotate.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "BEARER": []
+          }
+        ]
+      }
+    }
+  },
+  "securityDefinitions": {
+    "BEARER": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "definitions": {
+
+    "Error": {
+      "type": "object",
+      "required": [
+        "code"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+
+  },
+  "externalDocs": {
+    "description": "Dockstore documentation",
+    "url": "https://www.dockstore.org/docs/getting-started"
+  }
+}
