@@ -1,7 +1,7 @@
 # GA4GH Cloud Interoperability Testing
 
-[![Travis-CI Build Status](https://travis-ci.org/Sage-Bionetworks/workflow-interop.svg?branch=develop)](https://travis-ci.org/Sage-Bionetworks/workflow-interop.svg?branch=develop) 
-[![Coverage Status](https://coveralls.io/repos/github/Sage-Bionetworks/workflow-interop/badge.svg?branch=develop)](https://coveralls.io/Sage-Bionetworks/workflow-interop?branch=develop)
+[![Travis-CI Build Status](https://travis-ci.org/ga4gh/cloud-interop-testing.svg?branch=develop)](https://travis-ci.org/ga4gh/cloud-interop-testing.svg?branch=develop) 
+[![Coverage Status](https://coveralls.io/repos/github/ga4gh/cloud-interop-testing/badge.svg?branch=develop)](https://coveralls.io/ga4gh/cloud-interop-testing?branch=develop)
 
 
 The initial use case for this app will be to act as a workflow orchestrator and bridge between **Tool Registry Service (TRS)** and **Workflow Execution Service (WES)** endpoints for the [**Testbed Interoperability Platform**](https://docs.google.com/document/d/12Mq4v7o5VKF-DkFTQwsUQ-aWZ5aBeIcl_5YrhbaSv7M/edit?usp=sharing), a core deliverable of the GA4GH Cloud Workstream for 2018.
