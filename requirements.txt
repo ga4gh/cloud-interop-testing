@@ -1,4 +1,4 @@
-wes-service
+wes-service < 0.3
 pandas
 IPython==5.8.0
 future
