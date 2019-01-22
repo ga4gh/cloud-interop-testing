@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+"""
+Load API client for a Tool Registry Service (TRS) endpoint based
+either on the GA4GH specification or an existing client library.
+"""
 import logging
 import os
 

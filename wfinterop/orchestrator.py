@@ -156,7 +156,7 @@ def monitor_queue(queue_id):
     """
     Update the status of all submissions for a queue.
 
-    :param str queue_id: String identifying the workflow queue.
+        queue_id (str): string identifying the workflow queue.
     """
     current = dt.datetime.now()
     queue_log = {}
