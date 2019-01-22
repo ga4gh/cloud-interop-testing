@@ -88,7 +88,7 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
 
     Args:
         queue_id (str): string identifying the workflow queue
-        wes_id (str): string identifying the workflow execution 
+        wes_id (str): string identifying the workflow execution
             service endpoint
         opts (dict): dict of keyword arguments and values for the
             `build_wes_request` function
@@ -246,7 +246,7 @@ def check_all(testbed_plan, permute_opts=False, force=False):
         testbed_plan (dict):
         permute_opts (dict):
         force (bool):
-    
+
     Returns:
         ...
     """
