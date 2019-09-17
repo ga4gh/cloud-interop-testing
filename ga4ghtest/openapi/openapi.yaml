@@ -1,0 +1,167 @@
+openapi: 3.0.1
+info:
+  description: |
+    The GA4GH Testbed Orchestrator is a system that brings together plugins that test implementations of services from the GA4GH Cloud (and eventually other) Work Stream. The orchestrator is designed to be a framework for running multiple tests within, and across services. For example, 1) the interoperability and integration tests across Workflow Execution Service (WES), Tool Registry Service (TRS), and Data Repository Service (DRS) APIs and also 2) specific compliance tests for implementations of individual APIs. By building the test infrastructure with a common Testbed Orchestrator, we can evolve how we test in the future while still leveraging a unified framework. This approach will not only make it much easier to aggregate results to a common GA4GH testing dashboard, but it will also reduce redundant code between testing efforts by factoring out orchestration to this effort.
+  title: GA4GH Testbed Orchestrator
+  version: 0.3.0
+servers:
+- url: /ga4gh/testbed/v1
+tags:
+- name: Tests
+  description: |
+    Tests...
+- name: Plugins
+  description: |
+    Plugins...
+- name: Schemas
+  description: |
+    Schemas...
+paths:
+  /tests:
+    post:
+      description: |-
+        Create a new plugin run, either right now or with a schedule.
+      operationId: create_test
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Success — test created
+      summary: Create a new test
+      tags:
+      - Tests
+      x-codegen-request-body-name: body
+      x-openapi-router-controller: testbed.controllers.tests_controller
+    get:
+      description: |
+        Get the list of running or scheduled tests.
+      operationId: get_tests
+      parameters:
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/orderParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: OK
+      summary: Get tests
+      tags:
+      - Tests
+      x-openapi-router-controller: testbed.controllers.tests_controller
+  /tests/{test_id}:
+    get:
+      description: |
+        Get the status of a given test run.
+      operationId: get_test_by_id
+      parameters:
+      - description: test ID
+        explode: false
+        in: path
+        name: test_id
+        required: true
+        schema:
+          type: string
+        example: user0
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: OK
+      summary: Get tests
+      tags:
+      - Tests
+      x-openapi-router-controller: testbed.controllers.tests_controller
+  /plugins:
+    get:
+      description: |
+        Get the list of available test plugins.
+      operationId: get_plugins
+      parameters:
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/orderParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: OK
+      summary: Get test plugins
+      tags:
+      - Plugins
+      x-openapi-router-controller: testbed.controllers.plugins_controller
+  /endpoints:
+    get:
+      description: |
+        Get the list of available endpoints.
+      operationId: get_endpoints
+      parameters:
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/orderParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: OK
+      summary: Get target endpoints
+      tags:
+      - Endpoints
+      x-openapi-router-controller: testbed.controllers.endpoints_controller
+components:
+  parameters:
+    limitParam:
+      description: maximum number of records to return
+      explode: false
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 3
+        format: int32
+        maximum: 1000
+        minimum: 1
+        type: integer
+      style: form
+    sortParam:
+      description: logic by which to sort matched records
+      explode: false
+      in: query
+      name: sortBy
+      required: false
+      schema:
+        default: created_at
+        enum:
+        - created_at
+        type: string
+      style: form
+    orderParam:
+      description: sort order (ascending or descending)
+      explode: true
+      in: query
+      name: order
+      required: false
+      schema:
+        default: desc
+        enum:
+        - asc
+        - desc
+        type: string
+      style: form
