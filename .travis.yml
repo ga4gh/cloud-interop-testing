@@ -10,7 +10,7 @@ before_install:
 
 script:
   - python setup.py test
-  - flake8 --ignore=E501,E722,F401,F841,W504 wfinterop/
+  - flake8 --ignore=E501,E722,F401,F841,W504 ga4ghtest/
 
 after_success:
   - coveralls

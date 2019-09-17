@@ -39,9 +39,9 @@ pip install .
 These modules should cover most of the current use cases:
 
 ```python
-from wfinterop import config
-from wfinterop import orchestrator
-from wfinterop import testbed
+from ga4ghtest import config
+from ga4ghtest import orchestrator
+from ga4ghtest import testbed
 ```
 
 ### Default settings
