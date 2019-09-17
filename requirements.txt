@@ -6,7 +6,7 @@ certifi >= 14.05.14
 six >= 1.10
 python_dateutil >= 2.5.3
 urllib3 >= 1.15.1
-wes-service<=2.9
+wes-service
 # pandas
 # IPython==5.8.0
 future
