@@ -4,7 +4,7 @@ python:
 
 before_install:
 - sudo apt-get update -qq
-- pip install toil[cwl, wdl]
+- pip install toil[wdl]
 - pip install . --process-dependency-links
 - pip install -r dev-requirements.txt
 
