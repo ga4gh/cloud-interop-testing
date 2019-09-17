@@ -187,30 +187,30 @@ def get_flattened_descriptor(workflow_file):
 
 
 def find_asts(ast_root, name):
-        """
-        Finds an AST node with the given name and the entire subtree
-        under it. Function borrowed from scottfrazer.
+    """
+    Finds an AST node with the given name and the entire subtree
+    under it. Function borrowed from scottfrazer.
 
-        Args:
-            ast_root: the WDL AST; the whole thing generally, but
-                really any portion that you wish to search
-            name (str): the name of the subtree you're looking for,
-                like 'Task'
+    Args:
+        ast_root: the WDL AST; the whole thing generally, but
+            really any portion that you wish to search
+        name (str): the name of the subtree you're looking for,
+            like 'Task'
 
-        Returns:
-            list: nodes representing the AST subtrees matching the
-            'name' given
-        """
-        nodes = []
-        if isinstance(ast_root, wdl_parser.AstList):
-            for node in ast_root:
-                nodes.extend(find_asts(node, name))
-        elif isinstance(ast_root, wdl_parser.Ast):
-            if ast_root.name == name:
-                nodes.append(ast_root)
-            for attr_name, attr in ast_root.attributes.items():
-                nodes.extend(find_asts(attr, name))
-        return nodes
+    Returns:
+        list: nodes representing the AST subtrees matching the
+        'name' given
+    """
+    nodes = []
+    if isinstance(ast_root, wdl_parser.AstList):
+        for node in ast_root:
+            nodes.extend(find_asts(node, name))
+    elif isinstance(ast_root, wdl_parser.Ast):
+        if ast_root.name == name:
+            nodes.append(ast_root)
+        for attr_name, attr in ast_root.attributes.items():
+            nodes.extend(find_asts(attr, name))
+    return nodes
 
 
 def get_wdl_inputs(wdl):

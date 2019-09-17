@@ -156,6 +156,7 @@ def wes_config():
     """
     return get_yaml('file://' + config_path)['workflowservices']
 
+
 def add_toolregistry(service,
                      host,
                      auth={'Authorization': ''},
