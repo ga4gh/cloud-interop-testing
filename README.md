@@ -3,6 +3,7 @@
 [![Travis-CI Build Status](https://travis-ci.org/ga4gh/cloud-interop-testing.svg?branch=develop)](https://travis-ci.org/ga4gh/cloud-interop-testing.svg?branch=develop) 
 [![Coverage Status](https://coveralls.io/repos/github/ga4gh/cloud-interop-testing/badge.svg?branch=develop)](https://coveralls.io/ga4gh/cloud-interop-testing?branch=develop)
 
+The GA4GH Testbed Orchestrator is a system that brings together plugins that test implementations of services from the GA4GH Cloud (and eventually other) Work Stream. The orchestrator is designed to be a framework for running multiple tests within, and across services. For example, (1) the interoperability and integration tests across Workflow Execution Service (WES), Tool Registry Service (TRS), and Data Repository Service (DRS) APIs and also (2) specific compliance tests for implementations of individual APIs. By building the test infrastructure with a common Testbed Orchestrator, we can evolve how we test in the future while still leveraging a unified framework. This approach will not only make it much easier to aggregate results to a common GA4GH testing dashboard, but it will also reduce redundant code between testing efforts by factoring out orchestration to this effort.
 
 The initial use case for this app will be to act as a workflow orchestrator and bridge between **Tool Registry Service (TRS)** and **Workflow Execution Service (WES)** endpoints for the [**Testbed Interoperability Platform**](https://docs.google.com/document/d/12Mq4v7o5VKF-DkFTQwsUQ-aWZ5aBeIcl_5YrhbaSv7M/edit?usp=sharing), a core deliverable of the GA4GH Cloud Workstream for 2018.
 
@@ -10,7 +11,7 @@ The initial use case for this app will be to act as a workflow orchestrator and 
 
 ## Overview
 
-In the context of the testbed, the orchestrator performs 3 primary tasks:
+In the context of the (original) testbed, the orchestrator performs 3 primary tasks:
 
 1. Look up a workflow registered in a TRS implementation, identify its corresponding "checker" workflow, and retrieve any data required to run the checker workflow;
 2. Format checker workflow data and initiate new workflow runs on one or more WES endpoints;
@@ -25,8 +26,8 @@ Additionally, the application supports the following operations:
 ## Installation
 
 ```console
-git clone https://github.com/Sage-Bionetworks/workflow-interop
-pip install .
+git clone https://github.com/ga4gh/cloud-interop-testing
+pip install -r requirements.txt .
 ```
 
 
