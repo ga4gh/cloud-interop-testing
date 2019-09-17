@@ -10,7 +10,7 @@ from bravado.requests_client import RequestsClient
 from bravado.swagger_model import Loader
 from bravado.client import SwaggerClient
 
-from wfinterop.config import trs_config
+from ga4ghtest.core.config import trs_config
 
 logger = logging.getLogger(__name__)
 

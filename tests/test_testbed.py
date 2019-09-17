@@ -1,22 +1,22 @@
 import mock
 import pytest
 
-from wfinterop.testbed import poll_services
-from wfinterop.testbed import get_checker_id
-from wfinterop.testbed import check_workflow
-from wfinterop.testbed import check_all
+from ga4ghtest.core.testbed import poll_services
+from ga4ghtest.core.testbed import get_checker_id
+from ga4ghtest.core.testbed import check_workflow
+# from ga4ghtest.core.testbed import check_all
 
 
-def test_poll_services(mock_queue_config, 
+def test_poll_services(mock_queue_config,
                        mock_trs,
                        mock_wes,
                        monkeypatch):
-    monkeypatch.setattr('wfinterop.testbed.queue_config', 
+    monkeypatch.setattr('ga4ghtest.core.testbed.queue_config',
                         lambda: mock_queue_config)
-    monkeypatch.setattr('wfinterop.testbed.TRS', 
-                        lambda trs_id: mock_trs) 
-    monkeypatch.setattr('wfinterop.testbed.WES', 
-                        lambda wes_id: mock_wes)  
+    monkeypatch.setattr('ga4ghtest.core.testbed.TRS',
+                        lambda trs_id: mock_trs)
+    monkeypatch.setattr('ga4ghtest.core.testbed.WES',
+                        lambda wes_id: mock_wes)
 
     test_service_status = poll_services()
     assert test_service_status == {'toolregistries': {'mock_trs': True},
@@ -35,22 +35,22 @@ def test_get_checker_id(mock_trs,  monkeypatch):
 
 def test_check_workflow(mock_orchestratorqueues,
                         mock_testbedlog,
-                        mock_queue_config, 
-                        mock_trs, 
+                        mock_queue_config,
+                        mock_trs,
                         monkeypatch):
-    monkeypatch.setattr('wfinterop.config.queues_path', 
+    monkeypatch.setattr('ga4ghtest.core.config.queues_path',
                         str(mock_orchestratorqueues))
-    monkeypatch.setattr('wfinterop.testbed.testbed_log', 
+    monkeypatch.setattr('ga4ghtest.core.testbed.testbed_log',
                         str(mock_testbedlog))
-    monkeypatch.setattr('wfinterop.testbed.queue_config', 
+    monkeypatch.setattr('ga4ghtest.core.testbed.queue_config',
                         lambda: mock_queue_config)
-    monkeypatch.setattr('wfinterop.testbed.TRS', 
-                        lambda trs_id: mock_trs)                        
-    monkeypatch.setattr('wfinterop.testbed.get_checker_id', 
+    monkeypatch.setattr('ga4ghtest.core.testbed.TRS',
+                        lambda trs_id: mock_trs)
+    monkeypatch.setattr('ga4ghtest.core.testbed.get_checker_id',
                         lambda x,y: 'mock_wf_checker')
-    monkeypatch.setattr('wfinterop.testbed.add_queue', 
+    monkeypatch.setattr('ga4ghtest.core.testbed.add_queue',
                         lambda **kwargs: None)
-    monkeypatch.setattr('wfinterop.testbed.create_submission', 
+    monkeypatch.setattr('ga4ghtest.core.testbed.create_submission',
                         lambda **kwargs: None)
     mock_trs.get_workflow_tests.return_value = [{'content': '', 'url': ''}]
 
@@ -75,40 +75,40 @@ def test_check_workflow(mock_orchestratorqueues,
             }
         }
     }
-    monkeypatch.setattr('wfinterop.testbed.run_submission', 
+    monkeypatch.setattr('ga4ghtest.core.testbed.run_submission',
                         lambda **kwargs: mock_run_log)
 
-    test_testbed_status = check_workflow(queue_id='mock_queue_1', 
+    test_testbed_status = check_workflow(queue_id='mock_queue_1',
                                          wes_id='local')
 
     assert test_testbed_status == mock_testbed_status
 
 
-def test_check_all(mock_queue_config, monkeypatch):
-    monkeypatch.setattr('wfinterop.testbed.queue_config', 
-                        lambda: mock_queue_config)
+# def test_check_all(mock_queue_config, monkeypatch):
+#     monkeypatch.setattr('ga4ghtest.core.testbed.queue_config',
+#                         lambda: mock_queue_config)
 
-    mock_testbed_status = {
-        'mock_queue_1_checker': {
-            'mock_wes_1': {
-                None: {
-                    'attach_descriptor': False,
-                    'attach_imports': False,
-                    'pack_descriptor': False,
-                    'resolve_params': False,
-                    'run_id': 'mock_run'
-                }
-            }
-        }
-    }
-    
-    monkeypatch.setattr('wfinterop.testbed.check_workflow', 
-                        lambda **kwargs: mock_testbed_status)
-    monkeypatch.setattr('wfinterop.testbed.monitor_testbed', 
-                        lambda: mock_testbed_status)
+#     mock_testbed_status = {
+#         'mock_queue_1_checker': {
+#             'mock_wes_1': {
+#                 None: {
+#                     'attach_descriptor': False,
+#                     'attach_imports': False,
+#                     'pack_descriptor': False,
+#                     'resolve_params': False,
+#                     'run_id': 'mock_run'
+#                 }
+#             }
+#         }
+#     }
 
-    mock_workflow_wes_map = {
-        'mock_queue_1': ['mock_wes_1']
-    }
-    test_testbed_status = check_all(mock_workflow_wes_map)
-    assert test_testbed_status == mock_testbed_status
+#     monkeypatch.setattr('ga4ghtest.core.testbed.check_workflow',
+#                         lambda **kwargs: mock_testbed_status)
+#     monkeypatch.setattr('ga4ghtest.core.testbed.monitor_testbed',
+#                         lambda: mock_testbed_status)
+
+#     mock_workflow_wes_map = {
+#         'mock_queue_1': ['mock_wes_1']
+#     }
+#     test_testbed_status = check_all(mock_workflow_wes_map)
+#     assert test_testbed_status == mock_testbed_status

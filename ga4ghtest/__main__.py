@@ -4,7 +4,7 @@ import sys
 import argparse
 import pkg_resources  # part of setuptools
 import logging
-from wfinterop.orchestrator import monitor
+from ga4ghtest.core.orchestrator import monitor
 
 logging.basicConfig(level=logging.INFO)
 

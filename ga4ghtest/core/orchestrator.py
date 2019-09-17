@@ -15,16 +15,16 @@ import datetime as dt
 
 from IPython.display import display, clear_output
 
-from wfinterop.config import queue_config, wes_config
-from wfinterop.util import ctime2datetime, convert_timedelta
-from wfinterop.wes import WES
-from wfinterop.trs2wes import store_verification
-from wfinterop.trs2wes import build_wes_request
-from wfinterop.trs2wes import fetch_queue_workflow
-from wfinterop.queue import get_submission_bundle
-from wfinterop.queue import get_submissions
-from wfinterop.queue import create_submission
-from wfinterop.queue import update_submission
+from ga4ghtest.core.config import queue_config, wes_config
+from ga4ghtest.util import ctime2datetime, convert_timedelta
+from ga4ghtest.apis.wes import WES
+from ga4ghtest.converters.trs2wes import store_verification
+from ga4ghtest.converters.trs2wes import build_wes_request
+from ga4ghtest.converters.trs2wes import fetch_queue_workflow
+from ga4ghtest.core.queue import get_submission_bundle
+from ga4ghtest.core.queue import get_submissions
+from ga4ghtest.core.queue import create_submission
+from ga4ghtest.core.queue import update_submission
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

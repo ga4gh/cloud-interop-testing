@@ -4,11 +4,11 @@ Wrapper class around Tool Registry Service (TRS) API client to
 provide consistent Pythonic interface.
 """
 import logging
-import urllib
+import urllib.parse as urlparse
 import re
 
-from wfinterop.trs.client import load_trs_client
-from wfinterop.util import response_handler
+from ga4ghtest.apis.trs.client import load_trs_client
+from ga4ghtest.util import response_handler
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +20,11 @@ def _format_workflow_id(id):
     Args:
         id (str): ...
     """
-    id = urllib.unquote(id)
+    id = urlparse.unquote(id)
     if not re.search('^#workflow', id):
-        return urllib.quote_plus('#workflow/{}'.format(id))
+        return urlparse.quote_plus('#workflow/{}'.format(id))
     else:
-        return urllib.quote_plus(id)
+        return urlparse.quote_plus(id)
 
 
 class TRS(object):

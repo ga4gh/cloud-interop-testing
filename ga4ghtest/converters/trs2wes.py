@@ -15,14 +15,14 @@ import subprocess32
 
 import schema_salad.ref_resolver
 
-from StringIO import StringIO
+from io import StringIO
 from toil.wdl import wdl_parser
 from wes_service.util import visit
 
-from wfinterop.util import open_file, get_yaml, get_json
-from wfinterop.config import queue_config
-from wfinterop.config import set_yaml
-from wfinterop.trs import TRS
+from ga4ghtest.util import open_file, get_yaml, get_json
+from ga4ghtest.core.config import queue_config
+from ga4ghtest.core.config import set_yaml
+from ga4ghtest.apis.trs import TRS
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -114,8 +114,8 @@ def get_version(extension, workflow_file):
         try:
             with open_file(workflow_file, 'r') as f:
                 wf_lines = f.readlines()
-            return [l.lstrip('version') for l in wf_lines
-                    if 'version' in l.split(' ')][0]
+            return [l.decode().lstrip('version') for l in wf_lines
+                    if 'version' in l.decode().split(' ')][0]
         except IndexError:
             return 'draft-2'
 
@@ -224,7 +224,10 @@ def get_wdl_inputs(wdl):
         dict: dict containing identified workflow inputs, classified
             and grouped by type (e.g., 'File')
     """
-    wdl_ast = wdl_parser.parse(wdl.encode('utf-8')).ast()
+    try:
+        wdl_ast = wdl_parser.parse(wdl).ast()
+    except AttributeError:
+        wdl_ast = wdl_parser.parse(wdl.decode()).ast()
     workflow = find_asts(wdl_ast, 'Workflow')[0]
     workflow_name = workflow.attr('name').source_string
     decs = find_asts(workflow, 'Declaration')
@@ -313,7 +316,7 @@ def get_wf_descriptor(workflow_file,
             descriptor_f = StringIO(get_packed_cwl(workflow_file))
         else:
             with open_file(workflow_file, 'rb') as f:
-                descriptor_f = StringIO(f.read())
+                descriptor_f = StringIO(f.read().decode())
         descriptor_n = os.path.basename(workflow_file)
         parts.append(
             ("workflow_attachment", (descriptor_n, descriptor_f))
@@ -387,7 +390,7 @@ def get_wf_attachments(workflow_file, attachments, parts=None):
             attachment = attachment[7:]
 
         with open_file(attachment, 'rb') as f:
-            attach_f = StringIO(f.read())
+            attach_f = StringIO(f.read().decode())
 
         try:
             attach_path = re.sub(path_re.search(attachment).group() + '/',

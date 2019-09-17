@@ -5,17 +5,17 @@ import mock
 import yaml
 import json
 
-from wfinterop.trs2wes import fetch_queue_workflow
-from wfinterop.trs2wes import store_verification
-from wfinterop.trs2wes import get_version
-from wfinterop.trs2wes import get_wf_info
-from wfinterop.trs2wes import get_wdl_inputs
-from wfinterop.trs2wes import modify_jsonyaml_paths
-from wfinterop.trs2wes import get_wf_descriptor
-from wfinterop.trs2wes import get_wf_params
-from wfinterop.trs2wes import get_wf_attachments
-from wfinterop.trs2wes import expand_globs
-from wfinterop.trs2wes import build_wes_request
+from ga4ghtest.converters.trs2wes import fetch_queue_workflow
+from ga4ghtest.converters.trs2wes import store_verification
+from ga4ghtest.converters.trs2wes import get_version
+from ga4ghtest.converters.trs2wes import get_wf_info
+from ga4ghtest.converters.trs2wes import get_wdl_inputs
+from ga4ghtest.converters.trs2wes import modify_jsonyaml_paths
+from ga4ghtest.converters.trs2wes import get_wf_descriptor
+from ga4ghtest.converters.trs2wes import get_wf_params
+from ga4ghtest.converters.trs2wes import get_wf_attachments
+from ga4ghtest.converters.trs2wes import expand_globs
+from ga4ghtest.converters.trs2wes import build_wes_request
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -23,16 +23,16 @@ logger = logging.getLogger(__name__)
 
 
 def test_fetch_queue_workflow(mock_orchestratorqueues,
-                              mock_queue_config, 
-                              mock_trs, 
+                              mock_queue_config,
+                              mock_trs,
                               monkeypatch):
-    monkeypatch.setattr('wfinterop.config.queues_path', 
+    monkeypatch.setattr('ga4ghtest.core.config.queues_path',
                         str(mock_orchestratorqueues))
-    monkeypatch.setattr('wfinterop.trs2wes.queue_config', 
+    monkeypatch.setattr('ga4ghtest.converters.trs2wes.queue_config',
                         lambda: mock_queue_config)
-    monkeypatch.setattr('wfinterop.trs2wes.TRS', 
+    monkeypatch.setattr('ga4ghtest.converters.trs2wes.TRS',
                         lambda trs_id: mock_trs)
-    
+
     mock_trs.get_workflow_descriptor.return_value = {'url': 'mock_wf_url'}
     mock_trs.get_workflow_files.return_value = [{'file_type': 'SECONDARY_DESCRIPTOR',
                                                  'path': 'mock_path'}]
@@ -56,15 +56,14 @@ def test_fetch_queue_workflow(mock_orchestratorqueues,
     assert(test_config['mock_queue_1'] == mock_config)
 
 
-def test_store_verification(mock_orchestratorqueues, 
-                            mock_queue_config, 
+def test_store_verification(mock_orchestratorqueues,
+                            mock_queue_config,
                             monkeypatch):
     # GIVEN an orchestrator config file exists
-    monkeypatch.setattr('wfinterop.config.queues_path', 
+    monkeypatch.setattr('ga4ghtest.core.config.queues_path',
                         str(mock_orchestratorqueues))
-    monkeypatch.setattr('wfinterop.config.queue_config', 
+    monkeypatch.setattr('ga4ghtest.core.config.queue_config',
                         lambda: mock_queue_config)
-    
     # WHEN an evaluation queue is added to the configuration of the
     # workflow orchestrator app
     store_verification(
@@ -123,7 +122,7 @@ def test_modify_jsonyaml_paths_cwl(cwl_jsonyaml, cwl_modified_params):
 
 
 def test_modify_jsonyaml_paths_wdl(wdl_jsonyaml, wdl_modified_params):
-    test_params = modify_jsonyaml_paths(wdl_jsonyaml, 
+    test_params = modify_jsonyaml_paths(wdl_jsonyaml,
                                         path_keys=['ga4ghMd5.inputFile'])
     assert test_params == wdl_modified_params(wdl_jsonyaml)
 
@@ -190,13 +189,13 @@ def test_build_wes_request(cwl_descriptor,
                            cwl_jsonyaml,
                            cwl_attachments,
                            monkeypatch):
-    monkeypatch.setattr('wfinterop.trs2wes.get_wf_info', 
+    monkeypatch.setattr('ga4ghtest.converters.trs2wes.get_wf_info', 
                         lambda x: ('CWL', 'v1.0'))
-    monkeypatch.setattr('wfinterop.trs2wes.get_wf_descriptor', 
+    monkeypatch.setattr('ga4ghtest.converters.trs2wes.get_wf_descriptor', 
                         lambda **kwargs: [])
-    monkeypatch.setattr('wfinterop.trs2wes.get_wf_params', 
+    monkeypatch.setattr('ga4ghtest.converters.trs2wes.get_wf_params', 
                         lambda **kwargs: [])
-    monkeypatch.setattr('wfinterop.trs2wes.get_wf_attachments', 
+    monkeypatch.setattr('ga4ghtest.converters.trs2wes.get_wf_attachments', 
                         lambda **kwargs: [])
     test_parts = build_wes_request(cwl_descriptor,
                                    cwl_jsonyaml,

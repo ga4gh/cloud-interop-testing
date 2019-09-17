@@ -7,7 +7,7 @@ import logging
 import os
 import datetime as dt
 
-from wfinterop.util import get_json, save_json
+from ga4ghtest.util import get_json, save_json
 
 logger = logging.getLogger(__name__)
 

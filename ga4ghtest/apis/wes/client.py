@@ -8,7 +8,7 @@ from bravado.requests_client import RequestsClient
 from bravado.swagger_model import Loader
 from bravado.client import SwaggerClient
 
-from wfinterop.config import wes_config
+from ga4ghtest.core.config import wes_config
 
 logger = logging.getLogger(__name__)
 

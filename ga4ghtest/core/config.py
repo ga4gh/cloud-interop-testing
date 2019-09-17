@@ -11,7 +11,7 @@ This provides functions to save and get values into these three sections.
 import logging
 import os
 
-from wfinterop.util import get_yaml, save_yaml, heredoc
+from ga4ghtest.util import get_yaml, save_yaml, heredoc
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -75,36 +75,6 @@ if not os.path.exists(queues_path):
     _default_queues()
 
 
-def queue_config():
-    """
-    Fetch config data for workflow queues.
-
-    Returns:
-        dict: dict with an entry for each workflow queue
-    """
-    return get_yaml(queues_path)
-
-
-def trs_config():
-    """
-    Fetch config data for tool registry services.
-
-    Returns:
-        dict: dict with an entry for each service
-    """
-    return get_yaml(config_path)['toolregistries']
-
-
-def wes_config():
-    """
-    Fetch config data for workflow execution services.
-
-    Returns:
-        dict: dict with an entry for each service
-    """
-    return get_yaml(config_path)['workflowservices']
-
-
 def add_queue(queue_id,
               wf_type,
               trs_id='dockstore',
@@ -156,6 +126,35 @@ def add_queue(queue_id,
               'target_queue': target_queue}
     set_yaml('queues', queue_id, config)
 
+
+def queue_config():
+    """
+    Fetch config data for workflow queues.
+
+    Returns:
+        dict: dict with an entry for each workflow queue
+    """
+    return get_yaml('file://' + queues_path)
+
+
+def trs_config():
+    """
+    Fetch config data for tool registry services.
+
+    Returns:
+        dict: dict with an entry for each service
+    """
+    return get_yaml('file://' + config_path)['toolregistries']
+
+
+def wes_config():
+    """
+    Fetch config data for workflow execution services.
+
+    Returns:
+        dict: dict with an entry for each service
+    """
+    return get_yaml('file://' + config_path)['workflowservices']
 
 def add_toolregistry(service,
                      host,
@@ -234,11 +233,11 @@ def set_yaml(section, service, var2add):
             or queue (previous config will be overwritten)
     """
     if section == 'queues':
-        orchestrator_queues = get_yaml(queues_path)
+        orchestrator_queues = get_yaml('file://' + queues_path)
         orchestrator_queues[service] = var2add
         save_yaml(queues_path, orchestrator_queues)
     else:
-        orchestrator_config = get_yaml(config_path)
+        orchestrator_config = get_yaml('file://' + config_path)
         orchestrator_config.setdefault(section, {})[service] = var2add
         save_yaml(config_path, orchestrator_config)
 

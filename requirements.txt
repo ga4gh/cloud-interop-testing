@@ -1,5 +1,13 @@
+connexion == 2.0.2
+flask_cors >= 3.0.0
+swagger-ui-bundle == 0.0.2
+setuptools >= 21.0.0
+certifi >= 14.05.14
+six >= 1.10
+python_dateutil >= 2.5.3
+urllib3 >= 1.15.1
 wes-service<=2.9
-pandas
-IPython==5.8.0
+# pandas
+# IPython==5.8.0
 future
 bravado

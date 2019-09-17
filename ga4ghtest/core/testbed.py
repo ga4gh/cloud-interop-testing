@@ -15,13 +15,13 @@ from IPython.display import display
 from itertools import combinations_with_replacement
 from requests.exceptions import ConnectionError
 
-from wfinterop.config import add_queue
-from wfinterop.config import queue_config, set_yaml
-from wfinterop.trs import TRS
-from wfinterop.wes import WES
-from wfinterop.queue import create_submission
-from wfinterop.orchestrator import run_submission, monitor_queue
-from wfinterop.util import get_json, save_json
+from ga4ghtest.core.config import add_queue
+from ga4ghtest.core.config import queue_config, set_yaml
+from ga4ghtest.apis.trs import TRS
+from ga4ghtest.apis.wes import WES
+from ga4ghtest.core.queue import create_submission
+from ga4ghtest.core.orchestrator import run_submission, monitor_queue
+from ga4ghtest.util import get_json, save_json
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -76,7 +76,7 @@ def get_checker_id(trs, workflow_id):
         str: string ID of checker workflow in TRS service
     """
     target_workflow = trs.get_workflow(id=workflow_id)
-    checker_url = urllib.unquote(target_workflow['checker_url'])
+    checker_url = urllib.parse.unquote(target_workflow['checker_url'])
     checker_id = re.sub('^.*#workflow/', '', checker_url)
     logger.info("found checker workflow: {}".format(checker_id))
     return checker_id
@@ -181,104 +181,104 @@ def get_opts(permute=False):
                       [dict(zip(opts, state)) for state in states])
 
 
-def collect_logs(testbed_status):
-    """
-    Args:
-        testbed_status (dict): ...
+# def collect_logs(testbed_status):
+#     """
+#     Args:
+#         testbed_status (dict): ...
 
-    Returns:
-        ...
-    """
-    for queue_id in testbed_status:
-        for wes_id in testbed_status[queue_id]:
-            log_dir = os.path.join('logs', queue_id, wes_id)
-            if not os.path.exists(log_dir):
-                os.makedirs(log_dir)
-            for sub_id in testbed_status[queue_id][wes_id]:
-                run_id = testbed_status[queue_id][wes_id][sub_id]['run_id']
-                log_src = os.path.join('logs', '{}.request'.format(run_id))
-                log_dest = os.path.join(log_dir, os.path.basename(log_src))
-                shutil.move(log_src, log_dest)
-
-
-def monitor_testbed():
-    """
-    Update the status of all jobs in the testbed.
-    """
-    testbed_status = get_json(testbed_log)
-    while True:
-        terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR',
-                             'SYSTEM_ERROR', 'FAILED', 'Failed']
-        queue_statuses = [(queue_id, sub_log['status'])
-                          if 'status' in sub_log else (queue_id, 'PENDING')
-                          for queue_id in testbed_status
-                          for wes_log in testbed_status[queue_id].values()
-                          for sub_log in wes_log.values()]
-        testbed_statuses = filter(lambda x: x[1] not in terminal_statuses, queue_statuses)
-        if not len(testbed_statuses):
-            collect_logs(testbed_status)
-            break
-
-        for queue_id in set([x[0] for x in testbed_statuses]):
-            logger.info("Checking status of runs in queue '{}'"
-                        .format(queue_id))
-            queue_logs = monitor_queue(queue_id)
-            queue_statuses = map(lambda x: x['status'], queue_logs.values())
-            live_statuses = [s for s in queue_statuses if s not in terminal_statuses]
-            logger.info("... {} jobs still remaining".format(len(live_statuses)))
-            sub_statuses = dict(zip(queue_logs.keys(), queue_statuses))
-            for wes_id in testbed_status[queue_id]:
-                logger.debug("Recording statuses for queue '{}'\n > '{}'"
-                             .format(queue_id, wes_id))
-                for sub_id in testbed_status[queue_id][wes_id]:
-                    testbed_status[queue_id][wes_id][sub_id]['status'] = sub_statuses[sub_id]
-        save_json(testbed_log, testbed_status)
-        time.sleep(2)
-    return testbed_status
+#     Returns:
+#         ...
+#     """
+#     for queue_id in testbed_status:
+#         for wes_id in testbed_status[queue_id]:
+#             log_dir = os.path.join('logs', queue_id, wes_id)
+#             if not os.path.exists(log_dir):
+#                 os.makedirs(log_dir)
+#             for sub_id in testbed_status[queue_id][wes_id]:
+#                 run_id = testbed_status[queue_id][wes_id][sub_id]['run_id']
+#                 log_src = os.path.join('logs', '{}.request'.format(run_id))
+#                 log_dest = os.path.join(log_dir, os.path.basename(log_src))
+#                 shutil.move(log_src, log_dest)
 
 
-def check_all(testbed_plan, permute_opts=False, force=False):
-    """
-    Check workflows for multiple workflows in multiple environments
-    (cross product of workflows, workflow service endpoints).
+# def monitor_testbed():
+#     """
+#     Update the status of all jobs in the testbed.
+#     """
+#     testbed_status = get_json(testbed_log)
+#     while True:
+#         terminal_statuses = ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR',
+#                              'SYSTEM_ERROR', 'FAILED', 'Failed']
+#         queue_statuses = [(queue_id, sub_log['status'])
+#                           if 'status' in sub_log else (queue_id, 'PENDING')
+#                           for queue_id in testbed_status
+#                           for wes_log in testbed_status[queue_id].values()
+#                           for sub_log in wes_log.values()]
+#         testbed_statuses = filter(lambda x: x[1] not in terminal_statuses, queue_statuses)
+#         if not len(testbed_statuses):
+#             collect_logs(testbed_status)
+#             break
 
-    Args:
-        testbed_plan (dict):
-        permute_opts (dict):
-        force (bool):
+#         for queue_id in set([x[0] for x in testbed_statuses]):
+#             logger.info("Checking status of runs in queue '{}'"
+#                         .format(queue_id))
+#             queue_logs = monitor_queue(queue_id)
+#             queue_statuses = map(lambda x: x['status'], queue_logs.values())
+#             live_statuses = [s for s in queue_statuses if s not in terminal_statuses]
+#             logger.info("... {} jobs still remaining".format(len(live_statuses)))
+#             sub_statuses = dict(zip(queue_logs.keys(), queue_statuses))
+#             for wes_id in testbed_status[queue_id]:
+#                 logger.debug("Recording statuses for queue '{}'\n > '{}'"
+#                              .format(queue_id, wes_id))
+#                 for sub_id in testbed_status[queue_id][wes_id]:
+#                     testbed_status[queue_id][wes_id][sub_id]['status'] = sub_statuses[sub_id]
+#         save_json(testbed_log, testbed_status)
+#         time.sleep(2)
+#     return testbed_status
 
-    Returns:
-        ...
-    """
-    opts_list = get_opts(permute_opts)
-    testbed_status = [check_workflow(queue_id=workflow_id,
-                                     wes_id=wes_id,
-                                     opts=opts_list,
-                                     force=force)
-                      for workflow_id in testbed_plan
-                      for wes_id in testbed_plan[workflow_id]][-1]
-    testbed_status = monitor_testbed()
-    return testbed_status
+
+# def check_all(testbed_plan, permute_opts=False, force=False):
+#     """
+#     Check workflows for multiple workflows in multiple environments
+#     (cross product of workflows, workflow service endpoints).
+
+#     Args:
+#         testbed_plan (dict):
+#         permute_opts (dict):
+#         force (bool):
+
+#     Returns:
+#         ...
+#     """
+#     opts_list = get_opts(permute_opts)
+#     testbed_status = [check_workflow(queue_id=workflow_id,
+#                                      wes_id=wes_id,
+#                                      opts=opts_list,
+#                                      force=force)
+#                       for workflow_id in testbed_plan
+#                       for wes_id in testbed_plan[workflow_id]][-1]
+#     testbed_status = monitor_testbed()
+#     return testbed_status
 
 
-def testbed_report():
-    """
-    """
-    import pandas as pd
-    pd.set_option('display.width', 1000)
-    pd.set_option('display.max_columns', 10)
-    pd.set_option('display.max_rows', 250)
-    pd.set_option('display.expand_frame_repr', False)
+# def testbed_report():
+#     """
+#     """
+#     import pandas as pd
+#     pd.set_option('display.width', 1000)
+#     pd.set_option('display.max_columns', 10)
+#     pd.set_option('display.max_rows', 250)
+#     pd.set_option('display.expand_frame_repr', False)
 
-    testbed_status = get_json(testbed_log)
-    testbed_dict = {}
-    for queue_id in testbed_status:
-        for wes_id in testbed_status[queue_id]:
-            for sub_id in testbed_status[queue_id][wes_id]:
-                testbed_record = testbed_status[queue_id][wes_id][sub_id]
-                testbed_record.update({'wes_id': wes_id})
-                testbed_dict[(queue_id, sub_id)] = testbed_record
-    status_report = pd.DataFrame.from_dict(testbed_dict, orient='index')
+#     testbed_status = get_json(testbed_log)
+#     testbed_dict = {}
+#     for queue_id in testbed_status:
+#         for wes_id in testbed_status[queue_id]:
+#             for sub_id in testbed_status[queue_id][wes_id]:
+#                 testbed_record = testbed_status[queue_id][wes_id][sub_id]
+#                 testbed_record.update({'wes_id': wes_id})
+#                 testbed_dict[(queue_id, sub_id)] = testbed_record
+#     status_report = pd.DataFrame.from_dict(testbed_dict, orient='index')
 
-    display(status_report)
-    return status_report
+#     display(status_report)
+#     return status_report

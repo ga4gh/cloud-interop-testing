@@ -14,7 +14,7 @@ import subprocess32
 import datetime as dt
 
 from contextlib import contextmanager
-from urllib import urlopen
+from urllib.request import urlopen
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,6 +28,8 @@ def open_file(path, mode):
         else:
             f = open(path, mode)
     else:
+        if not re.search('://', path):
+            path = 'file://' + path
         f = urlopen(path)
     yield f
     f.close()
