@@ -28,3 +28,20 @@ def get_endpoints(
         order=order,
         limit=limit
     )
+
+
+def register_endpoint(
+    body
+):  # noqa: E501
+    """Register an endpoint
+
+    Add an API server endpoint to the testbed. # noqa: E501
+
+    :param body: 
+    :type body: str
+
+    :rtype: str
+    """
+    return controller.register_endpoint(
+        body=body
+    )

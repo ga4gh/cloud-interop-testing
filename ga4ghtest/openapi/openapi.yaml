@@ -16,6 +16,9 @@ tags:
 - name: Schemas
   description: |
     Schemas...
+- name: Endpoints
+  description: |
+    Endpoints...
 paths:
   /tests:
     post:
@@ -39,7 +42,7 @@ paths:
       tags:
       - Tests
       x-codegen-request-body-name: body
-      x-openapi-router-controller: testbed.controllers.tests_controller
+      x-openapi-router-controller: ga4ghtest.controllers.tests_controller
     get:
       description: |
         Get the list of running or scheduled tests.
@@ -58,7 +61,7 @@ paths:
       summary: Get tests
       tags:
       - Tests
-      x-openapi-router-controller: testbed.controllers.tests_controller
+      x-openapi-router-controller: ga4ghtest.controllers.tests_controller
   /tests/{test_id}:
     get:
       description: |
@@ -84,7 +87,7 @@ paths:
       summary: Get tests
       tags:
       - Tests
-      x-openapi-router-controller: testbed.controllers.tests_controller
+      x-openapi-router-controller: ga4ghtest.controllers.tests_controller
   /plugins:
     get:
       description: |
@@ -104,8 +107,30 @@ paths:
       summary: Get test plugins
       tags:
       - Plugins
-      x-openapi-router-controller: testbed.controllers.plugins_controller
+      x-openapi-router-controller: ga4ghtest.controllers.plugins_controller
   /endpoints:
+    post:
+      description: |-
+        Add an API server endpoint to the testbed.
+      operationId: register_endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Success — endpoint added
+      summary: Register an endpoint
+      tags:
+      - Endpoints
+      x-codegen-request-body-name: body
+      x-openapi-router-controller: ga4ghtest.controllers.endpoints_controller
     get:
       description: |
         Get the list of available endpoints.
@@ -124,7 +149,7 @@ paths:
       summary: Get target endpoints
       tags:
       - Endpoints
-      x-openapi-router-controller: testbed.controllers.endpoints_controller
+      x-openapi-router-controller: ga4ghtest.controllers.endpoints_controller
 components:
   parameters:
     limitParam:
