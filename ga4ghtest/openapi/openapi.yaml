@@ -89,6 +89,28 @@ paths:
       - Tests
       x-openapi-router-controller: ga4ghtest.controllers.tests_controller
   /plugins:
+    post:
+      description: |-
+        Add a plugin for testing functionality of an API.
+      operationId: create_plugin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Plugin'
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Success — plugin created
+      summary: Create a test plugin
+      tags:
+      - Plugins
+      x-codegen-request-body-name: body
+      x-openapi-router-controller: ga4ghtest.controllers.plugins_controller
     get:
       description: |
         Get the list of available test plugins.
@@ -117,7 +139,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/Endpoint'
         required: true
       responses:
         201:
@@ -190,3 +212,36 @@ components:
         - desc
         type: string
       style: form
+  schemas:
+    Endpoint:
+      required:
+        - api
+        - host
+        - proto
+      properties:
+        api:
+          type: string
+          enum:
+            - WES
+            - TRS
+        name:
+          type: string
+        host:
+          type: string
+        proto:
+          type: string
+        auth:
+          type: string
+    Plugin:
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        api:
+          type: string
+          enum:
+            - WES
+            - TRS
+        test:
+          type: string

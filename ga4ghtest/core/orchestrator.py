@@ -56,13 +56,13 @@ def run_job(queue_id,
 
     if not submission:
         submission_id = create_submission(queue_id=queue_id,
-                                          submission_data=wf_jsonyaml,
-                                          wes_id=wes_id)
+                                        submission_data=wf_jsonyaml,
+                                        wes_id=wes_id)
     wes_instance = WES(wes_id)
     service_config = wes_config()[wes_id]
     request = {'workflow_url': wf_config['workflow_url'],
-               'workflow_params': wf_jsonyaml,
-               'attachment': wf_attachments}
+            'workflow_params': wf_jsonyaml,
+            'attachment': wf_attachments}
 
     parts = []
     if opts is not None:
@@ -74,7 +74,7 @@ def run_job(queue_id,
         )
     if 'workflow_engine_parameters' in service_config:
         parts.append(('workflow_engine_parameters',
-                      json.dumps(service_config['workflow_engine_parameters'])))
+                    json.dumps(service_config['workflow_engine_parameters'])))
     parts = parts if len(parts) else None
 
     run_log = wes_instance.run_workflow(request, parts=parts)
@@ -98,7 +98,10 @@ def run_job(queue_id,
     return run_log
 
 
-def run_submission(queue_id, submission_id, wes_id=None, opts=None):
+def run_submission(queue_id,
+                   submission_id,
+                   wes_id=None,
+                   opts=None):
     """
     For a single submission to a single evaluation queue, run
     the workflow in a single environment.
@@ -122,7 +125,7 @@ def run_submission(queue_id, submission_id, wes_id=None, opts=None):
                       wes_id=wes_id,
                       wf_jsonyaml=wf_jsonyaml,
                       submission=True,
-                      opts=opts)
+                       dopts=opts)
 
     update_submission(queue_id, submission_id, 'run_log', run_log)
     update_submission(queue_id, submission_id, 'status', 'SUBMITTED')
@@ -143,9 +146,9 @@ def run_queue(queue_id, wes_id=None, opts=None):
         if submission['wes_id'] is not None:
             wes_id = submission['wes_id']
         run_log = run_submission(queue_id=queue_id,
-                                 submission_id=submission_id,
-                                 wes_id=wes_id,
-                                 opts=opts)
+                                submission_id=submission_id,
+                                wes_id=wes_id,
+                                opts=opts)
         run_log['wes_id'] = wes_id
         queue_log[submission_id] = run_log
 
@@ -231,9 +234,9 @@ def monitor():
                     display(status_tracker)
 
             terminal_statuses = ['FAILED',
-                                 'COMPLETE',
-                                 'CANCELED',
-                                 'EXECUTOR_ERROR']
+                                'COMPLETE',
+                                'CANCELED',
+                                'EXECUTOR_ERROR']
             if all([sub['status'] in terminal_statuses
                     for queue in statuses
                     for sub in queue.values()]):

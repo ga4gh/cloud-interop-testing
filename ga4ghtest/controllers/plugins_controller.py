@@ -1,8 +1,28 @@
 import connexion
 import six
 
+from ga4ghtest.models import Plugin  # noqa: E501
 from ga4ghtest import util
 from ga4ghtest.core.controllers import plugins_controller as controller
+
+
+def create_plugin(
+    body
+):  # noqa: E501
+    """Create a test plugin
+
+    Add a plugin for testing functionality of an API. # noqa: E501
+
+    :param body: 
+    :type body: dict | bytes
+
+    :rtype: str
+    """
+    if connexion.request.is_json:
+        body = Plugin.from_dict(connexion.request.get_json())  # noqa: E501
+    return controller.create_plugin(
+        body=body
+    )
 
 
 def get_plugins(

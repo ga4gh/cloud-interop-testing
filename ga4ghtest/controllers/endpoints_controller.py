@@ -1,6 +1,7 @@
 import connexion
 import six
 
+from ga4ghtest.models import Endpoint  # noqa: E501
 from ga4ghtest import util
 from ga4ghtest.core.controllers import endpoints_controller as controller
 
@@ -38,10 +39,12 @@ def register_endpoint(
     Add an API server endpoint to the testbed. # noqa: E501
 
     :param body: 
-    :type body: str
+    :type body: dict | bytes
 
     :rtype: str
     """
+    if connexion.request.is_json:
+        body = Endpoint.from_dict(connexion.request.get_json())  # noqa: E501
     return controller.register_endpoint(
         body=body
     )
