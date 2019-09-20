@@ -142,7 +142,7 @@ def mock_client_lib(request):
 @pytest.fixture()
 def mock_trs_client():
     mock_api_client = mock.Mock(name='mock SwaggerClient')
-    with mock.patch.object(SwaggerClient, 'from_spec', 
+    with mock.patch.object(SwaggerClient, 'from_spec',
                         return_value=mock_api_client):
         yield mock_api_client
 
@@ -151,12 +151,12 @@ def mock_trs_client():
 def mock_wes_client(request):
     if request.param is None:
         mock_api_client = mock.Mock(name='mock SwaggerClient')
-        with mock.patch.object(SwaggerClient, 'from_spec', 
+        with mock.patch.object(SwaggerClient, 'from_spec',
                             return_value=mock_api_client):
             yield mock_api_client
     else:
         mock_api_client = mock.Mock(name='mock WESAdapter')
-        with mock.patch('ga4ghtest.apis.wes.client.WESAdapter', 
+        with mock.patch('ga4ghtest.services.wes.api.WESAdapter',
                         autospec=True):
             yield mock_api_client
 
@@ -164,7 +164,7 @@ def mock_wes_client(request):
 @pytest.fixture()
 def mock_trs(request):
     mock_trs = mock.Mock(name='mock TRS')
-    with mock.patch('ga4ghtest.apis.trs.wrapper.TRS', 
+    with mock.patch('ga4ghtest.services.trs.controller.TRSService',
                     autospec=True, spec_set=True):
         yield mock_trs
 
@@ -172,7 +172,7 @@ def mock_trs(request):
 @pytest.fixture()
 def mock_wes(request):
     mock_wes = mock.Mock(name='mock WES')
-    with mock.patch('ga4ghtest.apis.wes.wrapper.WES', 
+    with mock.patch('ga4ghtest.services.wes.controller.WESService',
                     autospec=True, spec_set=True):
         yield mock_wes
 

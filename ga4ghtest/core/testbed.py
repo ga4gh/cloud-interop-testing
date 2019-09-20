@@ -17,8 +17,8 @@ from requests.exceptions import ConnectionError
 
 from ga4ghtest.core.config import add_queue
 from ga4ghtest.core.config import queue_config, set_yaml
-from ga4ghtest.apis.trs import TRS
-from ga4ghtest.apis.wes import WES
+from ga4ghtest.services.trs import TRSService
+from ga4ghtest.services.wes import WESService
 from ga4ghtest.core.queue import create_submission
 from ga4ghtest.core.orchestrator import run_submission, monitor_queue
 from ga4ghtest.util import get_json, save_json
@@ -45,7 +45,7 @@ def poll_services():
 
     trs_status = {}
     for trs_id in list(set(trs_opts)):
-        trs_instance = TRS(trs_id=trs_id)
+        trs_instance = TRSService(trs_id=trs_id)
         trs_status[trs_id] = True
         try:
             trs_instance.get_metadata()
@@ -54,7 +54,7 @@ def poll_services():
 
     wes_status = {}
     for wes_id in list(set(wes_opts)):
-        wes_instance = WES(wes_id=wes_id)
+        wes_instance = WESService(wes_id=wes_id)
         wes_status[wes_id] = True
         try:
             wes_instance.get_service_info()
@@ -110,7 +110,7 @@ def check_workflow(queue_id, wes_id, opts=None, force=False):
         return testbed_status
     logger.info("Preparing checker workflow run request for '{}' from  '{}'"
                 .format(wf_config['workflow_id'], wf_config['trs_id']))
-    trs_instance = TRS(wf_config['trs_id'])
+    trs_instance = TRSService(wf_config['trs_id'])
     checker_queue_id = '{}_checker'.format(queue_id)
     if checker_queue_id in queue_config():
         checker_id = queue_config()[checker_queue_id]['workflow_id']

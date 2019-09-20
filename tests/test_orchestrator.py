@@ -6,7 +6,7 @@ from bravado.requests_client import RequestsClient
 from bravado.client import SwaggerClient, ResourceDecorator
 from bravado.testing.response_mocks import BravadoResponseMock
 
-from ga4ghtest.apis.wes.wrapper import WES
+from ga4ghtest.services.wes.controller import WESService
 from ga4ghtest.core.orchestrator import run_job
 from ga4ghtest.core.orchestrator import run_submission
 from ga4ghtest.core.orchestrator import run_queue
@@ -19,15 +19,15 @@ def test_run_job(mock_queue_config,
                  mock_submission, 
                  mock_wes, 
                  monkeypatch):
-    monkeypatch.setattr('ga4ghtest.core.orchestrator.queue_config', 
+    monkeypatch.setattr('ga4ghtest.core.orchestrator.queue_config',
                         lambda: mock_queue_config)
-    monkeypatch.setattr('ga4ghtest.core.orchestrator.wes_config', 
+    monkeypatch.setattr('ga4ghtest.core.orchestrator.wes_config',
                         lambda: mock_wes_config)
     monkeypatch.setattr('ga4ghtest.core.orchestrator.fetch_queue_workflow', 
                         lambda x: mock_queue_config[x])
     monkeypatch.setattr('ga4ghtest.core.orchestrator.create_submission', 
                         lambda **kwargs: None)
-    monkeypatch.setattr('ga4ghtest.core.orchestrator.WES', 
+    monkeypatch.setattr('ga4ghtest.core.orchestrator.WESService',
                         lambda wes_id: mock_wes)
     monkeypatch.setattr('ga4ghtest.core.orchestrator.update_submission', 
                         lambda w,x,y,z: None)
@@ -97,7 +97,7 @@ def test_monitor_queue(mock_submission,
                         lambda **kwargs: ['mock_sub'])
     monkeypatch.setattr('ga4ghtest.core.orchestrator.get_submission_bundle', 
                         lambda x,y: mock_submission['mock_sub'])
-    monkeypatch.setattr('ga4ghtest.core.orchestrator.WES', 
+    monkeypatch.setattr('ga4ghtest.core.orchestrator.WESService', 
                         lambda wes_id: mock_wes)
     monkeypatch.setattr('ga4ghtest.core.orchestrator.convert_timedelta', 
                         lambda x: 0)

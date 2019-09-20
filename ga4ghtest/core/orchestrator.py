@@ -17,7 +17,7 @@ from IPython.display import display, clear_output
 
 from ga4ghtest.core.config import queue_config, wes_config
 from ga4ghtest.util import ctime2datetime, convert_timedelta
-from ga4ghtest.apis.wes import WES
+from ga4ghtest.services.wes import WESService
 from ga4ghtest.converters.trs2wes import store_verification
 from ga4ghtest.converters.trs2wes import build_wes_request
 from ga4ghtest.converters.trs2wes import fetch_queue_workflow
@@ -58,7 +58,7 @@ def run_job(queue_id,
         submission_id = create_submission(queue_id=queue_id,
                                         submission_data=wf_jsonyaml,
                                         wes_id=wes_id)
-    wes_instance = WES(wes_id)
+    wes_instance = WESService(wes_id)
     service_config = wes_config()[wes_id]
     request = {'workflow_url': wf_config['workflow_url'],
             'workflow_params': wf_jsonyaml,
@@ -176,7 +176,7 @@ def monitor_queue(queue_id):
         if run_log['status'] in ['COMPLETE', 'CANCELED', 'EXECUTOR_ERROR']:
             queue_log[sub_id] = run_log
             continue
-        wes_instance = WES(submission['wes_id'])
+        wes_instance = WESService(submission['wes_id'])
         run_status = wes_instance.get_run_status(run_log['run_id'])
 
         if run_status['state'] in ['QUEUED', 'INITIALIZING', 'RUNNING']:

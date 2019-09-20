@@ -5,14 +5,14 @@ from bravado.requests_client import RequestsClient
 from bravado.client import SwaggerClient, ResourceDecorator
 from bravado.testing.response_mocks import BravadoResponseMock
 
-from ga4ghtest.apis.trs.client import _get_trs_opts
-from ga4ghtest.apis.trs.client import _init_http_client
-from ga4ghtest.apis.trs.client import load_trs_client
-from ga4ghtest.apis.trs.wrapper import TRS
+from ga4ghtest.services.trs.api import _get_trs_opts
+from ga4ghtest.services.trs.api import _init_http_client
+from ga4ghtest.services.trs.api import load_trs_client
+from ga4ghtest.services.trs.controller import TRSService
 
 
 def test__get_trs_opts(mock_trs_config, monkeypatch):
-    monkeypatch.setattr('ga4ghtest.apis.trs.client.trs_config',
+    monkeypatch.setattr('ga4ghtest.services.trs.api.trs_config',
                         lambda: mock_trs_config)
     test_trs_opts = _get_trs_opts('mock_trs')
 
@@ -29,7 +29,7 @@ def test__init_http_client(mock_trs_config):
 
 
 # def test_load_trs_client_from_spec(mock_trs_config, monkeypatch):
-#     monkeypatch.setattr('ga4ghtest.apis.trs.client._get_trs_opts',
+#     monkeypatch.setattr('ga4ghtest.services.trs.api._get_trs_opts',
 #                         lambda x: mock_trs_config['mock_trs'])
 #     mock_http_client = RequestsClient()
 #     test_trs_client = load_trs_client(service_id='mock_trs',
@@ -38,7 +38,7 @@ def test__init_http_client(mock_trs_config):
 #     assert isinstance(test_trs_client, ResourceDecorator)
 
 
-class TestTRS:
+class TestTRSService:
     """
     Tests methods for the :class:`TRS` class, which serve as the main
     Python interface for the GA4GH TRS API. The tests below are primarily
@@ -46,7 +46,7 @@ class TestTRS:
     and correctly handling responses.
     """
     def test_init(self, mock_trs_client):
-        trs_instance = TRS(trs_id='mock_trs',
+        trs_instance = TRSService(trs_id='mock_trs',
                            api_client=mock_trs_client)
 
         assert hasattr(trs_instance, 'api_client')
@@ -63,7 +63,7 @@ class TestTRS:
         mock_response = BravadoResponseMock(result=mock_metadata)
         mock_trs_client.metadataGet.return_value.response = mock_response
 
-        trs_instance = TRS(trs_id='mock_trs', api_client=mock_trs_client)
+        trs_instance = TRSService(trs_id='mock_trs', api_client=mock_trs_client)
         test_metadata = trs_instance.get_metadata()
 
         assert isinstance(test_metadata, dict)
@@ -82,7 +82,7 @@ class TestTRS:
         mock_response = BravadoResponseMock(result=mock_workflow)
         mock_trs_client.toolsIdGet.return_value.response = mock_response
 
-        trs_instance = TRS(trs_id='mock_trs', api_client=mock_trs_client)
+        trs_instance = TRSService(trs_id='mock_trs', api_client=mock_trs_client)
         test_workflow = trs_instance.get_workflow('mock_wf')
 
         assert isinstance(test_workflow, dict)
@@ -98,7 +98,7 @@ class TestTRS:
         operator = mock_trs_client.toolsIdVersionsGet
         operator.return_value.response = mock_response
 
-        trs_instance = TRS(trs_id='mock_trs', api_client=mock_trs_client)
+        trs_instance = TRSService(trs_id='mock_trs', api_client=mock_trs_client)
         test_workflow_versions = trs_instance.get_workflow_versions(
             id='mock_wf'
         )
@@ -113,7 +113,7 @@ class TestTRS:
         operator = mock_trs_client.toolsIdVersionsVersionIdTypeDescriptorGet
         operator.return_value.response = mock_response
 
-        trs_instance = TRS(trs_id='mock_trs', api_client=mock_trs_client)
+        trs_instance = TRSService(trs_id='mock_trs', api_client=mock_trs_client)
         test_workflow_descriptor = trs_instance.get_workflow_descriptor(
             id='mock_wf',
             version_id='test',
@@ -130,7 +130,7 @@ class TestTRS:
         operator = mock_trs_client.toolsIdVersionsVersionIdTypeDescriptorRelativePathGet
         operator.return_value.response = mock_response
 
-        trs_instance = TRS(trs_id='mock_trs', api_client=mock_trs_client)
+        trs_instance = TRSService(trs_id='mock_trs', api_client=mock_trs_client)
         test_workflow_descriptor = trs_instance.get_workflow_descriptor_relative(
             id='mock_wf',
             version_id='test',
@@ -148,7 +148,7 @@ class TestTRS:
         operator = mock_trs_client.toolsIdVersionsVersionIdTypeTestsGet
         operator.return_value.response = mock_response
 
-        trs_instance = TRS(trs_id='mock_trs', api_client=mock_trs_client)
+        trs_instance = TRSService(trs_id='mock_trs', api_client=mock_trs_client)
         test_workflow_tests = trs_instance.get_workflow_tests(
             id='mock_wf',
             version_id='test',
@@ -165,7 +165,7 @@ class TestTRS:
         operator = mock_trs_client.toolsIdVersionsVersionIdTypeFilesGet
         operator.return_value.response = mock_response
 
-        trs_instance = TRS(trs_id='mock_trs', api_client=mock_trs_client)
+        trs_instance = TRSService(trs_id='mock_trs', api_client=mock_trs_client)
         test_workflow_files = trs_instance.get_workflow_files(
             id='mock_wf',
             version_id='test',

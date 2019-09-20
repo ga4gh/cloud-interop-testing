@@ -6,7 +6,7 @@ provide consistent Pythonic interface.
 import logging
 import requests
 
-from ga4ghtest.apis.wes.client import load_wes_client
+from ga4ghtest.services.wes.api import load_wes_client
 from ga4ghtest.util import response_handler
 from ga4ghtest.core.config import wes_config
 
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 wes_client = 'workflow-service'
 
 
-class WES(object):
+class WESService(object):
     """
     Build a :class:`WES` instance for interacting with a server via
     the GA4GH Worflow Execution Service RESTful API.

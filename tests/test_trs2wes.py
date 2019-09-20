@@ -30,7 +30,7 @@ def test_fetch_queue_workflow(mock_orchestratorqueues,
                         str(mock_orchestratorqueues))
     monkeypatch.setattr('ga4ghtest.converters.trs2wes.queue_config',
                         lambda: mock_queue_config)
-    monkeypatch.setattr('ga4ghtest.converters.trs2wes.TRS',
+    monkeypatch.setattr('ga4ghtest.converters.trs2wes.TRSService',
                         lambda trs_id: mock_trs)
 
     mock_trs.get_workflow_descriptor.return_value = {'url': 'mock_wf_url'}

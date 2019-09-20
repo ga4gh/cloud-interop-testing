@@ -13,9 +13,9 @@ def test_poll_services(mock_queue_config,
                        monkeypatch):
     monkeypatch.setattr('ga4ghtest.core.testbed.queue_config',
                         lambda: mock_queue_config)
-    monkeypatch.setattr('ga4ghtest.core.testbed.TRS',
+    monkeypatch.setattr('ga4ghtest.core.testbed.TRSService',
                         lambda trs_id: mock_trs)
-    monkeypatch.setattr('ga4ghtest.core.testbed.WES',
+    monkeypatch.setattr('ga4ghtest.core.testbed.WESService',
                         lambda wes_id: mock_wes)
 
     test_service_status = poll_services()
@@ -44,7 +44,7 @@ def test_check_workflow(mock_orchestratorqueues,
                         str(mock_testbedlog))
     monkeypatch.setattr('ga4ghtest.core.testbed.queue_config',
                         lambda: mock_queue_config)
-    monkeypatch.setattr('ga4ghtest.core.testbed.TRS',
+    monkeypatch.setattr('ga4ghtest.core.testbed.TRSService',
                         lambda trs_id: mock_trs)
     monkeypatch.setattr('ga4ghtest.core.testbed.get_checker_id',
                         lambda x,y: 'mock_wf_checker')

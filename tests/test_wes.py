@@ -7,15 +7,15 @@ from bravado.client import SwaggerClient, ResourceDecorator
 from bravado.testing.response_mocks import BravadoResponseMock
 from wes_client.util import WESClient
 
-from ga4ghtest.apis.wes.client import _get_wes_opts
-from ga4ghtest.apis.wes.client import _init_http_client
-from ga4ghtest.apis.wes.client import WESAdapter
-from ga4ghtest.apis.wes.client import load_wes_client
-from ga4ghtest.apis.wes.wrapper import WES
+from ga4ghtest.services.wes.api import _get_wes_opts
+from ga4ghtest.services.wes.api import _init_http_client
+from ga4ghtest.services.wes.api import WESAdapter
+from ga4ghtest.services.wes.api import load_wes_client
+from ga4ghtest.services.wes.controller import WESService
 
 
 def test__get_wes_opts(mock_wes_config, monkeypatch):
-    monkeypatch.setattr('ga4ghtest.apis.wes.client.wes_config',
+    monkeypatch.setattr('ga4ghtest.services.wes.api.wes_config',
                         lambda: mock_wes_config)
     test_wes_opts = _get_wes_opts('mock_wes')
 
@@ -32,7 +32,7 @@ def test__init_http_client(mock_wes_config):
 
 
 # def test_load_wes_client_from_spec(mock_wes_config, monkeypatch):
-#     monkeypatch.setattr('ga4ghtest.apis.wes.client._get_wes_opts', 
+#     monkeypatch.setattr('ga4ghtest.services.wes.api._get_wes_opts',
 #                         lambda x: mock_wes_config['mock_wes'])
 
 #     mock_http_client = RequestsClient()
@@ -46,7 +46,7 @@ class TestWESAdapter:
     """
     Tests methods for the :class:`WESAdapter` class, which translate
     methods from the workflow-service :class:`WESClient` class to match
-    the interface defined in the GA4GH WES API spec. The tests below 
+    the interface defined in the GA4GH WES API spec. The tests below
     check whether the adapter methods are calling adaptee class methods
     with the correct signature.
     """
@@ -137,7 +137,7 @@ class TestWESAdapter:
 
 
 def test_load_wes_client_from_lib(mock_wes_config, monkeypatch):
-    monkeypatch.setattr('ga4ghtest.apis.wes.client._get_wes_opts', 
+    monkeypatch.setattr('ga4ghtest.services.wes.api._get_wes_opts',
                         lambda x: mock_wes_config['mock_wes'])
 
     mock_http_client = RequestsClient()
@@ -155,7 +155,7 @@ def test_load_wes_client_from_lib(mock_wes_config, monkeypatch):
     assert all([hasattr(test_wes_client, method) for method in spec_methods])
 
 
-class TestWES:
+class TestWESService:
     """
     Tests methods for the :class:`WES` class, which serve as the main
     Python interface for the GA4GH WES API. The tests below are primarily
@@ -163,7 +163,7 @@ class TestWES:
     and correctly handling responses.
     """
     def test_init(self, mock_wes_client):
-        wes_instance = WES(wes_id='mock_wes',
+        wes_instance = WESService(wes_id='mock_wes',
                            api_client=mock_wes_client)
 
         assert hasattr(wes_instance, 'api_client')
@@ -174,7 +174,7 @@ class TestWES:
 
         mock_response = BravadoResponseMock(result=mock_service_info)
         mock_wes_client.GetServiceInfo.return_value.response = mock_response
-        wes_instance = WES(wes_id='mock_wes',
+        wes_instance = WESService(wes_id='mock_wes',
                            api_client=mock_wes_client)
         test_service_info = wes_instance.get_service_info()
 
@@ -186,7 +186,7 @@ class TestWES:
 
         mock_wes_client.GetServiceInfo.return_value = mock_service_info
 
-        wes_instance = WES(wes_id='mock_wes',
+        wes_instance = WESService(wes_id='mock_wes',
                            api_client=mock_wes_client)
         test_service_info = wes_instance.get_service_info()
 
@@ -199,7 +199,7 @@ class TestWES:
         mock_response = BravadoResponseMock(result=mock_runs)
         mock_wes_client.ListRuns.return_value.response = mock_response
 
-        wes_instance = WES(wes_id='mock_wes',
+        wes_instance = WESService(wes_id='mock_wes',
                            api_client=mock_wes_client)
         test_runs = wes_instance.list_runs()
 
@@ -212,7 +212,7 @@ class TestWES:
         mock_response = BravadoResponseMock(result=mock_run_id)
         mock_wes_client.RunWorkflow.return_value.response = mock_response
 
-        wes_instance = WES(wes_id='mock_wes',
+        wes_instance = WESService(wes_id='mock_wes',
                            api_client=mock_wes_client)
         test_run_id = wes_instance.run_workflow(request={})
 
@@ -230,7 +230,7 @@ class TestWES:
         mock_response = BravadoResponseMock(result=mock_run_log)
         mock_wes_client.GetRunLog.return_value.response = mock_response
 
-        wes_instance = WES(wes_id='mock_wes',
+        wes_instance = WESService(wes_id='mock_wes',
                            api_client=mock_wes_client)
         test_run_log = wes_instance.get_run(id='foo')
 
@@ -244,7 +244,7 @@ class TestWES:
         mock_response = BravadoResponseMock(result=mock_run_status)
         mock_wes_client.GetRunStatus.return_value.response = mock_response
 
-        wes_instance = WES(wes_id='mock_wes',
+        wes_instance = WESService(wes_id='mock_wes',
                            api_client=mock_wes_client)
         test_run_status = wes_instance.get_run_status(id='foo')
 

@@ -22,7 +22,7 @@ from wes_service.util import visit
 from ga4ghtest.util import open_file, get_yaml, get_json
 from ga4ghtest.core.config import queue_config
 from ga4ghtest.core.config import set_yaml
-from ga4ghtest.apis.trs import TRS
+from ga4ghtest.services.trs import TRSService
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ def fetch_queue_workflow(queue_id):
     wf_config = queue_config()[queue_id]
     logger.info("Retrieving details for workflow '{}' (queue: '{}')"
                 .format(wf_config['workflow_id'], queue_id))
-    trs_instance = TRS(wf_config['trs_id'])
+    trs_instance = TRSService(wf_config['trs_id'])
     wf_descriptor = trs_instance.get_workflow_descriptor(
         id=wf_config['workflow_id'],
         version_id=wf_config['version_id'],

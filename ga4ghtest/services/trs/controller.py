@@ -7,7 +7,7 @@ import logging
 import urllib.parse as urlparse
 import re
 
-from ga4ghtest.apis.trs.client import load_trs_client
+from ga4ghtest.services.trs.api import load_trs_client
 from ga4ghtest.util import response_handler
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def _format_workflow_id(id):
         return urlparse.quote_plus(id)
 
 
-class TRS(object):
+class TRSService(object):
     """
     Build a :class:`TRS` instance for interacting with a server via
     the GA4GH Tool Registry Service RESTful API.
