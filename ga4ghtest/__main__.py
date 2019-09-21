@@ -4,7 +4,7 @@ import sys
 import argparse
 import pkg_resources  # part of setuptools
 import logging
-from ga4ghtest.core.orchestrator import monitor
+from ga4ghtest.core.wes_orchestrator import monitor
 
 logging.basicConfig(level=logging.INFO)
 

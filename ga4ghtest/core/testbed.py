@@ -20,7 +20,7 @@ from ga4ghtest.core.config import queue_config, set_yaml
 from ga4ghtest.services.trs import TRSService
 from ga4ghtest.services.wes import WESService
 from ga4ghtest.core.queue import create_submission
-from ga4ghtest.core.orchestrator import run_submission, monitor_queue
+from ga4ghtest.core.wes_orchestrator import run_submission, monitor_queue
 from ga4ghtest.util import get_json, save_json
 
 logging.basicConfig(level=logging.DEBUG)
