@@ -6,7 +6,7 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from ga4ghtest.models.base_model_ import Model
-from ga4ghtest import util
+from ga4ghtest.openapi import util
 
 
 class Server(Model):
