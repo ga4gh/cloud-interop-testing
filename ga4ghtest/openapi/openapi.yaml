@@ -7,18 +7,18 @@ info:
 servers:
 - url: /ga4gh/testbed/v1
 tags:
+- name: Plugins
+  description: |
+    Test Plugins are the core of the system.  They are Python objects that conform to the Test Plugin interface and are used to execute a given test.  They can be extremely simple or quite complex but, ultimately, they provide a very basic interface to the Orchestrator that’s calling them.
 - name: Tests
   description: |
     Tests...
-- name: Plugins
+- name: Apis
   description: |
-    Plugins...
-- name: Schemas
+    APIs...
+- name: Servers
   description: |
-    Schemas...
-- name: Endpoints
-  description: |
-    Endpoints...
+    Servers...
 paths:
   /tests:
     post:
@@ -29,7 +29,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/ServiceTest'
         required: true
       responses:
         201:
@@ -56,7 +56,9 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceTest'
           description: OK
       summary: Get tests
       tags:
@@ -82,7 +84,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ServiceTest'
           description: OK
       summary: Get tests
       tags:
@@ -130,33 +132,11 @@ paths:
       tags:
       - Plugins
       x-openapi-router-controller: ga4ghtest.controllers.plugins_controller
-  /endpoints:
-    post:
-      description: |-
-        Add an API server endpoint to the testbed.
-      operationId: register_endpoint
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Endpoint'
-        required: true
-      responses:
-        201:
-          content:
-            application/json:
-              schema:
-                type: string
-          description: Success — endpoint added
-      summary: Register an endpoint
-      tags:
-      - Endpoints
-      x-codegen-request-body-name: body
-      x-openapi-router-controller: ga4ghtest.controllers.endpoints_controller
+  /apis:
     get:
       description: |
-        Get the list of available endpoints.
-      operationId: get_endpoints
+        Get the list of available APIs.
+      operationId: get_apis
       parameters:
       - $ref: '#/components/parameters/sortParam'
       - $ref: '#/components/parameters/orderParam'
@@ -168,10 +148,52 @@ paths:
               schema:
                 type: string
           description: OK
-      summary: Get target endpoints
+      summary: Get APIs
       tags:
-      - Endpoints
-      x-openapi-router-controller: ga4ghtest.controllers.endpoints_controller
+      - Apis
+      x-openapi-router-controller: ga4ghtest.controllers.apis_controller
+  /servers:
+    post:
+      description: |-
+        Add an API server to the testbed.
+      operationId: register_server
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Server'
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Success — endpoint added
+      summary: Register a server
+      tags:
+      - Servers
+      x-codegen-request-body-name: body
+      x-openapi-router-controller: ga4ghtest.controllers.servers_controller
+    get:
+      description: |
+        Get the list of available servers.
+      operationId: get_servers
+      parameters:
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/orderParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: OK
+      summary: Get target servers
+      tags:
+      - Servers
+      x-openapi-router-controller: ga4ghtest.controllers.servers_controller
 components:
   parameters:
     limitParam:
@@ -213,12 +235,18 @@ components:
         type: string
       style: form
   schemas:
-    Endpoint:
+    ServerID:
+      type: string
+    Server:
+      title: Server
+      type: object
       required:
         - api
         - host
         - proto
       properties:
+        id:
+          $ref: '#/components/schemas/ServerID'
         api:
           type: string
           enum:
@@ -232,16 +260,34 @@ components:
           type: string
         auth:
           type: string
+    PluginID:
+      type: string
     Plugin:
+      title: Plugin
+      type: object
       properties:
+        id:
+          $ref: '#/components/schemas/PluginID'
         name:
           type: string
         version:
           type: string
-        api:
+        apis:
+          type: array
+          items:
+            type: string
+            enum:
+              - WES
+              - TRS
+        recipe:
           type: string
-          enum:
-            - WES
-            - TRS
-        test:
-          type: string
+    ServiceTest:
+      title: Test
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServerID'
+        plugin:
+          $ref: '#/components/schemas/PluginID'

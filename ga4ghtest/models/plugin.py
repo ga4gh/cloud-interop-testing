@@ -15,36 +15,41 @@ class Plugin(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, name=None, version=None, api=None, test=None):  # noqa: E501
+    def __init__(self, id=None, name=None, version=None, apis=None, recipe=None):  # noqa: E501
         """Plugin - a model defined in OpenAPI
 
+        :param id: The id of this Plugin.  # noqa: E501
+        :type id: str
         :param name: The name of this Plugin.  # noqa: E501
         :type name: str
         :param version: The version of this Plugin.  # noqa: E501
         :type version: str
-        :param api: The api of this Plugin.  # noqa: E501
-        :type api: str
-        :param test: The test of this Plugin.  # noqa: E501
-        :type test: str
+        :param apis: The apis of this Plugin.  # noqa: E501
+        :type apis: List[str]
+        :param recipe: The recipe of this Plugin.  # noqa: E501
+        :type recipe: str
         """
         self.openapi_types = {
+            'id': str,
             'name': str,
             'version': str,
-            'api': str,
-            'test': str
+            'apis': List[str],
+            'recipe': str
         }
 
         self.attribute_map = {
+            'id': 'id',
             'name': 'name',
             'version': 'version',
-            'api': 'api',
-            'test': 'test'
+            'apis': 'apis',
+            'recipe': 'recipe'
         }
 
+        self._id = id
         self._name = name
         self._version = version
-        self._api = api
-        self._test = test
+        self._apis = apis
+        self._recipe = recipe
 
     @classmethod
     def from_dict(cls, dikt) -> 'Plugin':
@@ -56,6 +61,27 @@ class Plugin(Model):
         :rtype: Plugin
         """
         return util.deserialize_model(dikt, cls)
+
+    @property
+    def id(self):
+        """Gets the id of this Plugin.
+
+
+        :return: The id of this Plugin.
+        :rtype: str
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """Sets the id of this Plugin.
+
+
+        :param id: The id of this Plugin.
+        :type id: str
+        """
+
+        self._id = id
 
     @property
     def name(self):
@@ -100,49 +126,50 @@ class Plugin(Model):
         self._version = version
 
     @property
-    def api(self):
-        """Gets the api of this Plugin.
+    def apis(self):
+        """Gets the apis of this Plugin.
 
 
-        :return: The api of this Plugin.
-        :rtype: str
+        :return: The apis of this Plugin.
+        :rtype: List[str]
         """
-        return self._api
+        return self._apis
 
-    @api.setter
-    def api(self, api):
-        """Sets the api of this Plugin.
+    @apis.setter
+    def apis(self, apis):
+        """Sets the apis of this Plugin.
 
 
-        :param api: The api of this Plugin.
-        :type api: str
+        :param apis: The apis of this Plugin.
+        :type apis: List[str]
         """
         allowed_values = ["WES", "TRS"]  # noqa: E501
-        if api not in allowed_values:
+        if not set(apis).issubset(set(allowed_values)):
             raise ValueError(
-                "Invalid value for `api` ({0}), must be one of {1}"
-                .format(api, allowed_values)
+                "Invalid values for `apis` [{0}], must be a subset of [{1}]"  # noqa: E501
+                .format(", ".join(map(str, set(apis) - set(allowed_values))),  # noqa: E501
+                        ", ".join(map(str, allowed_values)))
             )
 
-        self._api = api
+        self._apis = apis
 
     @property
-    def test(self):
-        """Gets the test of this Plugin.
+    def recipe(self):
+        """Gets the recipe of this Plugin.
 
 
-        :return: The test of this Plugin.
+        :return: The recipe of this Plugin.
         :rtype: str
         """
-        return self._test
+        return self._recipe
 
-    @test.setter
-    def test(self, test):
-        """Sets the test of this Plugin.
+    @recipe.setter
+    def recipe(self, recipe):
+        """Sets the recipe of this Plugin.
 
 
-        :param test: The test of this Plugin.
-        :type test: str
+        :param recipe: The recipe of this Plugin.
+        :type recipe: str
         """
 
-        self._test = test
+        self._recipe = recipe
