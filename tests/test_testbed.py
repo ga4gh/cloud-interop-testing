@@ -1,21 +1,21 @@
 import mock
 import pytest
 
-from ga4ghtest.core.testbed import poll_services
-from ga4ghtest.core.testbed import get_checker_id
-from ga4ghtest.core.testbed import check_workflow
-# from ga4ghtest.core.testbed import check_all
+from ga4ghtest.core.wes_testbed import poll_services
+from ga4ghtest.core.wes_testbed import get_checker_id
+from ga4ghtest.core.wes_testbed import check_workflow
+# from ga4ghtest.core.wes_testbed import check_all
 
 
 def test_poll_services(mock_queue_config,
                        mock_trs,
                        mock_wes,
                        monkeypatch):
-    monkeypatch.setattr('ga4ghtest.core.testbed.queue_config',
+    monkeypatch.setattr('ga4ghtest.core.wes_testbed.queue_config',
                         lambda: mock_queue_config)
-    monkeypatch.setattr('ga4ghtest.core.testbed.TRSService',
+    monkeypatch.setattr('ga4ghtest.core.wes_testbed.TRSService',
                         lambda trs_id: mock_trs)
-    monkeypatch.setattr('ga4ghtest.core.testbed.WESService',
+    monkeypatch.setattr('ga4ghtest.core.wes_testbed.WESService',
                         lambda wes_id: mock_wes)
 
     test_service_status = poll_services()
@@ -40,17 +40,17 @@ def test_check_workflow(mock_orchestratorqueues,
                         monkeypatch):
     monkeypatch.setattr('ga4ghtest.core.config.queues_path',
                         str(mock_orchestratorqueues))
-    monkeypatch.setattr('ga4ghtest.core.testbed.testbed_log',
+    monkeypatch.setattr('ga4ghtest.core.wes_testbed.testbed_log',
                         str(mock_testbedlog))
-    monkeypatch.setattr('ga4ghtest.core.testbed.queue_config',
+    monkeypatch.setattr('ga4ghtest.core.wes_testbed.queue_config',
                         lambda: mock_queue_config)
-    monkeypatch.setattr('ga4ghtest.core.testbed.TRSService',
+    monkeypatch.setattr('ga4ghtest.core.wes_testbed.TRSService',
                         lambda trs_id: mock_trs)
-    monkeypatch.setattr('ga4ghtest.core.testbed.get_checker_id',
+    monkeypatch.setattr('ga4ghtest.core.wes_testbed.get_checker_id',
                         lambda x,y: 'mock_wf_checker')
-    monkeypatch.setattr('ga4ghtest.core.testbed.add_queue',
+    monkeypatch.setattr('ga4ghtest.core.wes_testbed.add_queue',
                         lambda **kwargs: None)
-    monkeypatch.setattr('ga4ghtest.core.testbed.create_submission',
+    monkeypatch.setattr('ga4ghtest.core.wes_testbed.create_submission',
                         lambda **kwargs: None)
     mock_trs.get_workflow_tests.return_value = [{'content': '', 'url': ''}]
 
@@ -75,7 +75,7 @@ def test_check_workflow(mock_orchestratorqueues,
             }
         }
     }
-    monkeypatch.setattr('ga4ghtest.core.testbed.run_submission',
+    monkeypatch.setattr('ga4ghtest.core.wes_testbed.run_submission',
                         lambda **kwargs: mock_run_log)
 
     test_testbed_status = check_workflow(queue_id='mock_queue_1',
@@ -85,7 +85,7 @@ def test_check_workflow(mock_orchestratorqueues,
 
 
 # def test_check_all(mock_queue_config, monkeypatch):
-#     monkeypatch.setattr('ga4ghtest.core.testbed.queue_config',
+#     monkeypatch.setattr('ga4ghtest.core.wes_testbed.queue_config',
 #                         lambda: mock_queue_config)
 
 #     mock_testbed_status = {
@@ -102,9 +102,9 @@ def test_check_workflow(mock_orchestratorqueues,
 #         }
 #     }
 
-#     monkeypatch.setattr('ga4ghtest.core.testbed.check_workflow',
+#     monkeypatch.setattr('ga4ghtest.core.wes_testbed.check_workflow',
 #                         lambda **kwargs: mock_testbed_status)
-#     monkeypatch.setattr('ga4ghtest.core.testbed.monitor_testbed',
+#     monkeypatch.setattr('ga4ghtest.core.wes_testbed.monitor_testbed',
 #                         lambda: mock_testbed_status)
 
 #     mock_workflow_wes_map = {
