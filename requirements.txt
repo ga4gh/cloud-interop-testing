@@ -13,6 +13,9 @@ bravado
 schema-salad
 toil[wdl]
 
+ga4gh-drs-client
+
+
 # FIXME these optional dependencies should be installed
 rfc3987
 webcolors
