@@ -1,87 +1,280 @@
-# Synapse Workflow Orchestrator
+# GA4GH Cloud Interoperability Testing
 
-This application serves as a "workflow orchestrator" for GA4GH-style workflows, using the Synapse [**Evaluation Services**](http://docs.synapse.org/rest/#org.sagebionetworks.repo.web.controller.EvaluationController) to manage queues and submissions.
+[![Travis-CI Build Status](https://travis-ci.org/ga4gh/cloud-interop-testing.svg?branch=develop)](https://travis-ci.org/ga4gh/cloud-interop-testing.svg?branch=develop) 
+[![Coverage Status](https://coveralls.io/repos/github/ga4gh/cloud-interop-testing/badge.svg?branch=develop)](https://coveralls.io/ga4gh/cloud-interop-testing?branch=develop)
 
-## GA4GH Workflow Portability Testbed
 
-The initial use case for this app will be to act as a workflow orchestrator for the [**Testbed Interoperability Platform**](https://docs.google.com/document/d/12Mq4v7o5VKF-DkFTQwsUQ-aWZ5aBeIcl_5YrhbaSv7M/edit?usp=sharing), a core deliverable of the GA4GH Cloud Workstream for 2018. This platform and the orchestrator will also support the next round of the **GA4GH/DREAM Workflow Execution Challenge**.
+The initial use case for this app will be to act as a workflow orchestrator and bridge between **Tool Registry Service (TRS)** and **Workflow Execution Service (WES)** endpoints for the [**Testbed Interoperability Platform**](https://docs.google.com/document/d/12Mq4v7o5VKF-DkFTQwsUQ-aWZ5aBeIcl_5YrhbaSv7M/edit?usp=sharing), a core deliverable of the GA4GH Cloud Workstream for 2018.
 
-Per the requirements linked in the document above, the orchestrator needs to perform at least 3 basic tasks:
+*Note: this repo was originally forked from [Sage-Bionetworks/workflow-interop](https://github.com/Sage-Bionetworks/workflow-interop) and will be maintained here as the testbed scope expands.*
 
-1. Makes TRS call to fetch a workflow
-2. Makes WES call to run (and check) a workflow
-3. Reports results
+## Overview
 
-Some other obvious functionality that we'll want to include is:
+In the context of the testbed, the orchestrator performs 3 primary tasks:
 
-+ The ability to onboard/register a new workflow (~ create and configure a queue)
-+ The ability to register a new WES endpoint 
-+ The ability to submit or trigger a new workflow execution job (run) 
-+ A central mechanism for reporting results across workflows, WES endpoints, and specific runs/parameters 
+1. Look up a workflow registered in a TRS implementation, identify its corresponding "checker" workflow, and retrieve any data required to run the checker workflow;
+2. Format checker workflow data and initiate new workflow runs on one or more WES endpoints;
+3. Reports results.
 
-These latter features are where existing Synapse systems come into play. Most of what we plan to do (at least for a proof of concept demonstration) can be accomplished with existing functionality of the `evaluation` API, the Synapse leaderboards, and various scripts/functions that have been designed to use these services to manage DREAM Challenges. 
+Additionally, the application supports the following operations:
 
-### Organization 
++ Register and configure new TRS endpoints;
++ Register and configure new WES endpoints;
++ Onboard/register a new workflow (by creating and configuring a queue with workflow details).
 
-Some rough ideas for modules:
-+ **`eval_client`**: 
-  + creates, configures, and gets information about Synapse evaluation queues
-  + retrieves and manages information (e.g. status) about individual submissions to an evaluation queue 
-+ **`trs_client`**:
-  + retrieves (and possibly updates) information about a workflow from a tool registry service (e.g. Dockstore)
-  + works as a `bravado` client based on the Swagger spec provided for a TRS implementation (as opposed to any CLI that might exist for that implemenation)
-+ **`wes_client`**:
-  + manages interactions with a workflow execution service endpoint, including submitting new workflow jobs, monitoring workflow run progress, and collecting results 
-  + works as a `bravado` client based on the Swagger spec provided for a WES implementation
-  + currently imported from a git submodule pointing to a fork of [@david4046's `updates-wes-0.2` branch](https://github.com/david4096/workflow-service/tree/updates-wes-0.2) of the `workflow-service` repo
-+ **`orchestrator`**:
-  + functions (or class with methods) to glue together the various services above
-  + at minimum, should be able to (1) take a given ID/URL for a workflow registered in a given TRS implementation; (2) prepare the workflow run request, including retrieval (and formatting?) of parameters, if not provided; (3) post the workflow run request to a given WES implementation; (4) monitor and report results of the workflow run
-  + authentication/authorization might need to be handled here as well
-+ either within the modules above or as part of a separate `config` module, we'll need some functions for registering TRS and WES endpoints (adding them to the scope of options for the `orchestrator`)
+## Installation
 
-### Development
-
-#### Install develop branch
-
-This software is still in pre-alpha phase, with frequent changes being made to the ["development" branch](https://github.com/Sage-Bionetworks/synapse-orchestrator/tree/develop). To work with or contribute to the latest version, clone this repo, check out the `develop` branch, and install from source. If you plan to make changes to the code, use the `-e` mode to make the installation follow the head without having to reinstall (using `conda` or `virtualenv` to create an isolated test environment is recommended).
-
-(example environment setup)
-```
-conda create -n synorchestrator python=2.7
-source activate synorchestrator
+```console
+git clone https://github.com/Sage-Bionetworks/workflow-interop
+pip install .
 ```
 
-```
-git clone git://github.com/Sage-Bionetworks/synapse-orchestrator.git
-cd synapse-orchestrator
-git checkout develop
-pip install -e .
-```
 
-#### Update `workflow-service` git submodule
+## Usage
 
-When you first clone this repo or checkout the latest `develop` branch, the `workflow-service` folder may be empty. To download the submodule’s content, you can use
+*CLI should be available soon.*
 
-```
-git submodule update --init --recursive
-```
+### Load modules
 
-You should also ensure that the submodule is on the recommended branch (and install the package to make it available to `synorchestrator`):
+These modules should cover most of the current use cases:
 
-```
-cd workflow-service
-git checkout updates-wes-0.2
-pip install -e .
+```python
+from wfinterop import config
+from wfinterop import orchestrator
+from wfinterop import testbed
 ```
 
-### Contribute changes
+### Default settings
 
-Switch back to the top level (`synapse-orchestrator`) folder, check out a new branch off of `develop`, edit the code, commit changes, open a pull request.
+```python
+config.show()
+```
 
-### TODO
+```console
+Orchestrator options:
 
-+ get `orchestrator` working for a single workflow, TRS implementation, and WES implementation
-+ add functions/arguments for configuring (registering TRS/WES endpoints, authenticating, etc.) the `orchestrator`
-+ figure out how to configure and connect Synapse evaluation queues and submissions to `orchestrator`
-+ update `travis.yml` to build `synapse-orchestrator` (and `workflow-service`) before running tests
+Workflow Evaluation Queues
+(queue ID: workflow ID [version])
+---------------------------------------------------------------------------
+test_wdl_queue: None (None)
+  > workflow URL: file://tests/testdata/md5sum.wdl
+  > workflow attachments:
+    - file://tests/testdata/md5sum.input
+  > workflow type: CWL
+  > from TRS: None
+  > WES options: ['local']
+test_cwl_queue: None (None)
+  > workflow URL: file://tests/testdata/md5sum.cwl
+  > workflow attachments:
+    - file://tests/testdata/md5sum.input
+    - file://tests/testdata/dockstore-tool-md5sum.cwl
+  > workflow type: CWL
+  > from TRS: None
+  > WES options: ['local']
+
+Tool Registries
+(TRS ID: host address)
+---------------------------------------------------------------------------
+dockstore: dockstore.org:8443
+
+Workflow Services
+(WES ID: host address)
+---------------------------------------------------------------------------
+local: 0.0.0.0:8080
+```
+
+<details>
+
+<summary>View YAML</summary>
+
+```yaml
+queues:
+  test_cwl_queue:
+    target_queue: null
+    trs_id: null
+    version_id: null
+    wes_default: local
+    wes_opts:
+    - local
+    workflow_attachments:
+    - file://tests/testdata/md5sum.input
+    - file://tests/testdata/dockstore-tool-md5sum.cwl
+    workflow_id: null
+    workflow_type: CWL
+    workflow_url: file://tests/testdata/md5sum.cwl
+  test_wdl_queue:
+    target_queue: null
+    trs_id: null
+    version_id: null
+    wes_default: local
+    wes_opts:
+    - local
+    workflow_attachments:
+    - file://tests/testdata/md5sum.input
+    workflow_id: null
+    workflow_type: CWL
+    workflow_url: file://tests/testdata/md5sum.wdl
+toolregistries:
+  dockstore:
+    auth:
+      Authorization: ''
+    host: dockstore.org:8443
+    proto: https
+workflowservices:
+  local:
+    auth:
+      Authorization: ''
+    host: 0.0.0.0:8080
+    proto: http
+```
+
+</details>
+
+### Add a workflow
+
+```python
+config.add_queue(queue_id='demo_queue',
+                 wf_type='CWL',
+                 wf_id='github.com/dockstore-testing/md5sum-checker',
+                 version_id='develop',
+                 trs_id='dockstore')
+```
+
+```console
+Workflow Evaluation Queues
+(queue ID: workflow ID [version])
+---------------------------------------------------------------------------
+test_wdl_queue: None (None)
+  > workflow URL: file://tests/testdata/md5sum.wdl
+  > workflow type: CWL
+  > from TRS: None
+  > WES options: ['local']
+test_cwl_queue: None (None)
+  > workflow URL: file://tests/testdata/md5sum.cwl
+  > workflow type: CWL
+  > from TRS: None
+  > WES options: ['local']
+demo_queue: github.com/dockstore-testing/md5sum-checker (develop)
+  > workflow URL: None
+  > workflow type: CWL
+  > from TRS: dockstore
+  > WES options: ['local']
+
+...
+```
+
+<details>
+
+<summary>View YAML</summary>
+
+```yaml
+demo_queue:
+  target_queue: null
+  trs_id: dockstore
+  version_id: develop
+  wes_default: local
+  wes_opts:
+  - local
+  workflow_attachments: null
+  workflow_id: github.com/dockstore-testing/md5sum-checker
+  workflow_type: CWL
+  workflow_url: null
+```
+
+</details>
+
+### Add a WES endpoint
+
+```python
+config.add_workflowservice(service='arvados-wes',
+                           host='wes.qr1hi.arvadosapi.com',
+                           auth={'Authorization': 'Bearer <my-api-token>'},
+                           proto='https')
+```
+
+```console
+Workflow Services
+(WES ID: host address)
+---------------------------------------------------------------------------
+arvados-wes: wes.qr1hi.arvadosapi.com
+local: 0.0.0.0:8080
+```
+
+#### Connect a WES endpoint to a workflow queue
+
+```python
+config.add_wes_opt(queue_ids='demo_queue', wes_ids='arvados-wes')
+```
+
+```console
+Workflow Evaluation Queues
+(queue ID: workflow ID [version])
+---------------------------------------------------------------------------
+queue_2: github.com/dockstore-testing/md5sum-checker (develop)
+  > workflow URL: None
+  > workflow type: CWL
+  > from TRS: dockstore
+  > WES options: ['local', 'arvados-wes']
+```
+
+### Running workflows
+
+#### Setting up a local WES service
+
+This package uses (and installs as a dependency) the [**workflow-service** package](https://github.com/common-workflow-language/workflow-service), which provides both client and server implementations of the WES API.
+
+You can start service running `cwltool` by running this command in the terminal:
+
+```console
+wes-server
+```
+
+You should see a message that looks something like this:
+
+```console
+INFO:root:Using config:
+INFO:root:  opt: None
+INFO:root:  debug: False
+INFO:root:  version: False
+INFO:root:  port: 8080
+INFO:root:  backend: wes_service.cwl_runner
+ * Serving Flask app "wes_service.wes_service_main" (lazy loading)
+ * Environment: production
+   WARNING: Do not use the development server in a production environment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+INFO:werkzeug: * Running on http://0.0.0.0:8080/ (Press CTRL+C to quit)
+```
+
+> Note: running WDL workflows using a local service has not been fully tested.
+
+#### Monitoring orchestrator activity
+
+In a seperate terminal window or notebook, you can start a `monitor` process to keep track of any active workflow jobs.
+
+```python
+orchestrator.monitor()
+```
+#### Check a workflow
+
+To check a workflow in the testbed in a single environment...
+
+```python
+testbed.check_workflow(queue_id='demo_queue', wes_id='local')
+```
+
+To check combinations of workflows and environments...
+
+```python
+testbed.check_all({'demo_queue': ['local', 'arvados-wes']})
+```
+
+#### Run a workflow job
+
+To run a workflow using a given set of parameters...
+
+```python
+orchestrator.run_job(queue_id='test_cwl_queue',
+                     wes_id='local',
+                     wf_jsonyaml='file://tests/testdata/md5sum.cwl.json')
+```

@@ -67,6 +67,12 @@ docs/_build/
 # PyBuilder
 target/
 
+# PyCharm
+.idea/
+
+# Visual Studio Code
+.vscode/
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
@@ -99,3 +105,21 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# pytest
+.pytest_cache/
+
+# local config files
+*.config
+*.evals
+*config.yaml
+*queues.yaml
+*submission_queue*
+*testbed_log*
+*testbed_report*
+
+# workflow cache
+workflows
+logs
+
+.DS_Store

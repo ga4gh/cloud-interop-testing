@@ -1,3 +1,0 @@
-[submodule "workflow-service"]
-	path = workflow-service
-	url = https://github.com/jaeddy/workflow-service

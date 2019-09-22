@@ -1,17 +1,15 @@
-sudo: required
 language: python
-script:
-  - nosetests -vs tests
+python: 
+  - '2.7'
 
 before_install:
-  - pip install pandas synapseclient pyyaml
+- sudo apt-get update -qq
+- pip install toil[all]
+- pip install -r dev-requirements.txt .
 
+script:
+  - python setup.py test
+  - flake8 --ignore=E501,E722,F401,F841,W504 wfinterop/
 
-matrix:
-  include:
-    - os: linux
-      python: 2.7.14
-    - os: linux
-      python: 3.5.3
-    - os: linux
-      python: 3.6.2
+after_success:
+  - coveralls
