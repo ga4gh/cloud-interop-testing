@@ -41,7 +41,7 @@ setup(
     install_requires=REQUIRES,
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pytest-cov', 'mock'],
-    packages=['ga4ghtest'],
+    packages=find_packages(),
     package_data={'ga4ghtest': ['openapi/openapi.yaml']},
     include_package_data=True,
     entry_points={
