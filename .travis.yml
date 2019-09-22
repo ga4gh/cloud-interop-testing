@@ -1,15 +1,16 @@
 language: python
-python: 
-  - '2.7'
+python:
+  - '3.6'
 
 before_install:
 - sudo apt-get update -qq
-- pip install toil[all]
-- pip install -r dev-requirements.txt .
+- pip install -r test-requirements.txt
+- pip install -r requirements.txt .
+- pip install --no-deps -r dev-requirements.txt
 
 script:
   - python setup.py test
-  - flake8 --ignore=E501,E722,F401,F841,W504 wfinterop/
+  # - flake8 --ignore=E501,E722,F401,F841,W504 ga4ghtest/
 
 after_success:
   - coveralls

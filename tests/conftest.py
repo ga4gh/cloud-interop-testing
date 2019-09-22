@@ -79,7 +79,7 @@ def mock_wes_config():
 
 
 @pytest.fixture(scope='function')
-def mock_orchestratorqueues(tmpdir, 
+def mock_orchestratorqueues(tmpdir,
                             mock_queue_config):
     # a mocked config file for a the orchestrator app
     logger.info("[setup] mock orchestrator queues file, create local file")
@@ -94,8 +94,8 @@ def mock_orchestratorqueues(tmpdir,
 
 
 @pytest.fixture(scope='function')
-def mock_orchestratorconfig(tmpdir, 
-                            mock_trs_config, 
+def mock_orchestratorconfig(tmpdir,
+                            mock_trs_config,
                             mock_wes_config):
     # a mocked config file for a the orchestrator app
     logger.info("[setup] mock orchestrator config file, create local file")
@@ -142,7 +142,7 @@ def mock_client_lib(request):
 @pytest.fixture()
 def mock_trs_client():
     mock_api_client = mock.Mock(name='mock SwaggerClient')
-    with mock.patch.object(SwaggerClient, 'from_spec', 
+    with mock.patch.object(SwaggerClient, 'from_spec',
                         return_value=mock_api_client):
         yield mock_api_client
 
@@ -151,12 +151,12 @@ def mock_trs_client():
 def mock_wes_client(request):
     if request.param is None:
         mock_api_client = mock.Mock(name='mock SwaggerClient')
-        with mock.patch.object(SwaggerClient, 'from_spec', 
+        with mock.patch.object(SwaggerClient, 'from_spec',
                             return_value=mock_api_client):
             yield mock_api_client
     else:
         mock_api_client = mock.Mock(name='mock WESAdapter')
-        with mock.patch('wfinterop.wes.client.WESAdapter', 
+        with mock.patch('ga4ghtest.services.wes.api.WESAdapter',
                         autospec=True):
             yield mock_api_client
 
@@ -164,7 +164,7 @@ def mock_wes_client(request):
 @pytest.fixture()
 def mock_trs(request):
     mock_trs = mock.Mock(name='mock TRS')
-    with mock.patch('wfinterop.trs.wrapper.TRS', 
+    with mock.patch('ga4ghtest.services.trs.controller.TRSService',
                     autospec=True, spec_set=True):
         yield mock_trs
 
@@ -172,7 +172,7 @@ def mock_trs(request):
 @pytest.fixture()
 def mock_wes(request):
     mock_wes = mock.Mock(name='mock WES')
-    with mock.patch('wfinterop.wes.wrapper.WES', 
+    with mock.patch('ga4ghtest.services.wes.controller.WESService',
                     autospec=True, spec_set=True):
         yield mock_wes
 
@@ -211,9 +211,10 @@ def mock_queue_log(request):
     }
     yield mock_queue_log
 
+data_path = os.path.join(os.path.dirname(__file__), 'testdata')
 
 @pytest.fixture(scope='function',
-                params=['tests/testdata/md5sum.cwl',
+                params=[os.path.join(data_path, 'md5sum.cwl'),
                         'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.cwl'],
                 ids=['local', 'http'])
 def cwl_descriptor(request):
@@ -221,7 +222,7 @@ def cwl_descriptor(request):
 
 
 @pytest.fixture(scope='function',
-                params=['tests/testdata/md5sum.wdl',
+                params=[os.path.join(data_path, 'md5sum.wdl'),
                         'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.wdl'],
                 ids=['local', 'http'])
 def wdl_descriptor(request):
@@ -230,9 +231,9 @@ def wdl_descriptor(request):
 
 @pytest.fixture()
 def cwl_wf_attachment():
-    with open('tests/testdata/md5sum.cwl', 'r') as f:
+    with open(os.path.join(data_path, 'md5sum.cwl'), 'r') as f:
         cwl_contents = f.read()
-    
+
     cwl_attach_parts = {
         'workflow_url': 'md5sum.cwl',
         'workflow_attachment': (
@@ -245,9 +246,9 @@ def cwl_wf_attachment():
 
 @pytest.fixture()
 def wdl_wf_attachment():
-    with open('tests/testdata/md5sum.wdl', 'r') as f:
+    with open(os.path.join(data_path, 'md5sum.wdl'), 'r') as f:
         wdl_contents = f.read()
-    
+
     wdl_attach_parts = {
         'workflow_url': 'md5sum.wdl',
         'workflow_attachment': (
@@ -258,7 +259,7 @@ def wdl_wf_attachment():
     yield wdl_attach_parts
 
 
-@pytest.fixture(params=['tests/testdata/md5sum.cwl.json',
+@pytest.fixture(params=[os.path.join(data_path, 'md5sum.cwl.json'),
                         'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.cwl.json'],
                 ids=['local', 'http'])
 def cwl_jsonyaml(request):
@@ -267,7 +268,7 @@ def cwl_jsonyaml(request):
 
 @pytest.fixture()
 def cwl_params():
-    with open('tests/testdata/md5sum.cwl.json', 'r') as f:
+    with open(os.path.join(data_path, 'md5sum.cwl.json'), 'r') as f:
         params = json.load(f)
     yield json.dumps(params)
 
@@ -277,8 +278,8 @@ def cwl_modified_params():
 
     def _loader(jsonyaml):
         jsonyaml_files = {
-            'tests/testdata/md5sum.cwl.json': 'tests/testdata/md5sum.cwl.json',
-            'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.cwl.json': 'tests/testdata/md5sum.cwl.fixed.json'
+            os.path.join(data_path, 'md5sum.cwl.json'): os.path.join(data_path, 'md5sum.cwl.json'),
+            'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.cwl.json': os.path.join(data_path, 'md5sum.cwl.fixed.json')
         }
         with open(jsonyaml_files[jsonyaml], 'r') as f:
             params = json.load(f)
@@ -287,17 +288,17 @@ def cwl_modified_params():
             path = 'tests/testdata/{}'.format(path)
             params['input_file']['location'] = 'file://{}'.format(os.path.abspath(path))
         return json.dumps(params)
-    
+
     return _loader
-    
+
 
 @pytest.fixture()
 def wdl_modified_params():
 
     def _loader(jsonyaml):
         jsonyaml_files = {
-            'tests/testdata/md5sum.wdl.json': 'tests/testdata/md5sum.wdl.json',
-            'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.wdl.json': 'tests/testdata/md5sum.wdl.fixed.json'
+            os.path.join(data_path, 'md5sum.wdl.json'): os.path.join(data_path, 'md5sum.wdl.json'),
+            'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.wdl.json': os.path.join(data_path, 'md5sum.wdl.fixed.json')
         }
         with open(jsonyaml_files[jsonyaml], 'r') as f:
             params = json.load(f)
@@ -306,11 +307,11 @@ def wdl_modified_params():
             path = 'tests/testdata/{}'.format(path)
             params['ga4ghMd5.inputFile'] = 'file://{}'.format(os.path.abspath(path))
         return json.dumps(params)
-    
+
     return _loader
 
 
-@pytest.fixture(params=['tests/testdata/md5sum.wdl.json',
+@pytest.fixture(params=[os.path.join(data_path, 'md5sum.wdl.json'),
                         'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/md5sum.wdl.json'],
                 ids=['local', 'http'])
 def wdl_jsonyaml(request):
@@ -319,12 +320,12 @@ def wdl_jsonyaml(request):
 
 @pytest.fixture()
 def wdl_params():
-    with open('tests/testdata/md5sum.wdl.json', 'r') as f:
+    with open(os.path.join(data_path, 'md5sum.wdl.json'), 'r') as f:
         params = json.load(f)
     yield json.dumps(params)
 
 
-@pytest.fixture(params=['tests/testdata/dockstore-tool-md5sum.cwl',
+@pytest.fixture(params=[os.path.join(data_path, 'dockstore-tool-md5sum.cwl'),
                         'https://raw.githubusercontent.com/Sage-Bionetworks/workflow-interop/develop/tests/testdata/dockstore-tool-md5sum.cwl'],
                 ids=['local', 'http'])
 def cwl_attachments(request):
@@ -333,6 +334,6 @@ def cwl_attachments(request):
 
 @pytest.fixture()
 def cwl_import_attachment():
-    with open('tests/testdata/dockstore-tool-md5sum.cwl', 'r') as f:
+    with open(os.path.join(data_path, 'dockstore-tool-md5sum.cwl'), 'r') as f:
         attach_contents = f.read()
     yield ('dockstore-tool-md5sum.cwl', attach_contents)

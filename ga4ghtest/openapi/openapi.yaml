@@ -1,0 +1,293 @@
+openapi: 3.0.1
+info:
+  description: |
+    The GA4GH Testbed Orchestrator is a system that brings together plugins that test implementations of services from the GA4GH Cloud (and eventually other) Work Stream. The orchestrator is designed to be a framework for running multiple tests within, and across services. For example, 1) the interoperability and integration tests across Workflow Execution Service (WES), Tool Registry Service (TRS), and Data Repository Service (DRS) APIs and also 2) specific compliance tests for implementations of individual APIs. By building the test infrastructure with a common Testbed Orchestrator, we can evolve how we test in the future while still leveraging a unified framework. This approach will not only make it much easier to aggregate results to a common GA4GH testing dashboard, but it will also reduce redundant code between testing efforts by factoring out orchestration to this effort.
+  title: GA4GH Testbed Orchestrator
+  version: 0.3.0
+servers:
+- url: /ga4gh/testbed/v1
+tags:
+- name: Plugins
+  description: |
+    Test Plugins are the core of the system. They are Python objects that conform to the Test Plugin interface and are used to execute a given test.  They can be extremely simple or quite complex but, ultimately, they provide a very basic interface to the Orchestrator that’s calling them.
+- name: Tests
+  description: |
+    Tests represent instantiations of test plugins submitted to be run by the testbed Orchestrator.
+- name: Apis
+  description: |
+    APIs are based on abstract definitions for GA4GH standards and services. Each API is specified using OpenAPI/Swagger schemas, from which client functionality is provided in the testbed for communicating with servers.
+- name: Servers
+  description: |
+    Servers include registered implementations of GA4GH APIs. These servers are the subjects (or targets) of tests run in the testbed.
+paths:
+  /tests:
+    post:
+      description: |-
+        Create a new plugin run, either right now or with a schedule.
+      operationId: create_test
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceTest'
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Success — test created
+      summary: Create a new test
+      tags:
+      - Tests
+      x-codegen-request-body-name: body
+      x-openapi-router-controller: ga4ghtest.controllers.tests_controller
+    get:
+      description: |
+        Get the list of running or scheduled tests.
+      operationId: get_tests
+      parameters:
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/orderParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceTest'
+          description: OK
+      summary: Get tests
+      tags:
+      - Tests
+      x-openapi-router-controller: ga4ghtest.controllers.tests_controller
+  /tests/{test_id}:
+    get:
+      description: |
+        Get the status of a given test run.
+      operationId: get_test_by_id
+      parameters:
+      - description: test ID
+        explode: false
+        in: path
+        name: test_id
+        required: true
+        schema:
+          type: string
+        example: user0
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceTest'
+          description: OK
+      summary: Get a test
+      tags:
+      - Tests
+      x-openapi-router-controller: ga4ghtest.controllers.tests_controller
+  /plugins:
+    post:
+      description: |-
+        Add a plugin for testing functionality of an API.
+      operationId: create_plugin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Plugin'
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Success — plugin created
+      summary: Create a test plugin
+      tags:
+      - Plugins
+      x-codegen-request-body-name: body
+      x-openapi-router-controller: ga4ghtest.controllers.plugins_controller
+    get:
+      description: |
+        Get the list of available test plugins.
+      operationId: get_plugins
+      parameters:
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/orderParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: OK
+      summary: Get test plugins
+      tags:
+      - Plugins
+      x-openapi-router-controller: ga4ghtest.controllers.plugins_controller
+  /apis:
+    get:
+      description: |
+        Get the list of available APIs.
+      operationId: get_apis
+      parameters:
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/orderParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: OK
+      summary: Get APIs
+      tags:
+      - Apis
+      x-openapi-router-controller: ga4ghtest.controllers.apis_controller
+  /servers:
+    post:
+      description: |-
+        Add an API server to the testbed.
+      operationId: register_server
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Server'
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Success — endpoint added
+      summary: Register a server
+      tags:
+      - Servers
+      x-codegen-request-body-name: body
+      x-openapi-router-controller: ga4ghtest.controllers.servers_controller
+    get:
+      description: |
+        Get the list of available servers.
+      operationId: get_servers
+      parameters:
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/orderParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: OK
+      summary: Get target servers
+      tags:
+      - Servers
+      x-openapi-router-controller: ga4ghtest.controllers.servers_controller
+components:
+  parameters:
+    limitParam:
+      description: maximum number of records to return
+      explode: false
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 3
+        format: int32
+        maximum: 1000
+        minimum: 1
+        type: integer
+      style: form
+    sortParam:
+      description: logic by which to sort matched records
+      explode: false
+      in: query
+      name: sortBy
+      required: false
+      schema:
+        default: created_at
+        enum:
+        - created_at
+        type: string
+      style: form
+    orderParam:
+      description: sort order (ascending or descending)
+      explode: true
+      in: query
+      name: order
+      required: false
+      schema:
+        default: desc
+        enum:
+        - asc
+        - desc
+        type: string
+      style: form
+  schemas:
+    ServerID:
+      type: string
+    Server:
+      title: Server
+      type: object
+      required:
+        - api
+        - host
+        - proto
+      properties:
+        id:
+          $ref: '#/components/schemas/ServerID'
+        api:
+          type: string
+          enum:
+            - WES
+            - TRS
+        name:
+          type: string
+        host:
+          type: string
+        proto:
+          type: string
+        auth:
+          type: string
+    PluginID:
+      type: string
+    Plugin:
+      title: Plugin
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/PluginID'
+        name:
+          type: string
+        version:
+          type: string
+        apis:
+          type: array
+          items:
+            type: string
+            enum:
+              - WES
+              - TRS
+        recipe:
+          type: string
+    ServiceTest:
+      title: Test
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServerID'
+        plugin:
+          $ref: '#/components/schemas/PluginID'
