@@ -8,6 +8,12 @@ python_dateutil >= 2.5.3
 healthcheck
 urllib3 >= 1.15.1
 subprocess32
-# wes-service
 future
 bravado
+schema-salad
+toil[wdl]
+
+# FIXME these optional dependencies should be installed
+rfc3987
+webcolors
+strict-rfc3339
