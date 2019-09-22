@@ -50,11 +50,14 @@ and open your browser to here:
 http://localhost:8080/ga4gh/testbed/v1/ui/
 ```
 
-Your OpenAPI definition lives here:
+The OpenAPI definition lives here:
 
 ```
 http://localhost:8080/ga4gh/testbed/openapi.json
 ```
+
+You can also find the latest version of the OpenAPI specification in GitHub [**here**](https://github.com/ga4gh/cloud-interop-testing/blob/develop/ga4ghtest/openapi/openapi.yaml).
+
 
 ## Running with Docker
 
