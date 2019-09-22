@@ -1,27 +1,24 @@
-#!/usr/bin/env python
-
-import sys
-import argparse
-import pkg_resources  # part of setuptools
+#!/usr/bin/env python3
+import os
 import logging
-from ga4ghtest.core.wes_orchestrator import monitor
+
+import connexion
+import click
+
+from ga4ghtest import create_app
+
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-def main(argv=sys.argv[1:]):
+def main(mock_db=None, db_size=None):
+    app = create_app()
 
-    parser = argparse.ArgumentParser(description='Synapse Workflow Orchestrator')
-    parser.add_argument("--version", action="store_true", default=False)
-    args = parser.parse_args(argv)
-
-    if args.version:
-        pkg = pkg_resources.require('synapse-orchestrator')
-        print(u"%s %s" % (sys.argv[0], pkg[0].version))
-        exit(0)
-
-    monitor()
+    env_host = os.environ.get('FLASK_HOST')
+    flask_host = env_host if env_host is not None else 'localhost'
+    app.run(host=flask_host, port=8080)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()
