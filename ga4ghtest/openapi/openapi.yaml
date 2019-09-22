@@ -9,16 +9,16 @@ servers:
 tags:
 - name: Plugins
   description: |
-    Test Plugins are the core of the system.  They are Python objects that conform to the Test Plugin interface and are used to execute a given test.  They can be extremely simple or quite complex but, ultimately, they provide a very basic interface to the Orchestrator that’s calling them.
+    Test Plugins are the core of the system. They are Python objects that conform to the Test Plugin interface and are used to execute a given test.  They can be extremely simple or quite complex but, ultimately, they provide a very basic interface to the Orchestrator that’s calling them.
 - name: Tests
   description: |
-    Tests...
+    Tests represent instantiations of test plugins submitted to be run by the testbed Orchestrator.
 - name: Apis
   description: |
-    APIs...
+    APIs are based on abstract definitions for GA4GH standards and services. Each API is specified using OpenAPI/Swagger schemas, from which client functionality is provided in the testbed for communicating with servers.
 - name: Servers
   description: |
-    Servers...
+    Servers include registered implementations of GA4GH APIs. These servers are the subjects (or targets) of tests run in the testbed.
 paths:
   /tests:
     post:
@@ -86,7 +86,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ServiceTest'
           description: OK
-      summary: Get tests
+      summary: Get a test
       tags:
       - Tests
       x-openapi-router-controller: ga4ghtest.controllers.tests_controller
