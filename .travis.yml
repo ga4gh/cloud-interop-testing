@@ -1,6 +1,11 @@
+dist: bionic
 language: python
 python:
   - '3.6'
+
+branches:
+  only:
+    - boconnor_issue_78
 
 before_install:
 - sudo apt-get update -qq
