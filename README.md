@@ -13,17 +13,8 @@ The initial use case for this app will be to act as a workflow orchestrator and 
 
 This is an OpenAPI-enabled (and documented) Flask server. This app uses the [Connexion](https://github.com/zalando/connexion) library on top of Flask.
 
-In the context of the (original) testbed, the orchestrator performs 3 primary tasks:
+The (intended) logic for the testbed is further described in the in-progress [**OpenAPI specification**](https://github.com/ga4gh/cloud-interop-testing/blob/develop/ga4ghtest/openapi/openapi.yaml).
 
-1. Look up a workflow registered in a TRS implementation, identify its corresponding "checker" workflow, and retrieve any data required to run the checker workflow;
-2. Format checker workflow data and initiate new workflow runs on one or more WES endpoints;
-3. Reports results.
-
-Additionally, the application supports the following operations:
-
-+ Register and configure new TRS endpoints;
-+ Register and configure new WES endpoints;
-+ Onboard/register a new workflow (by creating and configuring a queue with workflow details).
 
 ## Requirements
 
