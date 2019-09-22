@@ -11,7 +11,7 @@ from ga4ghtest.core.wes_orchestrator import run_job
 from ga4ghtest.core.wes_orchestrator import run_submission
 from ga4ghtest.core.wes_orchestrator import run_queue
 from ga4ghtest.core.wes_orchestrator import monitor_queue
-from ga4ghtest.core.wes_orchestrator import monitor
+# from ga4ghtest.core.wes_orchestrator import monitor
 
 
 def test_run_job(mock_queue_config,

@@ -11,7 +11,6 @@ import re
 import time
 import shutil
 
-from IPython.display import display
 from itertools import combinations_with_replacement
 from requests.exceptions import ConnectionError
 

@@ -13,8 +13,6 @@ import os
 import json
 import datetime as dt
 
-from IPython.display import display, clear_output
-
 from ga4ghtest.core.config import queue_config, wes_config
 from ga4ghtest.util import ctime2datetime, convert_timedelta
 from ga4ghtest.services.wes import WESService
@@ -207,45 +205,45 @@ def monitor_queue(queue_id):
     return queue_log
 
 
-def monitor():
-    """
-    Monitor progress of workflow jobs.
-    """
-    import pandas as pd
-    pd.set_option('display.width', 1000)
-    pd.set_option('display.max_columns', 10)
-    pd.set_option('display.expand_frame_repr', False)
+# def monitor():
+#     """
+#     Monitor progress of workflow jobs.
+#     """
+#     import pandas as pd
+#     pd.set_option('display.width', 1000)
+#     pd.set_option('display.max_columns', 10)
+#     pd.set_option('display.expand_frame_repr', False)
 
-    try:
-        while True:
-            statuses = []
+#     try:
+#         while True:
+#             statuses = []
 
-            clear_output(wait=True)
+#             clear_output(wait=True)
 
-            for queue_id in queue_config():
-                queue_status = monitor_queue(queue_id)
-                if len(queue_status):
-                    statuses.append(queue_status)
-                    print("\nWorkflow queue: {}".format(queue_id))
-                    status_tracker = pd.DataFrame.from_dict(
-                        queue_status,
-                        orient='index')
+#             for queue_id in queue_config():
+#                 queue_status = monitor_queue(queue_id)
+#                 if len(queue_status):
+#                     statuses.append(queue_status)
+#                     print("\nWorkflow queue: {}".format(queue_id))
+#                     status_tracker = pd.DataFrame.from_dict(
+#                         queue_status,
+#                         orient='index')
 
-                    display(status_tracker)
+#                     display(status_tracker)
 
-            terminal_statuses = ['FAILED',
-                                'COMPLETE',
-                                'CANCELED',
-                                'EXECUTOR_ERROR']
-            if all([sub['status'] in terminal_statuses
-                    for queue in statuses
-                    for sub in queue.values()]):
-                print("\nNo jobs running...")
-            print("\n(Press CTRL+C to quit)")
-            time.sleep(2)
-            os.system('clear')
-            sys.stdout.flush()
+#             terminal_statuses = ['FAILED',
+#                                 'COMPLETE',
+#                                 'CANCELED',
+#                                 'EXECUTOR_ERROR']
+#             if all([sub['status'] in terminal_statuses
+#                     for queue in statuses
+#                     for sub in queue.values()]):
+#                 print("\nNo jobs running...")
+#             print("\n(Press CTRL+C to quit)")
+#             time.sleep(2)
+#             os.system('clear')
+#             sys.stdout.flush()
 
-    except KeyboardInterrupt:
-        print("\nDone")
-        return
+#     except KeyboardInterrupt:
+#         print("\nDone")
+#         return
