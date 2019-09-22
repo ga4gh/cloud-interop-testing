@@ -14,7 +14,6 @@ cat << EOF > .openapi-generator-config
 }
 EOF
 
-
 # docker run --rm \
 #     -v ${PWD}:/local openapitools/openapi-generator-cli generate \
 #     -c /local/.openapi-generator-config \
@@ -37,13 +36,3 @@ npx openapi-generator generate \
     -i ${OPENAPI_PATH} \
     -g python-flask \
     -o "${PACKAGE_FOLDER}"
-
-# npx openapi-generator generate \
-#     -i ${SWAGGER_PATH} \
-#     -g python \
-#     -o "${PACKAGE_FOLDER}" \
-#     -DgenerateSourceCodeOnly=true \
-#     -DpackageName="${NAMESPACE}.${PACKAGE_NAME}.client" \
-#     -DpackageVersion="${PACKAGE_VERSION}"
-
-# mv "${PACKAGE_FOLDER}/${NAMESPACE}/${PACKAGE_NAME}/client_README.md" ${PACKAGE_FOLDER}/
