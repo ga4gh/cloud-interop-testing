@@ -18,29 +18,29 @@ class RequestPlugin(Plugin):
         super().__init__(name=name)
         for kw in kwargs:
             self.__setattr__(kw, kwargs[kw])
-        self.recipe = _build_recipe(request, response)
+
+        self.api_base_url = 'ga4gh/wes/v1'
+        self.recipe = self._build_recipe(request, response)
+
 
     def _build_recipe(self, request, response):
         req_url = '{{server}}/{api_base}/{request}'.format(
             api_base=self.api_base_url,
             request=request
         )
-        def recipe(req_url, response):
-            res = requests.get(req_url)
-            return res == response
+        def recipe(runner):
+            res = requests.get(req_url.format(server=runner))
+            return res.json() == response
         return recipe
 
-    # def find(self, db):
-    #     pass
+
+    def find(self, db):
+        pass
 
 
-    # def save(self, db):
-    #     pass
+    def save(self, db):
+        pass
 
 
-    # def load(self):
-    #     self.recipe.stage()
-
-
-    def run(self):
-        self.recipe.run()
+    def run(self, runner):
+        return self.recipe(runner)

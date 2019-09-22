@@ -10,9 +10,7 @@ logger = logging.getLogger(__name__)
 class ServiceTest(ServiceTestModel):
 
     def __init__(self,
-                 name='',
                  **kwargs):
-        super().__init__(name=name)
         for kw in kwargs:
             self.__setattr__(kw, kwargs[kw])
 
@@ -26,4 +24,4 @@ class ServiceTest(ServiceTestModel):
 
 
     def run(self):
-        self.plugin.run()
+        return self.plugin.run(runner='http://0.0.0.0:8080')
