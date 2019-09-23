@@ -1,0 +1,6 @@
+{
+  "plugin": "DRS Testing Plugin",
+  "servers": [
+    "drs://foo.bar.com/ga4gh/v1/drs/object/320e2c9d-1607-4397-8f54-1683469ec26a"
+  ]
+}

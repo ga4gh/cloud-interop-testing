@@ -67,5 +67,21 @@ docker run -p 8080:8080 ga4ghtest
 After editing the OpenAPI YAML spec, controller and model code can be regenerated with the following command (it requires `npm` to be installed):
 
 ```shell
+brew install npm # or whatever way you install npm on your system
+npm install @openapitools/openapi-generator-cli -g
 bash codegen.sh
 ```
+
+## Basic Testing Lifecycle Mocking
+
+I added some basic components to mock how this might work in the future.  The
+goal is to have an automated testing happen by Travis-CI whenever files
+change, such as spreadsheets that lists DRS endpoints to test.  On Travis:
+
+1. start the orchestrator service, in this case `simple/orchestrator.py` with `FLASK_APP=orchestrator.py python -m flask run`
+1. start the dashboard service, in this case `simple/dashboard.py` with `FLASK_APP=test.py python -m flask run`
+1. hit multiple plugins with a JSON parameter
+1. for each plugin, return a JSON result file (would be great if this was a callback to dashboard specified when submitting the test run)
+1. for each result JSON file POST it to the dashboard
+1. Dashboard persists this to a simple JSON aggregate file
+1. the JSON aggregate file can then be rendered as an HTML report
