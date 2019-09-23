@@ -45,7 +45,7 @@ class TRSService(object):
         """
         Return some metadata that is useful for describing the service.
         """
-        res = self.api_client.metadataGet()
+        res = self.api_client.toolTypesGet()
         return res.response().result
 
     def get_workflow(self, id):
