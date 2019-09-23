@@ -17,8 +17,8 @@ script:
   - python setup.py test
   # - testbed_server &
   # - flake8 --ignore=E501,E722,F401,F841,W504 ga4ghtest/
-  - simple/run_servers.sh
-  - simple/test.sh
+  - bash simple/run_servers.sh
+  - bash simple/test.sh
 
 after_success:
   - coveralls
