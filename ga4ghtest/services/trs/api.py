@@ -39,7 +39,7 @@ class TRSInterface:
     def toolsGet(self):
         raise NotImplementedError
 
-    def toolTypesGet(self):
+    def metadataGet(self):
         raise NotImplementedError
 
     def toolsIdGet(self, tool_id):
@@ -80,7 +80,7 @@ class TRSAdapter(TRSInterface):
     def toolsGet(self):
         return self.trs_client.get_tools()
 
-    def toolTypesGet(self):
+    def metadataGet(self):
         raise self.trs_client.get_tool_types()
 
     def toolsIdGet(self, tool_id):
