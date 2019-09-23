@@ -17,6 +17,7 @@ script:
   - python setup.py test
   # - testbed_server &
   # - flake8 --ignore=E501,E722,F401,F841,W504 ga4ghtest/
+  # netstat --tcp --listen
   - bash simple/run_servers.sh
   - bash simple/test.sh
 
