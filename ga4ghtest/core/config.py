@@ -156,6 +156,14 @@ def wes_config():
     """
     return get_yaml('file://' + config_path)['workflowservices']
 
+def drs_config():
+    """
+    Fetch config data for Data Repository Service.
+
+    Returns:
+        dict: dict with an entry for each service
+    """
+    return get_yaml('file://' + config_path)['datarepositoryservice']
 
 def add_toolregistry(service,
                      host,
