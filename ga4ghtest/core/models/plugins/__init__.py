@@ -11,8 +11,10 @@ class Plugin(PluginModel):
 
     def __init__(self,
                  name='',
+                 recipe_class='',
                  **kwargs):
-        super().__init__(name=name)
+        super().__init__(name=name,
+                         recipe_class=recipe_class)
         for kw in kwargs:
             self.__setattr__(kw, kwargs[kw])
 

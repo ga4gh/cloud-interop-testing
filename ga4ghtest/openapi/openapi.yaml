@@ -272,22 +272,45 @@ components:
           type: string
         version:
           type: string
-        apis:
-          type: array
-          items:
-            type: string
-            enum:
-              - WES
-              - TRS
+        api:
+          type: string
+          enum:
+            - WES
+            - TRS
+        recipeClass:
+          type: string
+          enum:
+            - requestCheck
         recipe:
+          type: object
+    RequestRecipe:
+      title: RequestRecipe
+      type: object
+      properties:
+        request:
+          type: string
+        response:
           type: string
     ServiceTest:
       title: Test
       type: object
       properties:
-        servers:
-          type: array
-          items:
-            $ref: '#/components/schemas/ServerID'
-        plugin:
+        server_id:
+          $ref: '#/components/schemas/ServerID'
+        plugin_id:
           $ref: '#/components/schemas/PluginID'
+        server:
+          $ref: '#/components/schemas/Server'
+        plugin:
+          $ref: '#/components/schemas/Plugin'
+      example:
+        server:
+          api: WES
+          host: 0.0.0.0:8082
+          proto: http
+        plugin:
+          name: WES service-info
+          recipeClass: requestCheck
+          recipe:
+            request: service-info
+            response: "{\"supported_filesystem_protocols\": [\"file\", \"http\", \"https\"], \"supported_wes_versions\": [\"0.3.0\", \"1.0.0\"], \"system_state_counts\": {}, \"tags\": {}, \"workflow_engine_versions\": {\"cwl-runner\": \"b''\"}, \"workflow_type_versions\": {\"CWL\": {\"workflow_type_version\": [\"v1.0\"]}}}"

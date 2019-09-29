@@ -1,4 +1,7 @@
-from ga4ghtest.core.models.plugin import Plugin
+
+
+from ga4ghtest.models.request_recipe import RequestRecipe
+from ga4ghtest.core.models.plugins.request_plugin import RequestPlugin
 
 
 def create_plugin(
@@ -13,7 +16,13 @@ def create_plugin(
 
     :rtype: str
     """
-    return 'Not Implemented', 501
+    if body.recipe_class == 'requestCheck':
+        request_recipe = RequestRecipe(body.recipe['request'],
+                                       body.recipe['response'])
+        plugin = RequestPlugin(name=body.name,
+                               recipe=request_recipe,
+                               recipe_class='requestCheck')
+    return plugin
 
 
 def get_plugins(

@@ -1,9 +1,11 @@
 import logging
 import requests
+import json
 
 import uuid
 
 from ga4ghtest.core.models.plugins import Plugin
+from ga4ghtest.models.request_recipe import RequestRecipe
 
 logger = logging.getLogger(__name__)
 
@@ -11,16 +13,18 @@ logger = logging.getLogger(__name__)
 class RequestPlugin(Plugin):
 
     def __init__(self,
+                 recipe,
                  name='',
-                 request='',
-                 response='',
                  **kwargs):
         super().__init__(name=name)
         for kw in kwargs:
             self.__setattr__(kw, kwargs[kw])
 
         self.api_base_url = 'ga4gh/wes/v1'
-        self.recipe = self._build_recipe(request, response)
+        self.recipe = self._build_recipe(
+            recipe.request,
+            recipe.response
+        )
 
 
     def _build_recipe(self, request, response):
@@ -30,7 +34,7 @@ class RequestPlugin(Plugin):
         )
         def recipe(runner):
             res = requests.get(req_url.format(server=runner))
-            return res.json() == response
+            return json.dumps(res.json()) == response
         return recipe
 
 

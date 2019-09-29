@@ -10,9 +10,13 @@ logger = logging.getLogger(__name__)
 class ServiceTest(ServiceTestModel):
 
     def __init__(self,
+                 server,
+                 plugin,
                  **kwargs):
+        super().__init__(server=server, plugin=plugin)
         for kw in kwargs:
             self.__setattr__(kw, kwargs[kw])
+        self.runner = f"{server.proto}://{server.host}"
 
 
     def find(self, db):
@@ -24,4 +28,4 @@ class ServiceTest(ServiceTestModel):
 
 
     def run(self):
-        return self.plugin.run(runner='http://0.0.0.0:8080')
+        return self.plugin.run(runner=self.runner)

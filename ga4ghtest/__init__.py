@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def create_app():
     app = connex_app
-    app.add_api('openapi.yaml', arguments={'title': 'Provenance Service'})
+    app.add_api('openapi.yaml', arguments={'title': 'GA4GH Testbed'})
     # wrap the flask app and give a heathcheck url
     health = HealthCheck(app, "/healthcheck")
 

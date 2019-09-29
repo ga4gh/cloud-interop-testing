@@ -1,4 +1,6 @@
+from ga4ghtest.models.plugin import Plugin
 from ga4ghtest.core.models.service_test import ServiceTest
+from ga4ghtest.core.controllers import plugins_controller as plugins
 
 
 def create_test(
@@ -13,7 +15,18 @@ def create_test(
 
     :rtype: str
     """
-    return 'Not Implemented', 501
+    if type(body.plugin) is Plugin:
+        plugin = plugins.create_plugin(
+            body.plugin
+        )
+    test = ServiceTest(
+        server=body.server,
+        plugin=plugin
+    )
+    test_status = test.run()
+    return {'test_id': 'test_1',
+            'plugin_id': 'plugin_1',
+            'teset_status': 'SUCCESS' if test_status else 'FAIL'}
 
 
 def get_test_by_id(
