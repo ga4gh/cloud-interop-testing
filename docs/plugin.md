@@ -105,6 +105,13 @@ The full request body for the `POST /tests` to create and run the test looks lik
 }
 ```
 
+> For this particular test to work, you'll need a local instance of a WES service running. You can do this by installing the `wes-service` package and running the built-in `wes-server`:
+
+```
+pip install wes-service
+wes-server --port 8082
+```
+
 The response (if the test runs successfully) should look like this:
 
 ```json
