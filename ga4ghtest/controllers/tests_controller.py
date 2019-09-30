@@ -28,7 +28,7 @@ def create_test(
 def get_test_by_id(
     test_id
 ):  # noqa: E501
-    """Get tests
+    """Get a test
 
     Get the status of a given test run.  # noqa: E501
 

@@ -15,7 +15,7 @@ class Plugin(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, id=None, name=None, version=None, apis=None, recipe=None):  # noqa: E501
+    def __init__(self, id=None, name=None, version=None, api=None, recipe_class=None, recipe=None):  # noqa: E501
         """Plugin - a model defined in OpenAPI
 
         :param id: The id of this Plugin.  # noqa: E501
@@ -24,31 +24,36 @@ class Plugin(Model):
         :type name: str
         :param version: The version of this Plugin.  # noqa: E501
         :type version: str
-        :param apis: The apis of this Plugin.  # noqa: E501
-        :type apis: List[str]
+        :param api: The api of this Plugin.  # noqa: E501
+        :type api: str
+        :param recipe_class: The recipe_class of this Plugin.  # noqa: E501
+        :type recipe_class: str
         :param recipe: The recipe of this Plugin.  # noqa: E501
-        :type recipe: str
+        :type recipe: object
         """
         self.openapi_types = {
             'id': str,
             'name': str,
             'version': str,
-            'apis': List[str],
-            'recipe': str
+            'api': str,
+            'recipe_class': str,
+            'recipe': object
         }
 
         self.attribute_map = {
             'id': 'id',
             'name': 'name',
             'version': 'version',
-            'apis': 'apis',
+            'api': 'api',
+            'recipe_class': 'recipeClass',
             'recipe': 'recipe'
         }
 
         self._id = id
         self._name = name
         self._version = version
-        self._apis = apis
+        self._api = api
+        self._recipe_class = recipe_class
         self._recipe = recipe
 
     @classmethod
@@ -126,32 +131,58 @@ class Plugin(Model):
         self._version = version
 
     @property
-    def apis(self):
-        """Gets the apis of this Plugin.
+    def api(self):
+        """Gets the api of this Plugin.
 
 
-        :return: The apis of this Plugin.
-        :rtype: List[str]
+        :return: The api of this Plugin.
+        :rtype: str
         """
-        return self._apis
+        return self._api
 
-    @apis.setter
-    def apis(self, apis):
-        """Sets the apis of this Plugin.
+    @api.setter
+    def api(self, api):
+        """Sets the api of this Plugin.
 
 
-        :param apis: The apis of this Plugin.
-        :type apis: List[str]
+        :param api: The api of this Plugin.
+        :type api: str
         """
         allowed_values = ["WES", "TRS"]  # noqa: E501
-        if not set(apis).issubset(set(allowed_values)):
+        if api not in allowed_values:
             raise ValueError(
-                "Invalid values for `apis` [{0}], must be a subset of [{1}]"  # noqa: E501
-                .format(", ".join(map(str, set(apis) - set(allowed_values))),  # noqa: E501
-                        ", ".join(map(str, allowed_values)))
+                "Invalid value for `api` ({0}), must be one of {1}"
+                .format(api, allowed_values)
             )
 
-        self._apis = apis
+        self._api = api
+
+    @property
+    def recipe_class(self):
+        """Gets the recipe_class of this Plugin.
+
+
+        :return: The recipe_class of this Plugin.
+        :rtype: str
+        """
+        return self._recipe_class
+
+    @recipe_class.setter
+    def recipe_class(self, recipe_class):
+        """Sets the recipe_class of this Plugin.
+
+
+        :param recipe_class: The recipe_class of this Plugin.
+        :type recipe_class: str
+        """
+        allowed_values = ["requestCheck"]  # noqa: E501
+        if recipe_class not in allowed_values:
+            raise ValueError(
+                "Invalid value for `recipe_class` ({0}), must be one of {1}"
+                .format(recipe_class, allowed_values)
+            )
+
+        self._recipe_class = recipe_class
 
     @property
     def recipe(self):
@@ -159,7 +190,7 @@ class Plugin(Model):
 
 
         :return: The recipe of this Plugin.
-        :rtype: str
+        :rtype: object
         """
         return self._recipe
 
@@ -169,7 +200,7 @@ class Plugin(Model):
 
 
         :param recipe: The recipe of this Plugin.
-        :type recipe: str
+        :type recipe: object
         """
 
         self._recipe = recipe

@@ -1,4 +1,10 @@
-from ga4ghtest.core.models.plugin import Plugin
+import logging
+
+from ga4ghtest.models.request_recipe import RequestRecipe
+from ga4ghtest.core.models.plugins.request_plugin import RequestPlugin
+
+
+logger = logging.getLogger(__name__)
 
 
 def create_plugin(
@@ -13,7 +19,12 @@ def create_plugin(
 
     :rtype: str
     """
-    return 'Not Implemented', 501
+    if body.recipe_class == 'requestCheck':
+        logging.info(f"Initializing plugin of type '{body.recipe_class}'")
+        body.recipe = RequestRecipe(body.recipe['request'],
+                                    body.recipe['response'])
+        plugin = RequestPlugin(**body.to_dict())
+    return plugin
 
 
 def get_plugins(

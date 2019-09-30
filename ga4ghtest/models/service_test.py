@@ -6,6 +6,8 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from ga4ghtest.models.base_model_ import Model
+from ga4ghtest.models.plugin import Plugin
+from ga4ghtest.models.server import Server
 from ga4ghtest.openapi import util
 
 
@@ -15,25 +17,35 @@ class ServiceTest(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, servers=None, plugin=None):  # noqa: E501
+    def __init__(self, server_id=None, plugin_id=None, server=None, plugin=None):  # noqa: E501
         """ServiceTest - a model defined in OpenAPI
 
-        :param servers: The servers of this ServiceTest.  # noqa: E501
-        :type servers: List[str]
+        :param server_id: The server_id of this ServiceTest.  # noqa: E501
+        :type server_id: str
+        :param plugin_id: The plugin_id of this ServiceTest.  # noqa: E501
+        :type plugin_id: str
+        :param server: The server of this ServiceTest.  # noqa: E501
+        :type server: Server
         :param plugin: The plugin of this ServiceTest.  # noqa: E501
-        :type plugin: str
+        :type plugin: Plugin
         """
         self.openapi_types = {
-            'servers': List[str],
-            'plugin': str
+            'server_id': str,
+            'plugin_id': str,
+            'server': Server,
+            'plugin': Plugin
         }
 
         self.attribute_map = {
-            'servers': 'servers',
+            'server_id': 'server_id',
+            'plugin_id': 'plugin_id',
+            'server': 'server',
             'plugin': 'plugin'
         }
 
-        self._servers = servers
+        self._server_id = server_id
+        self._plugin_id = plugin_id
+        self._server = server
         self._plugin = plugin
 
     @classmethod
@@ -48,25 +60,67 @@ class ServiceTest(Model):
         return util.deserialize_model(dikt, cls)
 
     @property
-    def servers(self):
-        """Gets the servers of this ServiceTest.
+    def server_id(self):
+        """Gets the server_id of this ServiceTest.
 
 
-        :return: The servers of this ServiceTest.
-        :rtype: List[str]
+        :return: The server_id of this ServiceTest.
+        :rtype: str
         """
-        return self._servers
+        return self._server_id
 
-    @servers.setter
-    def servers(self, servers):
-        """Sets the servers of this ServiceTest.
+    @server_id.setter
+    def server_id(self, server_id):
+        """Sets the server_id of this ServiceTest.
 
 
-        :param servers: The servers of this ServiceTest.
-        :type servers: List[str]
+        :param server_id: The server_id of this ServiceTest.
+        :type server_id: str
         """
 
-        self._servers = servers
+        self._server_id = server_id
+
+    @property
+    def plugin_id(self):
+        """Gets the plugin_id of this ServiceTest.
+
+
+        :return: The plugin_id of this ServiceTest.
+        :rtype: str
+        """
+        return self._plugin_id
+
+    @plugin_id.setter
+    def plugin_id(self, plugin_id):
+        """Sets the plugin_id of this ServiceTest.
+
+
+        :param plugin_id: The plugin_id of this ServiceTest.
+        :type plugin_id: str
+        """
+
+        self._plugin_id = plugin_id
+
+    @property
+    def server(self):
+        """Gets the server of this ServiceTest.
+
+
+        :return: The server of this ServiceTest.
+        :rtype: Server
+        """
+        return self._server
+
+    @server.setter
+    def server(self, server):
+        """Sets the server of this ServiceTest.
+
+
+        :param server: The server of this ServiceTest.
+        :type server: Server
+        """
+
+        self._server = server
 
     @property
     def plugin(self):
@@ -74,7 +128,7 @@ class ServiceTest(Model):
 
 
         :return: The plugin of this ServiceTest.
-        :rtype: str
+        :rtype: Plugin
         """
         return self._plugin
 
@@ -84,7 +138,7 @@ class ServiceTest(Model):
 
 
         :param plugin: The plugin of this ServiceTest.
-        :type plugin: str
+        :type plugin: Plugin
         """
 
         self._plugin = plugin
