@@ -26,7 +26,7 @@ def create_test(
     test_status = test.run()
     return {'test_id': 'test_1',
             'plugin_id': 'plugin_1',
-            'teset_status': 'SUCCESS' if test_status else 'FAIL'}
+            'test_status': 'SUCCESS' if test_status else 'FAIL'}
 
 
 def get_test_by_id(
