@@ -70,9 +70,11 @@ After editing the OpenAPI YAML spec, controller and model code can be regenerate
 bash codegen.sh
 ```
 
+See instructions for creating new test plugins [**here**](docs/plugin.md).
+
 ## Notes
 
-When comparing the OpenApi spec for the different services TRS, WES, TES and DRS the following inconsistencies were observed. They should be addressed to make the APIs specs uniform and ensure that implementers don't misinterpret the spec.
+When comparing the OpenAPI spec for the different services TRS, WES, TES and DRS the following inconsistencies were observed. They should be addressed to make the APIs specs uniform and ensure that implementers don't misinterpret the spec.
 
 ### Base Path
 
@@ -92,7 +94,7 @@ The following URLs have the same resource-name, but are served from different pa
 
 || WES | TRS | TES | DRS |
 | -- | -- | -- | -- | -- |
-|BasePath| `/ga4gh/wes/v1` | `/api/ga4gh/v1` | ``/v1/tasks` | `/ga4gh/drs/v1` |
+|BasePath| `/ga4gh/wes/v1` | `/api/ga4gh/v1` | `/v1/tasks` | `/ga4gh/drs/v1` |
 | path | `/service-info` | `/metadata` | `/service-info` | `/service-info` |
 
 
