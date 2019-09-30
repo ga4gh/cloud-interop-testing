@@ -123,3 +123,8 @@ The response (if the test runs successfully) should look like this:
 ```
 
 The creation of a new plugin and test should trigger the registration of those objects and events in a database, with unique IDs assigned accordingly. The current response uses placeholder values for `plugin_id` and `test_id` until we add backend infrastructure and settle on a response format.
+
+Here is a screenshot of the test creation in the Swagger UI:
+![example request plugin](request_plugin.png)
+
+_More types of plugins coming soon!_
