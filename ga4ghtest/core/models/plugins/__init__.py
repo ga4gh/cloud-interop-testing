@@ -9,14 +9,10 @@ logger = logging.getLogger(__name__)
 
 class Plugin(PluginModel):
 
-    def __init__(self,
-                 name='',
-                 recipe_class='',
-                 **kwargs):
-        super().__init__(name=name,
-                         recipe_class=recipe_class)
-        for kw in kwargs:
-            self.__setattr__(kw, kwargs[kw])
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # for kw in kwargs:
+        #     self.__setattr__(kw, kwargs[kw])
 
 
     def find(self, db):

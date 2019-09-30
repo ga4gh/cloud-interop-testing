@@ -12,18 +12,19 @@ logger = logging.getLogger(__name__)
 
 class RequestPlugin(Plugin):
 
-    def __init__(self,
-                 recipe,
-                 name='',
-                 **kwargs):
-        super().__init__(name=name)
-        for kw in kwargs:
-            self.__setattr__(kw, kwargs[kw])
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        recipe = kwargs.pop('recipe')
 
-        self.api_base_url = 'ga4gh/wes/v1'
+        api_base_opts = {
+            'WES': 'ga4gh/wes/v1',
+            'DRS': 'ga4gh/drs/v1',
+            'TRS': 'ga4gh/trs/v2'
+        }
+        self.api_base_url = api_base_opts[self.api]
         self.recipe = self._build_recipe(
-            recipe.request,
-            recipe.response
+            recipe['request'],
+            recipe['response']
         )
 
 
@@ -33,7 +34,10 @@ class RequestPlugin(Plugin):
             request=request
         )
         def recipe(runner):
-            res = requests.get(req_url.format(server=runner))
+            route = req_url.format(server=runner)
+            logger.info(f"Sending request: 'GET {route}'")
+            res = requests.get(route)
+            logger.info(f"Request status: {res.status_code}")
             return json.dumps(res.json()) == response
         return recipe
 

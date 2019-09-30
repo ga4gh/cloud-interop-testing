@@ -310,6 +310,8 @@ components:
           proto: http
         plugin:
           name: WES service-info
+          api: WES
+          version: "0.0.1"
           recipeClass: requestCheck
           recipe:
             request: service-info

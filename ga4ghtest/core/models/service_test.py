@@ -28,4 +28,5 @@ class ServiceTest(ServiceTestModel):
 
 
     def run(self):
+        logger.info(f"Running test plugin on '{self.runner}'")
         return self.plugin.run(runner=self.runner)
