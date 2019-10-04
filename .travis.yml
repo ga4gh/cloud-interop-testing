@@ -18,8 +18,8 @@ script:
   # - testbed_server &
   # - flake8 --ignore=E501,E722,F401,F841,W504 ga4ghtest/
   # netstat --tcp --listen
-  - bash simple/run_dashboard.sh&
-  - bash simple/run_orchestrator.sh&
+  - bash simple/run_dashboard.sh
+  - bash simple/run_orchestrator.sh
   - bash simple/test.sh
 
 after_success:
