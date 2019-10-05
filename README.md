@@ -1,6 +1,6 @@
 # GA4GH Cloud Interoperability Testing
 
-[![Travis-CI Build Status](https://travis-ci.org/ga4gh/cloud-interop-testing.svg?branch=develop)](https://travis-ci.org/ga4gh/cloud-interop-testing.svg?branch=develop)
+[![Travis-CI Build Status](https://travis-ci.org/ga4gh/cloud-interop-testing.svg?branch=develop)](https://travis-ci.org/ga4gh/cloud-interop-testing)
 [![Coverage Status](https://coveralls.io/repos/github/ga4gh/cloud-interop-testing/badge.svg?branch=develop)](https://coveralls.io/ga4gh/cloud-interop-testing?branch=develop)
 
 The GA4GH Testbed Orchestrator is a system that brings together plugins that test implementations of services from the GA4GH Cloud (and eventually other) Work Stream. The orchestrator is designed to be a framework for running multiple tests within, and across services. For example, (1) the interoperability and integration tests across Workflow Execution Service (WES), Tool Registry Service (TRS), and Data Repository Service (DRS) APIs and also (2) specific compliance tests for implementations of individual APIs. By building the test infrastructure with a common Testbed Orchestrator, we can evolve how we test in the future while still leveraging a unified framework. This approach will not only make it much easier to aggregate results to a common GA4GH testing dashboard, but it will also reduce redundant code between testing efforts by factoring out orchestration to this effort.
