@@ -62,6 +62,12 @@ docker build -t ga4ghtest .
 docker run -p 8080:8080 ga4ghtest
 ```
 
+## Testing with Travis CI
+
+We've setup automatic testing with [Travis CI](https://travis-ci.org/ga4gh/cloud-interop-testing).  
+You can see this site to get details on our build and testing output and the icon above shows the
+status of the develop branch.
+
 ## Development
 
 After editing the OpenAPI YAML spec, controller and model code can be regenerated with the following command (it requires `npm` to be installed):
@@ -72,7 +78,6 @@ npm install @openapitools/openapi-generator-cli -g
 bash codegen.sh
 ```
 See instructions for creating new test plugins [**here**](docs/plugin.md).
-
 
 ## Basic Testing Lifecycle Mocking
 
@@ -88,7 +93,7 @@ change, such as spreadsheets that lists DRS endpoints to test.  On Travis:
 1. Dashboard persists this to a simple JSON aggregate file
 1. the JSON aggregate file can then be rendered as an HTML report
 
-## Notes
+## Feedback on Cloud Work Stream APIs
 
 When comparing the OpenAPI spec for the different services TRS, WES, TES and DRS the following inconsistencies were observed. They should be addressed to make the APIs specs uniform and ensure that implementers don't misinterpret the spec.
 
