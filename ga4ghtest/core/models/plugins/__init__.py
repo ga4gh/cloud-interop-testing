@@ -9,12 +9,10 @@ logger = logging.getLogger(__name__)
 
 class Plugin(PluginModel):
 
-    def __init__(self,
-                 name='',
-                 **kwargs):
-        super().__init__(name=name)
-        for kw in kwargs:
-            self.__setattr__(kw, kwargs[kw])
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # for kw in kwargs:
+        #     self.__setattr__(kw, kwargs[kw])
 
 
     def find(self, db):

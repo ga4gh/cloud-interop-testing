@@ -71,6 +71,8 @@ brew install npm # or whatever way you install npm on your system
 npm install @openapitools/openapi-generator-cli -g
 bash codegen.sh
 ```
+See instructions for creating new test plugins [**here**](docs/plugin.md).
+
 
 ## Basic Testing Lifecycle Mocking
 
@@ -85,3 +87,47 @@ change, such as spreadsheets that lists DRS endpoints to test.  On Travis:
 1. for each result JSON file POST it to the dashboard
 1. Dashboard persists this to a simple JSON aggregate file
 1. the JSON aggregate file can then be rendered as an HTML report
+
+## Notes
+
+When comparing the OpenAPI spec for the different services TRS, WES, TES and DRS the following inconsistencies were observed. They should be addressed to make the APIs specs uniform and ensure that implementers don't misinterpret the spec.
+
+### Base Path
+
+The _basePath_ is configured in the _openAPi spec_. This is the path used in the URL of the endpoint.
+
+|| WES |TRS | TES | DRS |
+| --- | ------------- | ------------- | ------ | --- |
+|BasePath| `/ga4gh/wes/v1` | `/api/ga4gh/v1` | (None) | `/ga4gh/drs/v1` |
+|Implied BasePath<br>(based on common prefix)| `/ga4gh/wes/v1` | `/api/ga4gh/v1` |   `/v1` | `/ga4gh/drs/v1` |
+
+As you can see in the above table, they are different based on the service.
+
+### URL Conflict
+
+The following URLs have the same resource-name, but are served from different path based on the service name. TRS uses `/metadata`, which is meant to provide similar information as `/service-info`
+
+
+|| WES | TRS | TES | DRS |
+| -- | -- | -- | -- | -- |
+|BasePath| `/ga4gh/wes/v1` | `/api/ga4gh/v1` | `/v1/tasks` | `/ga4gh/drs/v1` |
+| path | `/service-info` | `/metadata` | `/service-info` | `/service-info` |
+
+
+These URLs should be standardized across the services and potentially merged and made hostname specific instead of service specific.
+
+### Content-Type header misuse
+
+Some services for example _DRS_, _TRS_ and _WES_ require the _content-type_ header by default. Because of this any _GET_ request also requires the _content-type_ header even though there is no payload/body.
+
+When using swagger-ui to send the _GET_ request, it omits the content-type header. And this can result in _HTTP 415 Unsupported Media Type_ errors. The swagger generated server must be modified manually to make the _content-type_ header optional. It’s not typical to require the _content-type_ in these cases and should be removed from the openApi spec.
+
+### Tags
+
+The tags specified in the openApi spec are inconsistent.
+
+|| WES | TRS | TES | DRS |
+| -- | -- | -- | -- | -- |
+|tags|WorkflowExecutionService|GA4GH|TaskService|DataRepositoryService|
+
+This is a minor and mostly cosmetic change. But will make the Swagger UI more usable out of the box.

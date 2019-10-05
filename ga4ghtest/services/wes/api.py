@@ -44,22 +44,22 @@ def _init_http_client(service_id=None, opts=None):
 
 class WESInterface:
     def GetServiceInfo(self):
-        pass
+        raise NotImplementedError
 
     def ListRuns(self):
-        pass
+        raise NotImplementedError
 
     def RunWorkflow(self):
-        pass
+        raise NotImplementedError
 
     def CancelRun(self):
-        pass
+        raise NotImplementedError
 
     def GetRunStatus(self):
-        pass
+        raise NotImplementedError
 
     def GetRunLog(self):
-        pass
+        raise NotImplementedError
 
 
 class WESAdapter(WESInterface):

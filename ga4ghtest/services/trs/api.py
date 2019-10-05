@@ -4,13 +4,11 @@ Load API client for a Tool Registry Service (TRS) endpoint based
 either on the GA4GH specification or an existing client library.
 """
 import logging
-import os
 
 from bravado.requests_client import RequestsClient
-from bravado.swagger_model import Loader
-from bravado.client import SwaggerClient
 
 from ga4ghtest.core.config import trs_config
+from .client import TRSClient
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +24,6 @@ def _init_http_client(service_id=None, opts=None):
     """
     Initialize and configure HTTP requests client for selected service.
     """
-    auth_header = {'token': 'Authorization',
-                   'api_key': 'X-API-KEY',
-                   None: ''}
     if service_id:
         opts = _get_trs_opts(service_id)
 
@@ -41,47 +36,79 @@ def _init_http_client(service_id=None, opts=None):
 
 
 class TRSInterface:
+    def toolsGet(self):
+        raise NotImplementedError
+
     def metadataGet(self):
-        pass
+        raise NotImplementedError
 
-    def toolsIdGet(self):
-        pass
+    def toolsIdGet(self, tool_id):
+        raise NotImplementedError
 
-    def toolsIdVersionsGet(self):
-        pass
+    def toolsIdVersionGet(self, tool_id, tool_version):
+        raise NotImplementedError
 
-    def toolsIdVersionsVersionIdTypeDescriptorGet(self):
-        pass
+    def toolsIdVersionsGet(self, tool_id):
+        raise NotImplementedError
 
-    def toolsIdVersionsVersionIdTypeDescriptorRelativePathGet(self):
-        pass
+    def toolsIdVersionsVersionIdTypeDescriptorGet(self, tool_id, tool_version, descriptor_type):
+        raise NotImplementedError
 
-    def toolsIdVersionsVersionIdTypeTestsGet(self):
-        pass
+    def toolsIdVersionsVersionIdTypeDescriptorRelativePathGet(self, tool_id, tool_version, descriptor_type, rel_path):
+        raise NotImplementedError
 
-    def toolsIdVersionsVersionIdTypeFilesGet(self):
-        pass
+    def toolsIdVersionsVersionIdTypeTestsGet(self, tool_id, tool_version, descriptor_type, rel_path):
+        raise NotImplementedError
+
+    def toolsIdVersionsVersionIdTypeFilesGet(self, tool_id, tool_version, descriptor_type):
+        raise NotImplementedError
+
+    def toolsIdVersionsContainerGet(self, tool_id, tool_version):
+        raise NotImplementedError
+
+
+class TRSAdapter(TRSInterface):
+    """
+    Adapter class for TRS client functionality.
+
+    Args:
+        trs_client: ...
+    """
+    def __init__(self, trs_client):
+        self.trs_client = trs_client
+
+    def toolsGet(self):
+        return self.trs_client.get_tools()
+
+    def metadataGet(self):
+        raise self.trs_client.get_tool_types()
+
+    def toolsIdGet(self, tool_id):
+        return self.trs_client.get_tool(tool_id)
+
+    def toolsIdVersionGet(self, tool_id, tool_version):
+        return self.trs_client.get_tool_version(tool_id, tool_version)
+
+    def toolsIdVersionsGet(self, tool_id):
+        return self.trs_client.get_tool_versions(tool_id)
+
+    def toolsIdVersionsVersionIdTypeDescriptorGet(self, tool_id, tool_version, descriptor_type):
+        return self.trs_client.get_tool_descriptor(tool_id, tool_version, descriptor_type)
+
+    def toolsIdVersionsVersionIdTypeDescriptorRelativePathGet(self, tool_id, tool_version, descriptor_type, rel_path):
+        return self.trs_client.get_relative_tool_descriptor(tool_id, tool_version, descriptor_type, rel_path)
+
+    def toolsIdVersionsVersionIdTypeTestsGet(self, tool_id, tool_version, descriptor_type, rel_path):
+        return self.trs_client.get_tool_tests(tool_id, tool_version, descriptor_type, rel_path)
+
+    def toolsIdVersionsVersionIdTypeFilesGet(self, tool_id, tool_version, descriptor_type):
+        return self.trs_client.get_tools_with_relative_path(tool_id, tool_version, descriptor_type)
+
+    def toolsIdVersionsContainerGet(self, tool_id, tool_version):
+        return self.trs_client.get_tool_container_specs(tool_id, tool_version)
 
 
 def load_trs_client(service_id, http_client=None):
-    """
-    Return an API client for the selected workflow execution service.
-    """
-    if http_client is None:
-        http_client = _init_http_client(service_id=service_id)
-
-    spec_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                             'ga4gh-tool-discovery.yaml')
-    spec_path = os.path.abspath(spec_path)
-
-    opts = _get_trs_opts(service_id)
-    api_url = '{}://{}'.format(opts['proto'], opts['host'])
-
-    loader = Loader(http_client, request_headers=None)
-    spec_dict = loader.load_spec('file:///{}'.format(spec_path),
-                                 base_url=api_url)
-    spec_client = SwaggerClient.from_spec(spec_dict,
-                                          origin_url=api_url,
-                                          http_client=http_client,
-                                          config={'use_models': False})
-    return spec_client.GA4GH
+    """Return an API client for the selected workflow execution service."""
+    trs_client = TRSClient(service=_get_trs_opts(service_id))
+    return TRSAdapter(trs_client)
